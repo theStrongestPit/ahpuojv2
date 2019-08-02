@@ -1,0 +1,524 @@
+<template lang="pug">
+.topbar__wrapper
+  .topbar
+    .topbar__title
+      router-link(:to="{name:'index'}") AHPUOJV2
+    .topbar__nav
+      ul(class="topbar__nav__bar clearfix")
+        li(class="topbar__nav__item topbar__section")
+          router-link(:to="{name:'problemSet'}")
+            svg-icon(name="problem") 
+            span 问题集
+        li(class="topbar__nav__item topbar__section")
+          router-link(:to="{name:'issueList'}")
+            svg-icon(name="chat") 
+            span 讨论区
+        li(class="topbar__nav__item topbar__section")
+          router-link(:to="{name:'status'}",@click.native="resetSolutionFilter")
+            svg-icon(name="server") 
+            span 评测机
+        li(class="topbar__nav__item topbar__section")
+          router-link(:to="{name:'contestList'}")
+            svg-icon(name="champion") 
+            span 竞赛&作业
+        li(class="topbar__nav__item topbar__section")
+          router-link(:to="{name:'ranklist'}")
+            svg-icon(name="ranking") 
+            span 排名
+      .topbar__right__section
+        .topbar__userinfo__wrapper(v-if="$store.getters.token",@mouseleave="showDropDownMenu=false")
+          .username-wrapper.ell.tar
+            span.username  {{$store.getters.userNick}}
+          img(:src="imgUrl($store.getters.userAvatar)",@mouseover="showDropDownMenu = true")
+          el-collapse-transition
+            ul(class="topbar__userinfo__dropdown",v-if="showDropDownMenu")
+              li 
+                router-link(:to="{name:'userinfo',params:{id:$store.getters.userId}}") 个人空间
+              li 
+                router-link(:to="{name:'account'}") 账号设置
+              li(v-if="$store.getters.userRole=='admin'") 
+                a(href="/admin") 后台管理
+              li(@click="handleLogout") 
+                a 登出
+
+        .topbar__login__wrapper(v-else, @click="handleLogin",class="topbar__section")
+            a  
+              svg-icon(name="login") 
+              span 登录
+    .topbar__mobile_nav
+      .mobile-humber(@click="toggleMobileNav")
+        a(href="#", :class="{active:showMobileNav}")
+          span(class="line")
+          span(class="line")
+          span(class="line")
+
+  transition(name="slide-fade")
+    el-menu(:default-active="defaultActive",class="topbar__mobile__nav__menu",background-color="#545c64",
+    text-color="#fff",active-text-color="#ffd04b",:router="true", v-if="showMobileNav && screenWidth <= 960")
+      template(v-for="item in showItems")
+        template(v-if="item.meta.issub === false")
+          el-menu-item(:index="item.children[0].name", :route="{name:item.children[0].name}", class="submenu-title-noDropdown", :key="item.children[0].name")
+            svg-icon(:name="item.children[0].meta.icon")
+            span {{item.children[0].meta.title}}
+        template(v-else)
+          el-submenu(:index="item.meta.title", :key="item.meta.title")
+            template(slot="title")
+              svg-icon(:name="item.meta.icon")
+              span {{item.meta.title}}
+            template(v-for="children in item.children")
+              el-menu-item(:index="children.name", :route="{name:children.name}", :key="children.name") {{children.meta.title}}
+  el-dialog(:visible.sync="dialogFormVisible",width="400px",:close-on-click-modal="false")
+    .auth__dialog 
+      .title 
+        span(:class="[method=='login'?'active':'']",@click="method='login'") &nbsp登 录&nbsp
+        span(:class="[method=='register'?'active':'']", @click="method='register'") &nbsp注 册&nbsp
+      el-form(v-if="method=='login'", ref="loginForm", :model="loginForm", :rules="loginRules", key="login")
+        el-form-item(prop="username")
+          el-input(v-model="loginForm.username", placeholder="请输入用户名")
+             svg-icon(slot="prefix", name="user", class="auth__input__prefix")
+        el-form-item(prop="password")
+          el-input(v-model="loginForm.password",type="password", placeholder="请输入密码")
+              svg-icon(slot="prefix", name="password", class="auth__input__prefix")
+        el-form-item
+          el-button(type="primary",style="width:100%;", @click="submitLogin") 登录
+        router-link(:to="{name:'findpass'}",target="_blank") 忘记密码？点击找回
+      el-form(v-if="method=='register'", ref="registerForm", :model="registerForm", :rules="registerRules", key="register")
+        el-form-item(prop="email")
+          el-input(v-model="registerForm.email", placeholder="请输入邮箱")
+            svg-icon(slot="prefix", name="email", class="auth__input__prefix")
+        el-form-item(prop="username")
+          el-input(v-model="registerForm.username", placeholder="请输入用户名")
+            svg-icon(slot="prefix", name="user", class="auth__input__prefix")
+        el-form-item(prop="nick")
+          el-input(v-model="registerForm.nick", placeholder="请输入昵称")
+            svg-icon(slot="prefix", name="user", class="auth__input__prefix")
+        el-form-item(prop="password")
+          el-input(v-model="registerForm.password",type="password", placeholder="请输入密码")
+            svg-icon(slot="prefix", name="password", class="auth__input__prefix")
+        el-form-item(prop="confirmpassword")
+          el-input(v-model="registerForm.confirmpassword",type="password", placeholder="请确认密码")
+            svg-icon(slot="prefix", name="password", class="auth__input__prefix")
+        el-form-item
+          el-button(type="primary",style="width:100%;",@click="submitRegister") 注册
+</template>
+
+<script>
+import { login, register } from "@/web-user/js/api/auth.js";
+import { EventBus } from "@/web-common/eventbus";
+export default {
+  name: "topbar",
+  data() {
+    var validatePassword = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入密码"));
+      } else {
+        if (this.registerForm.confirmpassword !== "") {
+          this.$refs.registerForm.validateField("confirmpassword");
+        }
+        callback();
+      }
+    };
+    var validateConfirmPassword = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请再次输入密码"));
+      } else if (value !== this.registerForm.password) {
+        callback(new Error("两次输入密码不一致!"));
+      } else {
+        callback();
+      }
+    };
+    return {
+      showDropDownMenu: false,
+      dialogFormVisible: false,
+      method: "login",
+      loginForm: {
+        username: "admin",
+        password: "123456"
+      },
+      registerForm: {
+        email: "",
+        username: "",
+        nick: "",
+        password: "",
+        confirmpassword: ""
+      },
+      loginRules: {
+        username: [
+          {
+            required: true,
+            message: "请输入用户名",
+            trigger: "blur"
+          }
+        ],
+        password: [
+          {
+            required: true,
+            message: "请输入密码",
+            trigger: "blur"
+          }
+        ]
+      },
+      registerRules: {
+        email: [
+          {
+            required: true,
+            message: "请输入邮箱地址",
+            trigger: "blur"
+          },
+          {
+            type: "email",
+            message: "请输入正确的邮箱地址",
+            trigger: "blur"
+          }
+        ],
+        username: [
+          {
+            required: true,
+            message: "请输入用户名",
+            trigger: "blur"
+          },
+          {
+            max: 20,
+            message: "用户名不能超过20个字符",
+            trigger: "blur"
+          },
+          {
+            pattern: /^[a-zA-Z0-9]+$/,
+            message: "用户名只能包含英文和数字字符",
+            trigger: "blur"
+          }
+        ],
+        nick: [
+          {
+            required: true,
+            message: "请输入用户昵称",
+            trigger: "blur"
+          },
+          {
+            max: 20,
+            message: "昵称不能超过20个字符",
+            trigger: "blur"
+          }
+        ],
+        password: [
+          {
+            validator: validatePassword,
+            trigger: "blur"
+          },
+          {
+            min: 6,
+            message: "密码不能少于6个字符",
+            trigger: "blur"
+          },
+          {
+            max: 20,
+            message: "密码不能超过20个字符",
+            trigger: "blur"
+          }
+        ],
+        confirmpassword: [
+          {
+            validator: validateConfirmPassword,
+            trigger: "blur"
+          },
+          {
+            min: 6,
+            message: "密码不能少于6个字符",
+            trigger: "blur"
+          },
+          {
+            max: 20,
+            message: "密码不能超过20个字符",
+            trigger: "blur"
+          }
+        ]
+      },
+      showMobileNav: false
+    };
+  },
+  props: {
+    screenWidth: {
+      type: Number
+    }
+  },
+  mounted() {
+    console.log(this.$store);
+    EventBus.$on("goLogin", () => {
+      this.handleLogin();
+    });
+  },
+  methods: {
+    toggleMobileNav() {
+      this.showMobileNav = !this.showMobileNav;
+    },
+    handleLogin() {
+      this.dialogFormVisible = true;
+    },
+    handleLogout() {
+      this.showDropDownMenu = false;
+      setTimeout(() => {
+        this.$router.push({ name: "index" });
+        this.$store.dispatch(`Logout`);
+        this.$message({
+          message: "登出成功",
+          type: "success"
+        });
+      }, 500);
+    },
+    submitLogin() {
+      const self = this;
+      self.$refs["loginForm"].validate(async valid => {
+        if (valid) {
+          try {
+            let res = await self.$store.dispatch("Login", self.loginForm);
+            self.$message({
+              message: res.data.message,
+              type: "success"
+            });
+            self.dialogFormVisible = false;
+            self.showDropDownMenu = false;
+            await self.$store.dispatch("GetUserInfo");
+            self.$router.replace({ name: "refresh" });
+          } catch (err) {
+            console.log(err);
+            self.$message({
+              message: err.response.data.message,
+              type: "error"
+            });
+          }
+        } else {
+          return false;
+        }
+      });
+    },
+    async submitRegister() {
+      const self = this;
+      self.$refs.registerForm.validate(async valid => {
+        if (valid) {
+          try {
+            let res = await self.$store.dispatch("Register", self.registerForm);
+            console.log(res);
+            self.$message({
+              message: res.data.message,
+              type: "success"
+            });
+            self.dialogFormVisible = false;
+            self.showDropDownMenu = false;
+            await self.$store.dispatch("GetUserInfo");
+          } catch (err) {
+            console.log(err);
+            self.$message({
+              message: err.response.data.message,
+              type: "error"
+            });
+          }
+        } else {
+          return false;
+        }
+      });
+    },
+    resetSolutionFilter() {
+      this.$store.dispatch("resetSolutionFilter");
+    }
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.5s ease;
+  max-height: 10rem;
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active for below version 2.1.8 */ {
+  max-height: 0rem;
+  opacity: 1;
+}
+.topbar__mobile__nav__menu {
+  overflow: hidden;
+  position: absolute !important;
+  top: 0.8rem;
+  width: 100%;
+  z-index: 1000;
+}
+
+.topbar__wrapper {
+  background: $pddblue;
+  border-bottom: 1px solid $pdblue;
+  height: 100px;
+  .topbar__title {
+    text-indent: 10px;
+    a {
+      cursor: pointer;
+    }
+    height: 100%;
+    line-height: 100px;
+    float: left;
+    width: 150px;
+    font-size: 30px;
+    @media screen and (min-width: 1280px) {
+      width: 200px;
+      font-size: 40px;
+    }
+    text-align: center;
+    a {
+      cursor: pointer;
+      color: $pblue;
+    }
+  }
+
+  .topbar__nav {
+    color: $c9;
+    position: relative;
+    margin-left: 150px;
+    @media screen and (min-width: 1280px) {
+      margin-left: 200px !important;
+      .topbar__section {
+        a {
+          font-size: 22px !important;
+        }
+        svg {
+          height: 30px !important;
+        }
+      }
+    }
+    line-height: 100px;
+    .topbar__nav__bar {
+      display: flex;
+      justify-content: space-around;
+      margin-right: 200px;
+      & > .topbar__nav__item {
+        flex: 0 1 auto;
+      }
+      .topbar__nav__item {
+        display: inline-block;
+        height: 100%;
+        position: relative;
+        cursor: pointer;
+      }
+    }
+    .topbar__section {
+      a {
+        font-size: 18px;
+        display: block;
+        color: $c9;
+      }
+      svg {
+        height: 24px;
+        margin-right: 0.05rem;
+      }
+      display: block;
+      height: 100%;
+      cursor: pointer;
+      transition: all 0.2s ease-out;
+      &:hover {
+        color: $pblue;
+        a {
+          color: $pblue;
+        }
+        &::before {
+          background: $pblue;
+          transform: translate3d(0, 0, 0) scaleX(0.8);
+        }
+      }
+      &::before {
+        content: "";
+        left: 0rem;
+        bottom: 0.1rem;
+        position: absolute;
+        background: $pblue;
+        height: 0.02rem;
+        width: 100%;
+        transition: all 0.2s ease;
+        transform: translate3d(0, 0, 0) scaleX(0);
+      }
+      &.active {
+        color: $pblue;
+        &::before {
+          background: $pblue;
+          transform: translate3d(0, 0, 0) scaleX(0.8);
+        }
+      }
+    }
+
+    .topbar__right__section {
+      font-size: 0.24rem;
+      width: 200px;
+      height: 100%;
+      position: absolute;
+      right: 0.4rem;
+      top: 0;
+      .topbar__userinfo__wrapper {
+        position: relative;
+        .username-wrapper {
+          box-sizing: border-box;
+          float: left;
+          padding: 0 20px;
+          height: 100px;
+          width: 140px;
+          line-height: 100px;
+          color: $c12;
+          font-size: 16px;
+        }
+        img {
+          cursor: pointer;
+          margin: 20px 0 0 0;
+          height: 60px;
+          border-radius: 30px;
+        }
+        .topbar__userinfo__dropdown {
+          position: absolute;
+          width: 150px;
+          top: 100px;
+          right: -35px;
+          z-index: 100;
+          background: $c15;
+          border: 0.01rem solid $c12;
+          font-size: 0.18rem;
+          transition: all 0.3s;
+          box-shadow: 0.01rem 0.01rem 0.01rem $c12;
+          li {
+            cursor: pointer;
+            color: $c3;
+            height: 60px;
+            line-height: 60px;
+            border-bottom: 0.01rem solid $c13;
+            transition: all 0.3s;
+            a {
+              font-size: 20px;
+            }
+            &:hover {
+              color: $pblue;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.auth__dialog {
+  .title {
+    text-align: left;
+    margin-bottom: 0.1rem;
+    padding-left: 0.1rem;
+    color: $pblue;
+    font-size: 24px;
+    span {
+      cursor: pointer;
+      color: $c10;
+      border-bottom: 4px solid $c12;
+    }
+    span.active {
+      color: $pblue;
+      border-bottom: 4px solid $pblue;
+    }
+  }
+  .auth__input__prefix {
+    height: 100%;
+    line-height: 100%;
+    width: 20px;
+  }
+}
+</style>
