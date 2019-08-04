@@ -5,6 +5,7 @@ const getters = {
     userNick: state => state.user.nick,
     userRole: state => state.user.role,
     userAvatar: state => state.user.avatar,
+    userDefunct: state => state.user.defunct,
     tagId: state => state.bus.tagId,
 
     solutionQueryParam: state => state.bus.solutionQueryParam,

@@ -1,5 +1,10 @@
-import { login, register } from '@/web-user/js/api/auth'
-import { getUser } from '@/web-user/js/api/user'
+import {
+    login,
+    register
+} from '@/web-user/js/api/auth'
+import {
+    getUser
+} from '@/web-user/js/api/user'
 import Cookies from "js-cookie"
 
 const user = {
@@ -11,7 +16,7 @@ const user = {
         avatar: '',
         submit: 0,
         solved: 0,
-        defunct: 0,
+        defunct: 1, // defunct = 1表示被封禁的状态
         token: Cookies.get("access-token")
     },
     mutations: {
@@ -33,7 +38,9 @@ const user = {
         },
     },
     actions: {
-        Login({ commit }, loginForm) {
+        Login({
+            commit
+        }, loginForm) {
             return new Promise(async (resolve, reject) => {
                 try {
                     let res = await login(loginForm)
@@ -46,7 +53,9 @@ const user = {
                 }
             })
         },
-        Register({ commit }, registerForm) {
+        Register({
+            commit
+        }, registerForm) {
             return new Promise(async (resolve, reject) => {
                 try {
                     let res = await register(registerForm)
@@ -60,11 +69,16 @@ const user = {
             })
         },
         // 刷新token
-        RefreshToken({ commit }, token) {
+        RefreshToken({
+            commit
+        }, token) {
             commit('SET_TOKEN', token);
         },
         // 获取用户姓名权限头像信息
-        GetUserInfo({ commit, state }) {
+        GetUserInfo({
+            commit,
+            state
+        }) {
             return new Promise(async (resolve, reject) => {
                 try {
                     let res = await getUser()
@@ -77,15 +91,22 @@ const user = {
             })
         },
         // 更新用户信息
-        UpdateUserInfo({ commit }, user) {
+        UpdateUserInfo({
+            commit
+        }, user) {
             commit('SET_USER', user)
         },
         // 更新用户头像
-        UpdateUserAvatar({ commit }, path) {
+        UpdateUserAvatar({
+            commit
+        }, path) {
             commit('SET_AVATAR', path)
         },
         // 登出
-        Logout({ commit, state }) {
+        Logout({
+            commit,
+            state
+        }) {
             commit('SET_TOKEN', '')
             commit('SET_USER', {
                 username: "",
@@ -94,7 +115,7 @@ const user = {
                 avatar: "",
                 submit: 0,
                 solved: 0,
-                defunct: 0,
+                defunct: 1,
             })
             Cookies.remove("access-token")
         }

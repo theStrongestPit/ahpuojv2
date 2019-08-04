@@ -12,6 +12,7 @@ func ApiUserRouter(g *gin.RouterGroup) {
 	g.POST("/testrun", controller.SubmitToTestRun)
 	g.POST("/issue", controller.PostIssue)
 	g.POST("/issue/:id/reply", controller.ReplyToIssue)
+	g.GET("/myreplys", controller.GetMyReplys)
 	g.PUT("/solution/:id/status", controller.ToggleSolutionStatus)
 	g.PUT("/user/avatar", controller.UploadAvatar)
 	g.PUT("/user/nick", controller.ResetNick)

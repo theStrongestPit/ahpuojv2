@@ -3,6 +3,7 @@ package model
 import (
 	"ahpuoj/utils"
 	"database/sql"
+	"errors"
 )
 
 type Issue struct {
@@ -38,6 +39,7 @@ type Reply struct {
 	Nick          string `db:"nick"`
 	UserAvatar    string `db:"avatar"`
 	ReplyCount    int    `db:"reply_count"`
+	IssueTitle string `db:"issue_title"`
 	SubReplys     []map[string]interface{}
 }
 
@@ -50,6 +52,15 @@ func (issue *Issue) Save() error {
 	}
 	lastInsertId, _ := result.LastInsertId()
 	issue.Id = utils.Int64to32(lastInsertId)
+	return err
+}
+
+func (issue *Issue) ToggleStatus() error {
+	result, err := DB.Exec(`update issue set is_deleted = not is_deleted,updated_at = NOW() where id = ?`, issue.Id)
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return errors.New("数据不存在")
+	}
 	return err
 }
 
@@ -67,6 +78,15 @@ func (reply *Reply) Save() error {
 	return err
 }
 
+func (reply *Reply) ToggleStatus() error {
+	result, err := DB.Exec(`update reply set is_deleted = not is_deleted,updated_at = NOW() where id = ?`, reply.Id)
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return errors.New("数据不存在")
+	}
+	return err
+}
+
 func (issue *Issue) Response() map[string]interface{} {
 	var problemTitle string
 	if issue.ProblemTitle.Valid {
@@ -79,6 +99,7 @@ func (issue *Issue) Response() map[string]interface{} {
 		"title":       issue.Title,
 		"reply_count": issue.ReplyCount,
 		"updated_at":  issue.UpdatedAt,
+		"is_deleted":  issue.IsDeleted,
 		"user": map[string]interface{}{
 			"id":       issue.UserId,
 			"username": issue.Username,
@@ -104,7 +125,10 @@ func (reply *Reply) Response() map[string]interface{} {
 		"reply_user_nick": reply.ReplyUserNick,
 		"reply_count":     reply.ReplyCount,
 		"updated_at":      reply.UpdatedAt,
+		"created_at":      reply.CreatedAt,
+		"is_deleted":      reply.IsDeleted,
 		"sub_replys":      reply.SubReplys,
+		"issue_title": reply.IssueTitle,
 		"user": map[string]interface{}{
 			"id":       reply.UserId,
 			"username": reply.Username,

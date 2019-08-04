@@ -54,6 +54,8 @@ func InitRouter() *gin.Engine {
 	ApiAdminNewRouter(admin)
 	// 后台图片相关路由
 	ApiAdminImageRouter(admin)
+	// 后台讨论相关路由
+	ApiAdminIssueRouter(admin)
 	// 后台其他路由
 	ApiAdminRouter(admin)
 

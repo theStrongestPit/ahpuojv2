@@ -40,7 +40,7 @@ export default {
     toolbar: {
       type: [String, Array],
       default:
-        "undo redo |  formatselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | code image  table | removeformat"
+        "undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | image  table | removeformat"
     },
     height: {
       type: Number,

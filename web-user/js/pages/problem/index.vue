@@ -188,6 +188,7 @@ export default {
           self.problem = data.problem;
           self.form.problem_id = self.problem.id;
           self.testRunForm.input_text = data.problem.sample_input;
+          self.outputText = "结果应为\n" + data.problem.sample_output;
         } else {
           // 如果是比赛题目路由
           let num = parseInt(self.$route.params.num);

@@ -26,7 +26,7 @@
             svg-icon(name="ranking") 
             span 排名
       .topbar__right__section
-        .topbar__userinfo__wrapper(v-if="$store.getters.token",@mouseleave="showDropDownMenu=false")
+        .topbar__userinfo__wrapper(v-if="$store.getters.token && $store.getters.userDefunct == 0",@mouseleave="showDropDownMenu=false")
           .username-wrapper.ell.tar
             span.username  {{$store.getters.userNick}}
           img(:src="imgUrl($store.getters.userAvatar)",@mouseover="showDropDownMenu = true")
@@ -36,6 +36,8 @@
                 router-link(:to="{name:'userinfo',params:{id:$store.getters.userId}}") 个人空间
               li 
                 router-link(:to="{name:'account'}") 账号设置
+              li
+                router-link(:to="{name:'myreplys'}") 查看回复
               li(v-if="$store.getters.userRole=='admin'") 
                 a(href="/admin") 后台管理
               li(@click="handleLogout") 

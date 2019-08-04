@@ -17,29 +17,32 @@
                     img(:src="imgUrl(item.user.avatar)")
                 li.reply__user__name.ell 
                   router-link(:to="{name:'userinfo',params:{id:item.user.id}}") {{item.user.nick}}
-            .reply__content
+            .reply__content(:class="item.is_deleted == 1?'reply-content--deleted':''")
               div(v-html="item.content")
-              .reply__addon.clearfix  
+              .reply__addon.mt10.clearfix
                 p.fr
-                  span  {{item.updated_at}}&nbsp;
-                  span {{item.reply_count}}个回复
-                el-button(type="primary",size="mini",@click="handleReplyToReply(item)") 回复
-            .subreplys__wrapper.mt10
-              template(v-for="subitem,subindex in item.sub_replys")
-                .subreply__box
-                  .subreply__userinfo__wrapper
-                    ul
-                      li.reply__user__avatar
-                        router-link(:to="{name:'userinfo',params:{id:subitem.user.id}}")
-                          img(:src="imgUrl(subitem.user.avatar)")
-                      li.reply__user__name.ell 
-                        router-link(:to="{name:'userinfo',params:{id:subitem.user.id}}") {{subitem.user.nick}}                  
-                  .subreply__content
-                    div(v-html="calcSubReply(subitem)")
-                    .reply__addon.clearfix  
-                      p.fr
-                        span  {{item.updated_at}}&nbsp;
-                        span {{item.reply_count}}个回复
+                  span  {{item.created_at}}&nbsp;
+                  a(v-if="item.reply_count>0",@click="toggleReplyList(item)") {{`${item.reply_count}个回复(${item.showReplys ===  undefined  || item.showReplys === true ?"收起":"展开"})`}}
+                el-button.ml10(type="primary",size="mini",@click="handleReplyToReply(item.id,item.user.id)") 回复
+                el-button.ml10(v-if="$store.getters.userRole=='admin'",:type="item.is_deleted == 0?'danger':'success'",size="mini",@click="toggleReplyStatus(item.id)") {{item.is_deleted == 0 ? "删除":"恢复"}}
+            el-collapse-transition
+              .subreplys__wrapper.mt10(v-show="item.showReplys ===  undefined  || item.showReplys === true")
+                template(v-for="subitem,subindex in item.sub_replys")
+                  .subreply__box
+                    .subreply__userinfo__wrapper
+                      ul
+                        li.reply__user__avatar
+                          router-link(:to="{name:'userinfo',params:{id:subitem.user.id}}")
+                            img(:src="imgUrl(subitem.user.avatar)")
+                        li.reply__user__name.ell 
+                          router-link(:to="{name:'userinfo',params:{id:subitem.user.id}}") {{subitem.user.nick}}                  
+                    .subreply__content(:class="subitem.is_deleted == 1?'reply-content--deleted':''")
+                      div(v-html="calcSubReply(subitem)")
+                      .reply__addon.clearfix  
+                        p.fr
+                          span  {{item.created_at}}&nbsp;
+                        el-button.ml10(type="primary",size="mini",@click="handleReplyToReply(item.id,subitem.user.id)") 回复
+                        el-button.ml10(v-if="$store.getters.userRole=='admin'",:type="subitem.is_deleted == 0?'danger':'success'",size="mini",@click="toggleReplyStatus(subitem.id)") {{subitem.is_deleted == 0 ? "删除":"恢复"}}
         el-pagination.tal.mt10.mb10(@current-change="fetchIssue",:current-page.sync="currentPage",background,
         :page-size="perpage",layout="prev, pager, next,jumper",:total="total",style="background:#fff;")
 
@@ -63,6 +66,7 @@ import { getIssue } from "@/web-user/js/api/nologin.js";
 import TinymceEditor from "@/web-common/components/tinymce_editor.vue";
 import { EventBus } from "@/web-common/eventbus";
 import { postIssue, replyToIssue } from "@/web-user/js/api/user.js";
+import { toggleReplyStatus } from "@/web-user/js/api/admin.js";
 export default {
   components: {
     TinymceEditor
@@ -89,10 +93,12 @@ export default {
     this.fetchIssue();
   },
   methods: {
-    async fetchIssue() {
-      window.pageYOffset = 0;
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
+    async fetchIssue(resetScroll) {
+      if (resetScroll != false) {
+        window.pageYOffset = 0;
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }
       const self = this;
       try {
         let res = await getIssue(
@@ -127,6 +133,14 @@ export default {
       }
       return subReply.content;
     },
+    toggleReplyList(item) {
+      if (item.showReplys === undefined) {
+        // 添加响应属性
+        this.$set(item, "showReplys", false);
+      } else {
+        item.showReplys = !item.showReplys;
+      }
+    },
     // way = 1 表示回复主题 way = 2 表示回复某个回复
     async reply(way) {
       console.log(way);
@@ -157,7 +171,7 @@ export default {
         self.replyForm.content = "";
         self.replyContent = "";
         self.dialogFormVisible = false;
-        self.fetchIssue();
+        self.fetchIssue(false);
       } catch (err) {
         self.$message({
           message: err.response.data.message,
@@ -165,11 +179,34 @@ export default {
         });
       }
     },
-    handleReplyToReply(reply) {
-      console.log(reply);
+    handleReplyToReply(replyId, replyUserId) {
+      console.log(replyId, replyUserId);
+      if (!this.$store.getters.username) {
+        this.$message({
+          message: "请登录后发表回复",
+          type: "error"
+        });
+        return;
+      }
       this.dialogFormVisible = true;
-      this.replyForm.reply_id = reply.id;
-      this.replyForm.reply_user_id = reply.user.id;
+      this.replyForm.reply_id = replyId;
+      this.replyForm.reply_user_id = replyUserId;
+    },
+    async toggleReplyStatus(replyId) {
+      let self = this;
+      try {
+        let res = await toggleReplyStatus(replyId);
+        self.$message({
+          message: "变更回复状态成功",
+          type: "success"
+        });
+        self.fetchIssue(false);
+      } catch (err) {
+        self.$message({
+          message: err.response.data.message,
+          type: "error"
+        });
+      }
     }
   }
 };
@@ -209,14 +246,18 @@ export default {
     .reply__content {
       position: relative;
       box-sizing: border-box;
-      padding: 0.1rem 0.2rem 0.2rem 0.1rem;
+      padding: 0.1rem 0.2rem 0.3rem 0.1rem;
       margin-left: 100px;
       min-height: 100px;
       text-align: left;
-      font-size: 20px;
+      font-size: 16px;
+    }
+    .reply-content--deleted {
+      background-color: #f5f7fa;
+      text-decoration: line-through;
     }
     .reply__addon {
-      font-size: 16px;
+      font-size: 14px;
       position: absolute;
       width: 100%;
       left: 0px;
@@ -247,7 +288,7 @@ export default {
           margin-left: 100px;
           min-height: 100px;
           text-align: left;
-          font-size: 20px;
+          font-size: 16px;
         }
       }
     }

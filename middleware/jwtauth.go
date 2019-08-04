@@ -22,7 +22,14 @@ func JwtauthMiddleware() gin.HandlerFunc {
 		if token != nil && token.Valid {
 			// 判断用户是否存在
 			if _, exist := c.Get("user"); exist {
-				c.Next()
+				user, _ := controller.GetUserInstance(c)
+				if user.Defunct == 0 {
+					c.Next()
+				} else {
+					c.AbortWithStatusJSON(400, gin.H{
+						"message": "该账号已被管理员封禁，请联系管理员解封",
+					})
+				}
 			} else {
 				c.AbortWithStatusJSON(400, gin.H{
 					"message": "认证失败,请重新登录",

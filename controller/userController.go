@@ -20,7 +20,6 @@ import (
 func GetUser(c *gin.Context) {
 
 	user, _ := c.Get("user")
-	utils.Consolelog(user)
 	if user, ok := user.(model.User); ok {
 		c.JSON(200, gin.H{
 			"message": "用户信息获取成功",
@@ -183,9 +182,9 @@ func SubmitToTestRun(c *gin.Context) {
 	}
 
 	// 删除测试运行的记录
-	// DB.Exec("delect from solution where solution_id = ?", solution.Id)
-	// DB.Exec("delect from runtimeinfo where solution_id = ?", solution.Id)
-	// DB.Exec("delect from compileinfo where solution_id = ?", solution.Id)
+	DB.Exec("delect from solution where solution_id = ?", solution.Id)
+	DB.Exec("delect from runtimeinfo where solution_id = ?", solution.Id)
+	DB.Exec("delect from compileinfo where solution_id = ?", solution.Id)
 
 	c.JSON(200, gin.H{
 		"message":       "测试运行成功",
@@ -378,19 +377,15 @@ func DownloadDataFile(c *gin.Context) {
 func UploadAvatar(c *gin.Context) {
 	file, header, err := c.Request.FormFile("img")
 	ext := path.Ext(header.Filename)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "头像上传失败",
-		})
+	if utils.CheckError(c, err, "头像上传失败，参数错误") != nil {
 		return
 	}
 	url, err := utils.SaveFile(file, ext, "avatars")
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "头像上传失败,请检查服务器设置",
-		})
+
+	if utils.CheckError(c, err, "头像上传失败,请检查服务器设置") != nil {
 		return
 	}
+
 	var user model.User
 	userInterface, _ := c.Get("user")
 	if userInterface, ok := userInterface.(model.User); ok {
@@ -423,11 +418,8 @@ func PostIssue(c *gin.Context) {
 	}
 	var req request.Issue
 	err = c.ShouldBindJSON(&req)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "参数错误",
-		})
+
+	if utils.CheckError(c, err, "参数错误") != nil {
 		return
 	}
 
@@ -449,10 +441,8 @@ func PostIssue(c *gin.Context) {
 	}
 
 	err = issue.Save()
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "发布讨论主题失败",
-		})
+
+	if utils.CheckError(c, err, "发布讨论主题失败") != nil {
 		return
 	}
 	c.JSON(200, gin.H{
@@ -474,11 +464,8 @@ func ReplyToIssue(c *gin.Context) {
 	}
 	var req request.Reply
 	err = c.ShouldBindJSON(&req)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "参数错误",
-		})
+
+	if utils.CheckError(c, err, "参数错误") != nil {
 		return
 	}
 
@@ -487,14 +474,14 @@ func ReplyToIssue(c *gin.Context) {
 	DB.Get(&temp, "select count(1) from issue where id = ?", issueId)
 	if temp == 0 {
 		c.AbortWithStatusJSON(400, gin.H{
-			"message": "发布回复失败，主题不存在",
+			"message": "发布回复失败，目标主题不存在",
 		})
 		return
 	}
 
 	// 如果是对回复的回复 检查该回复是否存在
 	if req.ReplyId != 0 {
-		DB.Get(&temp, "select count(1) from reply where id = ? and user_id = ?", req.ReplyId, req.ReplyUserId)
+		DB.Get(&temp, "select count(1) from reply where id = ?", req.ReplyId)
 		if temp == 0 {
 			c.AbortWithStatusJSON(400, gin.H{
 				"message": "发布回复失败，目标回复不存在",
@@ -512,11 +499,7 @@ func ReplyToIssue(c *gin.Context) {
 	}
 
 	err = reply.Save()
-	if err != nil {
-		utils.Consolelog(err)
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "发布回复失败",
-		})
+	if utils.CheckError(c, err, "发布回复失败，数据库操作错误") != nil {
 		return
 	}
 
@@ -527,23 +510,58 @@ func ReplyToIssue(c *gin.Context) {
 
 }
 
+// 获取回复我的信息帖子列表
+func GetMyReplys(c *gin.Context) {
+	var err error
+	var user model.User
+
+	user, _ = GetUserInstance(c)
+
+	pageStr := c.Query("page")
+	perpageStr := c.Query("perpage")
+	page, _ := strconv.Atoi(pageStr)
+	perpage, _ := strconv.Atoi(perpageStr)
+	if page == 0 {
+		page = 1
+	}
+
+	// 第一步只获取对主题的回复
+	whereString := "where reply.reply_user_id = " + strconv.Itoa(user.Id) +" and reply.user_id != "+ strconv.Itoa(user.Id)
+	// 管理员可以查看被删除的回复
+	if user.Role != "admin" {
+		whereString += " and is_deleted = 0 "
+	}
+
+	rows, total, err := model.Paginate(page, perpage, "reply inner join user on reply.user_id = user.id inner join issue on reply.issue_id = issue.id",
+		[]string{"user.username,user.nick,user.avatar,reply.*,'' as rnick,(select count(1) from reply  r where reply.id = r.reply_id) as reply_count,issue.title as issue_title"}, whereString)
+
+	if utils.CheckError(c, err, "数据获取失败") != nil {
+		return
+	}
+
+	var replys []map[string]interface{}
+	for rows.Next() {
+		var reply model.Reply
+		rows.StructScan(&reply)
+		replys = append(replys, reply.Response())
+	}
+	c.JSON(200, gin.H{
+		"message": "数据获取成功",
+		"total":   total,
+		"replys":  replys,
+	})
+
+}
+
 // 获取最近一次提交的代码
 func GetLatestSource(c *gin.Context) {
 	var err error
 	var user model.User
 
-	userInterface, _ := c.Get("user")
+	user, _ = GetUserInstance(c)
 	problemId, _ := strconv.Atoi(c.Param("id"))
 
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
-
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "参数错误",
-		})
+	if utils.CheckError(c, err, "参数错误") != nil {
 		return
 	}
 
@@ -573,12 +591,7 @@ func GetLatestContestSource(c *gin.Context) {
 	if userInterface, ok := userInterface.(model.User); ok {
 		user = userInterface
 	}
-
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "参数错误",
-		})
+	if utils.CheckError(c, err, "参数错误") != nil {
 		return
 	}
 

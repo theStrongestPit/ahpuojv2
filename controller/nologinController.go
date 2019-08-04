@@ -953,7 +953,7 @@ func NologinGetIssueList(c *gin.Context) {
 		whereString += " and is_deleted = 0 "
 	}
 
-	whereString += " order by updated_at desc"
+	whereString += " order by created_at desc"
 
 	rows, total, err := model.Paginate(page, perpage, "issue inner join user on issue.user_id = user.id left join problem on issue.problem_id = problem.id",
 		[]string{"user.username,user.nick,user.avatar,issue.*,problem.title ptitle,(select count(1) from reply where issue_id = issue.id) as reply_count"}, whereString)
@@ -1000,10 +1000,7 @@ func NologinGetIssue(c *gin.Context) {
 	if issueId != 0 {
 		err = DB.Get(&issue, `select user.username,user.nick,user.avatar,issue.*,problem.title ptitle,(select count(1) from reply where issue_id = issue.id) as reply_count
 		from issue inner join user on issue.user_id = user.id left join problem on issue.problem_id = problem.id where issue.id = ?`, issueId)
-		if err != nil {
-			c.AbortWithStatusJSON(400, gin.H{
-				"message": "讨论不存在",
-			})
+		if utils.CheckError(c, err, "讨论不存在") != nil {
 			return
 		}
 	}
@@ -1016,17 +1013,13 @@ func NologinGetIssue(c *gin.Context) {
 		whereString += " and is_deleted = 0 "
 	}
 
-	whereString += " order by reply.updated_at asc"
+	whereString += " order by reply.created_at asc"
 
 	rows, total, err := model.Paginate(page, perpage, "reply inner join user on reply.user_id = user.id",
 		[]string{"user.username,user.nick,user.avatar,reply.*,'' as rnick,(select count(1) from reply  r where reply.id = r.reply_id) as reply_count"}, whereString)
 	utils.Consolelog(rows, total, err)
 
-	if err != nil {
-		utils.Consolelog(err)
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 

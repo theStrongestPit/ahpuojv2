@@ -15,12 +15,14 @@
                     img(:src="imgUrl(item.user.avatar)")
                 li.issue__user__name.ell 
                   router-link(:to="{name:'userinfo',params:{id:item.user.id}}") {{item.user.nick}}
-            .issue__content     
+            .issue__content(:class="item.is_deleted == 1?'issue-content--deleted':''")     
               router-link(:to="{name:'issue',params:{id:item.id}}",target="_blank") {{item.title}}
-              .issue__addon.tar 
-                router-link(v-if="item.problem.id>0",:to="{name:'problem',params:{id:item.problem.id}}") {{`In P${item.problem.id} ${item.problem.title}`}}
-                p(v-else) 总版
-                p {{item.reply_count}}个回复 最后回复时间 {{item.updated_at}}
+              .issue__addon.mt10
+                el-button.fl(v-if="$store.getters.userRole=='admin'",:type="item.is_deleted == 0?'danger':'success'",size="mini",@click="toggleIssueStatus(item.id)") {{item.is_deleted == 0 ? "删除":"恢复"}}
+                .issue__addon__info.tar
+                  router-link(v-if="item.problem.id>0",:to="{name:'problem',params:{id:item.problem.id}}") {{`In P${item.problem.id} ${item.problem.title}`}}
+                  p(v-else) 总版
+                  p {{item.reply_count}}个回复 最后回复时间 {{item.updated_at}}
         el-pagination.tal(@current-change="fetchIssueList",:current-page.sync="currentPage",background,
         :page-size="perpage",layout="prev, pager, next,jumper",:total="total")
 
@@ -38,6 +40,7 @@ import { getIssueList } from "@/web-user/js/api/nologin.js";
 import TinymceEditor from "@/web-common/components/tinymce_editor.vue";
 import { EventBus } from "@/web-common/eventbus";
 import { postIssue, replyToIssue } from "@/web-user/js/api/user.js";
+import { toggleIssueStatus } from "@/web-user/js/api/admin.js";
 export default {
   components: {
     TinymceEditor
@@ -140,6 +143,22 @@ export default {
           type: "error"
         });
       }
+    },
+    async toggleIssueStatus(issueId) {
+      let self = this;
+      try {
+        let res = await toggleIssueStatus(issueId);
+        self.$message({
+          message: "变更主题状态成功",
+          type: "success"
+        });
+        self.fetchIssueList();
+      } catch (err) {
+        self.$message({
+          message: err.response.data.message,
+          type: "error"
+        });
+      }
     }
   }
 };
@@ -189,13 +208,19 @@ export default {
       text-align: left;
       font-size: 0.16rem;
     }
+    .issue-content--deleted {
+      // background-color: #f5f7fa;
+      text-decoration: line-through;
+    }
     .issue__addon {
-      a {
-        font-size: 0.16rem;
+      .issue__addon__info {
+        a {
+          font-size: 0.16rem;
+        }
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
       }
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
     }
   }
   .post__box__wrapper {

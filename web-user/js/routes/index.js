@@ -4,193 +4,202 @@ export default [{
     path: '/',
     component: layout,
     children: [{
-            path: '',
-            name: 'index',
-            meta: {
-                keepAlive: true,
-                title: '首页 - AHPUOJ',
-            },
-            component: () => import('@/web-user/js/pages/home'),
+        path: '',
+        name: 'index',
+        meta: {
+            keepAlive: true,
+            title: '首页 - AHPUOJ',
         },
-        {
-            path: 'findpass',
-            name: 'findpass',
-            meta: {
-                keepAlive: true,
-                title: '找回密码 - AHPUOJ',
-            },
-            component: () => import('@/web-user/js/pages/findpass'),
+        component: () => import('@/web-user/js/pages/home'),
+    },
+    {
+        path: 'findpass',
+        name: 'findpass',
+        meta: {
+            keepAlive: true,
+            title: '找回密码 - AHPUOJ',
         },
-        {
-            path: 'resetpass',
-            name: 'resetpass',
-            meta: {
-                keepAlive: true,
-                title: '重设密码 - AHPUOJ',
-            },
-            component: () => import('@/web-user/js/pages/resetpass'),
+        component: () => import('@/web-user/js/pages/findpass'),
+    },
+    {
+        path: 'resetpass',
+        name: 'resetpass',
+        meta: {
+            keepAlive: true,
+            title: '重设密码 - AHPUOJ',
         },
-        {
-            path: 'problemset',
-            name: 'problemSet',
-            meta: {
-                keepAlive: true,
-                title: '问题集 - AHPUOJ',
-            },
-            component: () => import('@/web-user/js/pages/problem_set'),
+        component: () => import('@/web-user/js/pages/resetpass'),
+    },
+    {
+        path: 'problemset',
+        name: 'problemSet',
+        meta: {
+            keepAlive: true,
+            title: '问题集 - AHPUOJ',
         },
-        {
-            path: 'issues',
-            name: 'issueList',
-            meta: {
-                keepAlive: false,
-                title: '讨论区 - AHPUOJ',
-            },
-            component: () => import('@/web-user/js/pages/issue_list'),
+        component: () => import('@/web-user/js/pages/problem_set'),
+    },
+    {
+        path: 'issues',
+        name: 'issueList',
+        meta: {
+            keepAlive: false,
+            title: '讨论区 - AHPUOJ',
         },
-        {
-            path: 'issue/:id',
-            name: 'issue',
-            meta: {
-                keepAlive: false,
-            },
-            component: () => import('@/web-user/js/pages/issue'),
+        component: () => import('@/web-user/js/pages/issue_list'),
+    },
+    {
+        path: 'issue/:id',
+        name: 'issue',
+        meta: {
+            keepAlive: false,
         },
-        {
-            path: 'problem/:id/issues',
-            name: 'problemIssueList',
-            meta: {
-                keepAlive: false,
-            },
-            component: () => import('@/web-user/js/pages/issue_list'),
+        component: () => import('@/web-user/js/pages/issue'),
+    },
+    {
+        path: 'problem/:id/issues',
+        name: 'problemIssueList',
+        meta: {
+            keepAlive: false,
         },
-        {
-            path: 'status',
-            name: 'status',
-            meta: {
-                keepAlive: true,
-                title: '评测机 - AHPUOJ',
-            },
-            component: () => import('@/web-user/js/pages/status'),
+        component: () => import('@/web-user/js/pages/issue_list'),
+    },
+    {
+        path: 'status',
+        name: 'status',
+        meta: {
+            keepAlive: true,
+            title: '评测机 - AHPUOJ',
         },
-        {
-            path: 'contest/:id/status',
-            name: 'contestStatus',
-            meta: {
-                keepAlive: true,
-                title: '评测机 - AHPUOJ',
-            },
-            component: () => import('@/web-user/js/pages/status'),
+        component: () => import('@/web-user/js/pages/status'),
+    },
+    {
+        path: 'contest/:id/status',
+        name: 'contestStatus',
+        meta: {
+            keepAlive: true,
+            title: '评测机 - AHPUOJ',
         },
-        {
-            path: 'contest/:id/rank',
-            name: 'contestRank',
-            meta: {
-                keepAlive: false,
-            },
-            component: () => import('@/web-user/js/pages/contest_rank'),
+        component: () => import('@/web-user/js/pages/status'),
+    },
+    {
+        path: 'contest/:id/rank',
+        name: 'contestRank',
+        meta: {
+            keepAlive: false,
         },
-        {
-            path: 'contest/:id/teamrank',
-            name: 'contestTeamRank',
-            meta: {
-                keepAlive: false,
-            },
-            component: () => import('@/web-user/js/pages/contest_team_rank'),
+        component: () => import('@/web-user/js/pages/contest_rank'),
+    },
+    {
+        path: 'contest/:id/teamrank',
+        name: 'contestTeamRank',
+        meta: {
+            keepAlive: false,
         },
-        {
-            path: 'problem/:id',
-            name: 'problem',
-            meta: {
-                keepAlive: false,
-            },
-            component: () => import('@/web-user/js/pages/problem'),
+        component: () => import('@/web-user/js/pages/contest_team_rank'),
+    },
+    {
+        path: 'problem/:id',
+        name: 'problem',
+        meta: {
+            keepAlive: false,
         },
-        {
-            path: 'contest/:id/problem/:num',
-            name: 'contestProblem',
-            meta: {
-                keepAlive: false,
-            },
-            component: () => import('@/web-user/js/pages/problem'),
+        component: () => import('@/web-user/js/pages/problem'),
+    },
+    {
+        path: 'contest/:id/problem/:num',
+        name: 'contestProblem',
+        meta: {
+            keepAlive: false,
         },
-        {
-            path: 'contests',
-            name: 'contestList',
-            meta: {
-                keepAlive: true,
-                title: '竞赛&作业 - AHPUOJ',
-            },
-            component: () => import('@/web-user/js/pages/contest_list'),
+        component: () => import('@/web-user/js/pages/problem'),
+    },
+    {
+        path: 'contests',
+        name: 'contestList',
+        meta: {
+            keepAlive: true,
+            title: '竞赛&作业 - AHPUOJ',
         },
-        {
-            path: 'ranklist',
-            name: 'ranklist',
-            meta: {
-                keepAlive: true,
-                title: '排名 - AHPUOJ',
-            },
-            component: () => import('@/web-user/js/pages/ranklist'),
+        component: () => import('@/web-user/js/pages/contest_list'),
+    },
+    {
+        path: 'ranklist',
+        name: 'ranklist',
+        meta: {
+            keepAlive: true,
+            title: '排名 - AHPUOJ',
         },
-        {
-            path: 'contest/:id',
-            name: 'contest',
-            meta: {
-                keepAlive: false,
-            },
-            component: () => import('@/web-user/js/pages/contest'),
+        component: () => import('@/web-user/js/pages/ranklist'),
+    },
+    {
+        path: 'contest/:id',
+        name: 'contest',
+        meta: {
+            keepAlive: false,
         },
-        {
-            path: 'solution/:id',
-            name: 'solution',
-            meta: {
-                keepAlive: false,
-            },
-            component: () => import('@/web-user/js/pages/solution'),
+        component: () => import('@/web-user/js/pages/contest'),
+    },
+    {
+        path: 'solution/:id',
+        name: 'solution',
+        meta: {
+            keepAlive: false,
         },
-        {
-            path: 'account',
-            name: 'account',
-            meta: {
-                keepAlive: false,
-                title: '账号设置 - AHPUOJ',
-            },
-            component: () => import('@/web-user/js/pages/account_setting'),
+        component: () => import('@/web-user/js/pages/solution'),
+    },
+    {
+        path: 'account',
+        name: 'account',
+        meta: {
+            keepAlive: false,
+            title: '账号设置 - AHPUOJ',
         },
-        {
-            path: 'userinfo/:id',
-            name: 'userinfo',
-            meta: {
-                keepAlive: false,
-            },
-            component: () => import('@/web-user/js/pages/userinfo'),
+        component: () => import('@/web-user/js/pages/account_setting'),
+    },
+    {
+        path: 'myreplys',
+        name: 'myreplys',
+        meta: {
+            keepAlive: false,
+            title: '查看回复 - AHPUOJ',
         },
-        // hack方法 只刷新路由
-        {
-            path: 'refresh',
-            name: 'refresh',
-            meta: {
-                keepAlive: false,
-            },
-            component: () => import('@/web-user/js/pages/refresh'),
+        component: () => import('@/web-user/js/pages/myreplys'),
+    },
+    {
+        path: 'userinfo/:id',
+        name: 'userinfo',
+        meta: {
+            keepAlive: false,
         },
+        component: () => import('@/web-user/js/pages/userinfo'),
+    },
+    // hack方法 只刷新路由
+    {
+        path: 'refresh',
+        name: 'refresh',
+        meta: {
+            keepAlive: false,
+        },
+        component: () => import('@/web-user/js/pages/refresh'),
+    },
 
-        // 404路由
-        {
-            path: '404',
-            name: '404Page',
-            meta: {
-                keepAlive: false,
-            },
-            component: () => import('@/web-user/js/pages/404'),
+    // 404路由
+    {
+        path: '404',
+        name: '404Page',
+        meta: {
+            keepAlive: false,
         },
-        {
-            path: '*',
-            name: '404',
-            meta: {
-                keepAlive: false,
-            },
-            component: () => import('@/web-user/js/pages/404'),
+        component: () => import('@/web-user/js/pages/404'),
+    },
+    {
+        path: '*',
+        name: '404',
+        meta: {
+            keepAlive: false,
         },
+        component: () => import('@/web-user/js/pages/404'),
+    },
     ]
-}, ]
+},]
