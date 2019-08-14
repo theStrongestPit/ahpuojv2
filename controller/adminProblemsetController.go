@@ -15,24 +15,15 @@ func ImportProblemSet(c *gin.Context) {
 	user, _ := GetUserInstance(c)
 
 	filehead, err := c.FormFile("file")
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "文件上传失败",
-		})
+	if utils.CheckError(c, err, "文件上传失败") != nil {
 		return
 	}
 	file, err := filehead.Open()
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "文件打开失败",
-		})
+	if utils.CheckError(c, err, "文件打开失败") != nil {
 		return
 	}
 	fps, err := utils.ImportFps(file)
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "问题导入失败",
-		})
+	if utils.CheckError(c, err, "问题导入失败") != nil {
 		return
 	}
 	var infos []string
@@ -104,12 +95,7 @@ func ImportProblemSet(c *gin.Context) {
 					CodeLength: len(source.Content),
 				}
 				err := solution.Save()
-				if err != nil {
-					utils.Consolelog(err)
-					c.AbortWithStatusJSON(400,
-						gin.H{
-							"message": "保存提交记录失败",
-						})
+				if utils.CheckError(c, err, "保存提交记录失败") != nil {
 					return
 				}
 				sourceCode := model.SourceCode{
@@ -117,12 +103,7 @@ func ImportProblemSet(c *gin.Context) {
 					Source:     source.Content,
 				}
 				err = sourceCode.Save()
-				if err != nil {
-					utils.Consolelog(err)
-					c.AbortWithStatusJSON(400,
-						gin.H{
-							"message": "保存代码记录失败",
-						})
+				if utils.CheckError(c, err, "保存代码记录失败") != nil {
 					return
 				}
 

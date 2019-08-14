@@ -1,14 +1,16 @@
 <template lang="pug">
   .content
     .content__main
-      .contestlist__siderbar(class="fr")
-        .tags__wrapper
-          p 查找竞赛&作业：
-          .siderbar__searchbar__wrapper
-            el-input(style="max-width:20em", placeholder="请输入竞赛&作业名称", @keyup.enter.native="fetchContestList", v-model="queryParam", maxlength="20", clearable)
-              el-button(slot="append" icon="el-icon-search", @click="fetchContestList")
-      .contestlist__main
-        h1.content__panel__title 竞赛&作业列表
+      .siderbar
+        ul.siderbar__item__list
+          li
+            .tags__wrapper
+              .section__title 查找竞赛：
+              .siderbar__searchbar__wrapper
+                el-input(style="max-width:20em", placeholder="请输入竞赛名称", @keyup.enter.native="fetchContestList", v-model="queryParam", maxlength="20", clearable)
+                  el-button(slot="append" icon="el-icon-search", @click="fetchContestList")
+      .main
+        h1.content__panel__title 竞赛列表
         el-table(:data="tableData", style="width: 100%", class="dataTable")
           el-table-column(width="90") 
             template(slot-scope="scope")
@@ -30,7 +32,7 @@
             template(slot-scope="scope")
               span(class="contestlist__time__tag") {{spliteDate(scope.row.end_time)}}&nbsp
               span(class="contestlist__time__tag") {{spliteTime(scope.row.end_time)}}
-        el-pagination.tal(@current-change="fetchContestList",:current-page.sync="currentPage",background,
+        el-pagination.tal.mt20(@current-change="fetchContestList",:current-page.sync="currentPage",background,
         :page-size="perpage",layout="prev, pager, next,jumper",:total="total")
 </template>
 
@@ -82,23 +84,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.contestlist__main {
-  background: $c15;
-  margin-right: 250px;
-  .contestlist__time__tag {
-    display: inline-block;
-  }
-}
-.contestlist__siderbar {
-  min-height: 600px;
-  width: 240px;
-  background: $c15;
-  box-sizing: border-box;
-  padding: 0.1rem;
-  p {
-    text-align: left;
-    font-size: 20px;
-    padding: 0.15rem 0;
-  }
+.contestlist__time__tag {
+  display: inline-block;
 }
 </style>

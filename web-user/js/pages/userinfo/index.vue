@@ -2,9 +2,10 @@
   .content
     title {{user?`${user.nick}的个人空间`:''}}
     .content__main
-      .userinfo__wrapper
-        .userinfo__section
-          h2 个人信息
+      .one-main
+        h1.content__panel__title 个人空间
+        .main__section
+          h3 用户信息
           el-row.tac
             el-col(:span="12")
               .userinfo__avatart__wrapper
@@ -26,16 +27,16 @@
                 li
                   span 注册时间 
                   span(v-if="user") {{user.created_at}}
-        .userinfo__section
-          h2 近期提交情况
+        .main__section
+          h3 近期提交情况
           line-chart(:option="chartOption",:flag="renderFlag",:id="'chart'",style="width:100%;height:500px;")
-        .userinfo__section
-          h2 已解决的问题
+        .main__section
+          h3 已解决的问题
           .problem__links(v-if="user")
             template(v-for="item,index in user.solved_problem_list")
               router-link(:to="{name:'problem',params:{id:item}}") {{item}} 
-        .userinfo__section
-          h2 未解决的问题
+        .main__section
+          h3 未解决的问题
           .problem__links(v-if="user")
             template(v-for="item,index in user.unsolved_problem_list")
               router-link(:to="{name:'problem',params:{id:item}}") {{item}} 
@@ -127,41 +128,29 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.userinfo__wrapper {
-  padding: 0.15rem;
+.userinfo__avatart__wrapper {
+  img {
+    height: 200px;
+    width: 200px;
+    border-radius: 100px;
+    border: 1px solid $c14;
+  }
+}
+ul.infolist {
   text-align: left;
-  background: $c15;
-  .userinfo__section {
-    min-height: 100px;
-    padding: 0.15rem 0;
-    &:not(:last-child) {
-      border-bottom: 1px solid $c13;
-      .userinfo__avatart__wrapper {
-        img {
-          height: 200px;
-          width: 200px;
-          border-radius: 100px;
-          border: 1px solid $c14;
-        }
+  li {
+    margin-top: 0.15rem;
+    font-size: 16px;
+    span {
+      display: inline-block;
+      &:first-child {
+        width: 100px;
       }
-      ul.infolist {
-        text-align: left;
-        li {
-          margin-top: 0.15rem;
-          font-size: 20px;
-          span {
-            display: inline-block;
-            &:first-child {
-              width: 100px;
-            }
-          }
-        }
-      }
-    }
-    .problem__links {
-      font-size: 24px;
-      word-spacing: 16px;
     }
   }
+}
+.problem__links {
+  font-size: 16px;
+  word-spacing: 16px;
 }
 </style>

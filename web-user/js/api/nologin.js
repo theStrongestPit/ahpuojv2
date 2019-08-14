@@ -42,6 +42,12 @@ export function getContestTeamRankList(id) {
 export function getContestProblem(id, num) {
     return request("GET", `contest/${id}/problem/${num}`)
 }
+export function getSeriesList(page, perpage, queryParam) {
+    return request("GET", "serieses", { "page": page, "perpage": perpage, "param": queryParam })
+}
+export function getSeries(id) {
+    return request("GET", `series/${id}`)
+}
 export function getAllTags() {
     return request("GET", "alltags")
 }

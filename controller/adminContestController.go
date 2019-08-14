@@ -28,10 +28,7 @@ func IndexContest(c *gin.Context) {
 	whereString += " order by id desc"
 
 	rows, total, err := model.Paginate(page, perpage, "contest", []string{"*"}, whereString)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 	var contests []map[string]interface{}
@@ -53,10 +50,7 @@ func GetContest(c *gin.Context) {
 	var contest model.Contest
 	id, _ := strconv.Atoi(c.Param("id"))
 	err := DB.Get(&contest, "select * from contest where id = ?", id)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "竞赛&作业不存在",
-		})
+	if utils.CheckError(c, err, "竞赛&作业不存在") != nil {
 		return
 	}
 	contest.FetchProblems()
@@ -83,11 +77,7 @@ func GetAllContests(c *gin.Context) {
 func StoreContest(c *gin.Context) {
 	var req request.Contest
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "请求参数错误",
-		})
+	if utils.CheckError(c, err, "请求参数错误") != nil {
 		return
 	}
 	contest := model.Contest{
@@ -103,11 +93,7 @@ func StoreContest(c *gin.Context) {
 	// 处理竞赛作业包含的问题
 	contest.AddProblems(req.Problems)
 
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "新建竞赛&作业失败，该竞赛&作业已存在",
-		})
+	if utils.CheckError(c, err, "新建竞赛&作业失败，该竞赛&作业已存在") != nil {
 		return
 	}
 
@@ -121,11 +107,7 @@ func UpdateContest(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	var req request.Contest
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "请求参数错误",
-		})
+	if utils.CheckError(c, err, "请求参数错误") != nil {
 		return
 	}
 	contest := model.Contest{
@@ -140,11 +122,8 @@ func UpdateContest(c *gin.Context) {
 	}
 
 	err = contest.Update()
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "编辑竞赛&作业失败，竞赛&作业不存在",
-		})
+
+	if utils.CheckError(c, err, "编辑竞赛&作业失败，竞赛&作业不存在") != nil {
 		return
 	}
 
@@ -164,11 +143,7 @@ func DeleteContest(c *gin.Context) {
 		Id: id,
 	}
 	err := contest.Delete()
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "删除竞赛&作业失败，竞赛&作业不存在",
-		})
+	if utils.CheckError(c, err, "删除竞赛&作业失败，竞赛&作业不存在") != nil {
 		return
 	}
 	c.JSON(200, gin.H{
@@ -183,10 +158,7 @@ func ToggleContestStatus(c *gin.Context) {
 	}
 
 	err := contest.ToggleStatus()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "更改竞赛&作业状态失败，竞赛&作业不存在",
-		})
+	if utils.CheckError(c, err, "更改竞赛&作业状态失败，竞赛&作业不存在") != nil {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -215,10 +187,7 @@ func IndexContestUser(c *gin.Context) {
 	rows, total, err := model.Paginate(page, perpage,
 		"contest_user inner join user on contest_user.user_id = user.id",
 		[]string{"user.*"}, whereString)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 	users := []map[string]interface{}{}
@@ -323,8 +292,8 @@ func AddContestTeam(c *gin.Context) {
 	}
 
 	_, err = DB.Exec("insert into contest_team(contest_id,team_id,created_at,updated_at) values(?,?,NOW(),NOW())", id, teamId)
-	if err != nil {
-		utils.Consolelog(err)
+	if utils.CheckError(c, err, "数据库操作失败") != nil {
+		return
 	}
 	c.JSON(200, gin.H{
 		"message": "添加团队成功",
@@ -334,10 +303,7 @@ func AddContestTeam(c *gin.Context) {
 func DeleteContestTeam(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	teamId, _ := strconv.Atoi(c.Param("teamid"))
-	_, err := DB.Exec("delete from contest_team where contest_id = ? and team_id = ?", id, teamId)
-	if err != nil {
-		utils.Consolelog(err)
-	}
+	DB.Exec("delete from contest_team where contest_id = ? and team_id = ?", id, teamId)
 	// 级联删除
 	DB.Exec(`delete contest_user from contest_user inner join contest_team_user on contest_user.contest_id = contest_team_user.contest_id 
 	where contest_user.contest_id = ? and contest_team_user.team_id = ?`, id, teamId)

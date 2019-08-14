@@ -1,7 +1,7 @@
 <template lang="pug">
   .content
     .content__main
-      .replys__wrapper
+      .one-main
         h1.content__panel__title 回复列表
         div(v-if="replys&&replys.length==0")
           .reply__box
@@ -15,7 +15,7 @@
               span 中回复了你
               br
               .reply__content(v-html="calcContent(item.content)")
-        el-pagination.tal.mt10.mb10(@current-change="fetchMyReplys",:current-page.sync="currentPage",background,
+        el-pagination.tal.mt20.mt10.mb10(@current-change="fetchMyReplys",:current-page.sync="currentPage",background,
         :page-size="perpage",layout="prev, pager, next,jumper",:total="total",style="background:#fff;")
 </template>
 
@@ -65,29 +65,22 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.replys__wrapper {
-  h1.content__panel__title {
-    background: $c15;
-  }
-  .reply__box {
-    background: $c15;
+.reply__box {
+  background: $c15;
+  position: relative;
+  margin-top: 0.2rem;
+  padding: 0 0.1rem 0.1rem 0.1rem;
+  border-bottom: 1px solid $c13;
+  text-align: left;
+  .reply__content {
+    border-radius: 5px;
+    background: $c14;
+    padding: 0.1rem;
     position: relative;
-    margin-top: 0.2rem;
-    padding: 0.2rem;
-    border: 1px solid $c13;
+    box-sizing: border-box;
+    min-height: 60px;
     text-align: left;
-    &:last-child {
-      border-bottom: 1px solid $c13;
-    }
-    .reply__content {
-      background: $c14;
-      padding: 0.1rem;
-      position: relative;
-      box-sizing: border-box;
-      min-height: 60px;
-      text-align: left;
-      font-size: 16px;
-    }
+    font-size: 16px;
   }
 }
 </style>

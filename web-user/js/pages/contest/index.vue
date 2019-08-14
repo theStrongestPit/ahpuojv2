@@ -2,8 +2,10 @@
   .content
     title {{`${contest?contest.name:''} - AHPUOJ`}}
     .content__main
-      .contest__siderbar(class="fr")
-        ul.contest__info__list
+      .siderbar
+        ul.siderbar__item__list
+          li  
+            .header 竞赛信息
           li  状态：
               template(v-if="contest")
                 span.text-button.text-button--success(v-if="contest.status==1") 未开始
@@ -13,23 +15,23 @@
               template(v-if="contest")          
                 span.text-button(:class="[contest.private == 1 ? 'text-button--danger':'text-button--success']")  {{ contest.private == 1?"私有赛":"公开赛" }}
                 span.text-button(:class="[contest.team_mode == 0 ? 'text-button--success':'text-button--primary']")  {{ contest.team_mode == 0?"个人赛":"团体赛" }}
-          li 开始时间：
+          li 
+            div 开始时间：
             p(v-if="contest") {{contest.start_time}}
-          li  结束时间：
+            div.mt10 结束时间：
             p(v-if="contest")  {{contest.end_time}}
           li  持续时长：
-          p(v-if="contest")  {{timeDiff}}
-
-          .button__wrapper
-            el-button(size="small",type="primary",@click="jumpToStatus") 记录
-            el-button(size="small",type="primary",@click="jumpToRank") 排名
-            el-button(v-if="contest&&contest.team_mode == 1",size="small",type="primary",@click="jumpToTeamRank") 团队排名
-      .contest__main(class="clearfix")
+            p(v-if="contest")  {{timeDiff}}
+        .button__wrapper
+          el-button(size="small",type="primary",@click="jumpToStatus") 记录
+          el-button(size="small",type="primary",@click="jumpToRank") 排名
+          el-button(v-if="contest&&contest.team_mode == 1",size="small",type="primary",@click="jumpToTeamRank") 团队排名
+      .main
         h1 {{contest?contest.name:''}}
-        .contest__section(style="min-height:200px;") 
+        .main__section(style="min-height:200px;") 
           h3 竞赛简介
           div(v-if="contest",v-html="contest.description")
-        .contest__section
+        .main__section
           h3 问题列表
           el-table.dataTable(v-if="seeable",:data="contest.probleminfos", style="width: 100%")
             el-table-column(width="40")
@@ -161,51 +163,4 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.contest__main {
-  position: relative;
-  background: $c15;
-  color: $c1;
-  margin-right: 250px;
-  min-height: 6rem;
-  padding: 0.2rem;
-  text-align: left;
-  h1 {
-    font-size: 24px;
-    margin-bottom: 1rem;
-  }
-  .contest__section {
-    padding: 0.1rem 0 0.2rem 0;
-    font-size: 20px;
-    color: $c4;
-    border-top: 1px solid $c14;
-    svg {
-      height: 0.16rem;
-    }
-  }
-}
-.contest__siderbar {
-  text-align: left;
-  min-height: 600px;
-  width: 240px;
-  background: $c15;
-  box-sizing: border-box;
-  padding: 0.1rem;
-  position: relative;
-  .contest__info__list {
-    font-size: 20px;
-    li {
-      &:not(:first-child) {
-        border-top: 1px solid $c14;
-      }
-      padding: 20px 0;
-    }
-  }
-  .button__wrapper {
-    text-align: center;
-    width: 100%;
-    position: absolute;
-    left: 0px;
-    bottom: 20px;
-  }
-}
 </style>

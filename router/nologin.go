@@ -16,6 +16,8 @@ func ApiNologinRouter(g *gin.RouterGroup) {
 	g.GET("/contest/:id/teamranklist", controller.NologinGetContestTeamRankList)
 	g.GET("/contest/:id/problem/:num", controller.NologinGetContestProblem)
 	g.GET("/contests", controller.NologinGetContestList)
+	g.GET("/serieses", controller.NologinGetSeriesList)
+	g.GET("/series/:id", controller.NologinGetSeries)
 	g.GET("/solution/:id", controller.NologinGetSolution)
 	g.GET("/solutions", controller.NologinGetSolutionList)
 	g.GET("/alltags", controller.NologinGetAllTags)

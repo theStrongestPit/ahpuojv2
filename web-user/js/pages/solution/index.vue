@@ -2,51 +2,55 @@
   .content
     title {{solution?`S${solution.id} 评测详情 - AHPUOJ`:''}}
     .content__main
-      .solution__siderbar(class="fr")
-        ul
+      .siderbar
+        ul.siderbar__item__list
+          li 
+            .header 评测信息
           li(class="userinfo__wrapper align__center")
-            router-link(:to="{name:'userinfo',params:{id:solution?solution.user.id:0}}")
-              img(:src="imgUrl(solution?solution.user.avatar:'')")
-          li(class="align__center")
-            router-link(:to="{name:'userinfo',params:{id:solution?solution.user.id:0}}") {{solution?solution.user.nick:""}}
+            div
+              router-link(:to="{name:'userinfo',params:{id:solution?solution.user.id:0}}")
+                img(:src="imgUrl(solution?solution.user.avatar:'')")
+            div
+              router-link(:to="{name:'userinfo',params:{id:solution?solution.user.id:0}}") {{solution?solution.user.nick:""}}
           li
-            strong 代码
-            span(class="fr",v-if="solution") {{langList[solution.language] + " " + solution.code_length+"kb"  }}
-          li
-            strong 提交时间
-            span(class="fr",,v-if="solution") {{solution.in_date}}
-      .solution__main(class="clearfix")
+            div.mt10
+              strong 代码
+              span(class="fr",v-if="solution") {{langList[solution.language] + " " + solution.code_length+"kb"  }}
+            div.mt10
+              strong 提交时间
+              span(class="fr",,v-if="solution") {{solution.in_date}}
+      .main
         h1.content__panel__title(style="padding-left:0;") 评测详情
-        .solution__section
+        .main__section
           h3 问题
               p(v-if="solution")
                 router-link(v-if="solution.contest_id==0",:to="{name:'problem',params:{id:solution.problem.id}}") {{`P${solution.problem.id}  ${solution.problem.title}`}}
                 router-link(v-else,:to="{name:'contestProblem',params:{id:solution.contest_id,num:solution.num}}") {{ `C${solution.contest_id}  ${engNum(solution.num)} ${solution.problem.title}`}}
-        .solution__section
+        .main__section
           h3 结果
           p(v-if="solution") {{resultList[solution.result]?resultList[solution.result].name:""}}
-        .solution__section
+        .main__section
           h3 运行信息
           p(v-if="solution") {{ `用时${solution.time}ms \\ 内存${solution.memory}kb`}}
-        .solution__section          
+        .main__section          
           h3 编译信息
           p(v-if="solution") {{solution.compile_info?solution.compile_info:"没有编译信息"}}
-        .solution__section               
+        .main__section               
           h3 错误信息
           p(v-if="solution") {{renderWrongInfo}}
         // 非比赛模式下 代码提交者可以下载样例
         template(v-if="solution && solution.runtime_info && $store.getters.userId==solution.user.id && solution.contest_id == 0  && solution.result >= 5 && solution.result <= 8")
-          .solution__section
+          .main__section
             h3 测试点数据下载
             el-button(size="mini",type="success",@click="handleDownloadDataFile(wrongFileName+'.in')") {{wrongFileName+".in"}}
             el-button(size="mini",type="success",@click="handleDownloadDataFile(wrongFileName+'.out')") {{wrongFileName+".out"}}
-        .solution__section(v-if="solution && solution.contest_id == 0 && solution.result == 4 && $store.getters.userId == solution.user.id")
+        .main__section(v-if="solution && solution.contest_id == 0 && solution.result == 4 && $store.getters.userId == solution.user.id")
           h3 公开代码
           p 公开你的源码，用你的智慧帮助其他的人解决问题！
           p.mt10 当前状态 
             span.text-button(:class="[solution.public == 0 ? 'text-button--danger':'text-button--success']") {{solution.public == 0 ? "不公开":"公开"}}
           el-button.mt10(:type="solution.public == 1?'danger':'primary'", @click="handleToggleSolutionStatus") {{solution.public == 1?'隐藏代码':'公开代码'}}
-        .solution__section
+        .main__section
           h3 代码
           code-mirror(v-if="seeable",:code.sync="solution.source",:language="solution.language",:readonly="true")
           p(v-else) 你没有查看这份代码的权限
@@ -191,44 +195,11 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.solution__main {
-  position: relative;
-  background: $c15;
-  color: $c1;
-  margin-right: 250px;
-  min-height: 6rem;
-  padding: 0.2rem;
-  text-align: left;
-  h1 {
-    font-size: 24px;
-    margin-bottom: 0.1rem;
-  }
-  .solution__section {
-    color: $c4;
-    border-top: 1px solid $c14;
-    padding: 0.1rem 0 0.2rem 0;
-    font-size: 20px;
-  }
-}
-.solution__siderbar {
-  text-align: left;
-  min-height: 600px;
-  width: 240px;
-  background: $c15;
-  box-sizing: border-box;
-  padding: 0.1rem;
-  position: relative;
-  ul {
-    li {
-      margin-top: 20px;
-    }
-    .userinfo__wrapper {
-      img {
-        width: 80px;
-        height: 80px;
-        border-radius: 40px;
-      }
-    }
+.userinfo__wrapper {
+  img {
+    width: 80px;
+    height: 80px;
+    border-radius: 40px;
   }
 }
 </style>

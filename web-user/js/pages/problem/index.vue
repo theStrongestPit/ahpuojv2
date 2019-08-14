@@ -2,10 +2,12 @@
   .content
     title {{problem?`${problemTitle} - AHPUOJ`:''}}
     .content__main
-      .problem__siderbar(class="fr")
-        ul.problem__info__list
+      .siderbar
+        ul.siderbar__item__list
           li 
-            ul.problem__submitinfo__list
+            .header 题目信息
+          li 
+            ul.submitinfo__list
               li
                 p 通过
                 p 
@@ -14,19 +16,19 @@
                 p 提交
                 p
                   span(v-if="problem") {{problem.submit}}
-          li 时间限制：
-              span(v-if="problem") {{`${problem.time_limit}S`}}
-          li 内存限制：
-            span(v-if="problem") {{`${problem.memory_limit}MB`}}
-          // 比赛中不显示这些信息
-          template(v-if="$route.name == 'problem'")
-            li 难度：
+          li.problem__infos
+            div
+              span(v-if="problem") {{`时间限制：${problem.time_limit}S`}}
+            div
+              span(v-if="problem") {{`内存限制：${problem.memory_limit}MB`}}
+            div(v-if="$route.name == 'problem'") 难度：
               template(v-if="problem")
                 span.text-button.text-button--success(v-if="problem.level==0")  简单
                 span.text-button.text-button--warning(v-if="problem.level==1", size="mini") 中等
                 span.text-button.text-button--danger(v-if="problem.level==2", size="mini") 困难
-            li 题目标签：
-              ul(class="problem__tag__list",v-if="problem")
+            li(v-if="$route.name == 'problem'") 
+              .mb10 题目标签：
+              ul(class="button-list",v-if="problem")
                 template(v-for="tag in problem.tags")
                   li
                     el-button(size="mini",type="success",class="tag-button",@click="handleSearchTag(tag.id)") {{tag.name}}
@@ -35,28 +37,28 @@
           el-button(size="small",type="primary",@click="handleChangeView") {{ problemView?'提交':'返回'}}
           el-button(size="small",type="primary",v-if="$route.name=='problem'",,@click="jumpToIssues") 讨论版
           el-button(size="small",type="primary",@click="jumpToSolutions") 记录
-      .problem__main(class="clearfix")
-        h1 {{problemTitle}}
+      .main
+        h1.content__panel__title {{problemTitle}}
         transition(name="fade",mode="out-in",:duration="{ enter: 500, leave: 0 }")
           .problem_view(v-if="problemView",key="problem")
-            .problem__section
+            .main__section
               h3 问题描述
               div(v-if="problem",v-html="problem.description")
-            .problem__section
+            .main__section
               h3 输入
               div(v-if="problem",v-html="problem.input")
-            .problem__section
+            .main__section
               h3 输出
               div(v-if="problem",v-html="problem.output")
-            .problem__section
+            .main__section
               h3 样例输入
                 span(@click="handleCopyInput",ref="copyInputBtn",data-clipboard-action="copy",data-clipboard-target="#input_content",class="copyBtn") 复制
               div(v-if="problem",id="input_content",style="white-space: pre-line;")  {{problem.sample_input}}
-            .problem__section
+            .main__section
               h3 样例输出
                 span(@click="handleCopyOutput",ref="copyOutputBtn",data-clipboard-action="copy",data-clipboard-target="#output_content",class="copyBtn")  复制
               div(v-if="problem",id="output_content",style="white-space: pre-line;") {{problem.sample_output}}
-            .problem__section
+            .main__section
               h3 提示
               div(v-if="problem",v-html="problem.hint")        
           .submit_view(v-else,key="submit")
@@ -193,6 +195,8 @@ export default {
           // 如果是比赛题目路由
           let num = parseInt(self.$route.params.num);
           res = await getContestProblem(id, num);
+          console.log(res);
+
           let data = res.data;
           self.problem = data.problem;
           self.form.problem_id = self.problem.id;
@@ -378,7 +382,7 @@ export default {
     problemTitle() {
       if (this.$route.name == "problem" && this.problem != null) {
         return `P${this.problem.id}  ${this.problem.title}`;
-      } else if (this.$route.name == "contestProblem") {
+      } else if (this.$route.name == "contestProblem" && this.problem != null) {
         let num = Number.parseInt(this.$route.params.num);
         let engNum = this.engNum(num);
         return `C${this.$route.params.id}  ${engNum} ${this.problem.title}`;
@@ -388,78 +392,22 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.problem__main {
-  position: relative;
-  background: $c15;
-  color: $c1;
-  margin-right: 250px;
-  min-height: 6rem;
-  padding: 0.2rem;
-  text-align: left;
-  h1 {
-    font-size: 24px;
-    margin-bottom: 0.1rem;
-  }
-  .problem__section {
-    color: $c4;
-    border-top: 1px solid $c14;
-    padding: 0.1rem 0 0.2rem 0;
-    font-size: 20px;
-    .copyBtn {
-      cursor: pointer;
-      margin-left: 5px;
-      display: inline-block;
-      color: $c15;
-      line-height: 20px;
-      font-size: 14px;
-      background: $pdgreen;
-    }
-  }
-}
-.problem__siderbar {
-  text-align: left;
-  min-height: 600px;
-  width: 240px;
-  background: $c15;
-  box-sizing: border-box;
-  padding: 0.1rem;
-  position: relative;
-  .problem__info__list {
-    font-size: 20px;
-    & > li {
-      margin-top: 20px;
-      .problem__submitinfo__list {
-        display: flex;
-        li {
-          text-align: center;
-          width: 50%;
-          flex: 0 1 auto;
-          p {
-            &:first-child {
-              font-size: 20px;
-            }
-            &:last-child {
-              font-size: 20px;
-            }
-          }
-        }
-      }
-      .problem__tag__list {
-        display: flex;
-        flex-wrap: wrap;
-        li {
-          flex: 0 1 auto;
-          margin: 0.1rem;
-        }
+.siderbar__item__list {
+  .submitinfo__list {
+    display: flex;
+    li {
+      text-align: center;
+      width: 50%;
+      flex: 0 1 auto;
+      p {
+        font-size: 18px;
       }
     }
   }
-  .button__wrapper {
-    text-align: center;
-    width: 100%;
-    position: absolute;
-    left: 0px;
-    bottom: 20px;
+  .problem__infos {
+    div {
+      margin: 0.1rem 0;
+    }
   }
 }
 </style>

@@ -2,7 +2,7 @@
 .admin-content
   .content__breadcrumb
     el-breadcrumb(separator="/")
-      el-breadcrumb-item(:to="{name:`adminIndex`}") 首页
+      el-breadcrumb-item(:to="{name:`home`}") 首页
   .content__main
     .chart__wrapper
       h2.pl20.pt10 近期提交情况

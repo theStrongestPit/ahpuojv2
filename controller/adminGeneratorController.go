@@ -16,11 +16,7 @@ import (
 func CompeteAccountGenerator(c *gin.Context) {
 	var req request.CompeteAccount
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		utils.Consolelog(err.Error())
-		c.JSON(400, gin.H{
-			"message": "参数错误",
-		})
+	if utils.CheckError(c, err, "参数错误") != nil {
 		return
 	}
 
@@ -45,7 +41,6 @@ func CompeteAccountGenerator(c *gin.Context) {
 
 		err = user.Save()
 		if err != nil {
-			utils.Consolelog(err)
 			infos = append(infos, "用户"+username+"创建失败")
 		} else {
 			users = append(users, map[string]interface{}{
@@ -68,10 +63,7 @@ func CompeteAccountGenerator(c *gin.Context) {
 func UserAccountGenerator(c *gin.Context) {
 	var req request.UserAccount
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "参数错误",
-		})
+	if utils.CheckError(c, err, "参数错误") != nil {
 		return
 	}
 

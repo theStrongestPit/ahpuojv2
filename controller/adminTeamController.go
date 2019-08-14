@@ -13,11 +13,7 @@ func GetTeam(c *gin.Context) {
 	var team model.Team
 	id, _ := strconv.Atoi(c.Param("id"))
 	err := DB.Get(&team, "select * from team where id = ?", id)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "团队不存在",
-		})
+	if utils.CheckError(c, err, "团队不存在") != nil {
 		return
 	}
 	c.JSON(200, gin.H{
@@ -44,10 +40,7 @@ func IndexTeam(c *gin.Context) {
 
 	utils.Consolelog(whereString)
 	rows, total, err := model.Paginate(page, perpage, "team", []string{"*"}, whereString)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 	var teams []map[string]interface{}
@@ -99,10 +92,7 @@ func IndexTeamUser(c *gin.Context) {
 	rows, total, err := model.Paginate(page, perpage,
 		"team_user inner join user on team_user.user_id = user.id",
 		[]string{"user.*"}, whereString)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 	users := []map[string]interface{}{}
@@ -140,20 +130,14 @@ func AddTeamUsers(c *gin.Context) {
 func StoreTeam(c *gin.Context) {
 	var req request.Team
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "请求参数错误",
-		})
+	if utils.CheckError(c, err, "请求参数错误") != nil {
 		return
 	}
 	team := model.Team{
 		Name: req.Name,
 	}
 	err = team.Save()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "新建团队失败，该团队已存在",
-		})
+	if utils.CheckError(c, err, "新建团队失败，该团队已存在") != nil {
 		return
 	}
 
@@ -167,11 +151,7 @@ func UpdateTeam(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	var req request.Team
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "请求参数错误",
-		})
+	if utils.CheckError(c, err, "请求参数错误") != nil {
 		return
 	}
 	team := model.Team{
@@ -179,10 +159,7 @@ func UpdateTeam(c *gin.Context) {
 		Name: req.Name,
 	}
 	err = team.Update()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "编辑团队失败",
-		})
+	if utils.CheckError(c, err, "编辑团队失败") != nil {
 		return
 	}
 
@@ -198,10 +175,7 @@ func DeleteTeam(c *gin.Context) {
 		Id: id,
 	}
 	err := team.Delete()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "删除团队失败，团队不存在",
-		})
+	if utils.CheckError(c, err, "删除团队失败，团队不存在") != nil {
 		return
 	}
 
@@ -217,15 +191,10 @@ func DeleteTeamUser(c *gin.Context) {
 	result, _ := DB.Exec("delete from team_user where team_id = ? and user_id = ?", teamId, userId)
 
 	// 级联删除
-	_, err := DB.Exec(`delete contest_user from contest_user inner join contest_team_user on contest_user.contest_id = contest_team_user.contest_id 
+	DB.Exec(`delete contest_user from contest_user inner join contest_team_user on contest_user.contest_id = contest_team_user.contest_id 
 	where contest_user.user_id = ? and contest_team_user.team_id = ?`, userId, teamId)
-	if err != nil {
-		utils.Consolelog(err)
-	}
-	_, err = DB.Exec("delete from contest_team_user where team_id = ? and user_id = ?", teamId, userId)
-	if err != nil {
-		utils.Consolelog(err)
-	}
+
+	DB.Exec("delete from contest_team_user where team_id = ? and user_id = ?", teamId, userId)
 
 	rowsAffected, _ := result.RowsAffected()
 	if rowsAffected == 0 {

@@ -1,10 +1,16 @@
 <template lang="pug">
 .topbar__wrapper
   .topbar
-    .topbar__title
-      router-link(:to="{name:'index'}") AHPUOJV2
+    .topbar__title(v-if="screenWidth > 960")
+      router-link(:to="{name:'index'}") AHPUOJ
+    .topbar__mobile_nav(v-else)
+      .mobile-humber(@click="toggleMobileNav")
+        a(href="#", :class="{active:showMobileNav}")
+          span(class="line")
+          span(class="line")
+          span(class="line")
     .topbar__nav
-      ul(class="topbar__nav__bar clearfix")
+      ul(class="topbar__nav__bar clearfix",v-if="screenWidth > 960")
         li(class="topbar__nav__item topbar__section")
           router-link(:to="{name:'problemSet'}")
             svg-icon(name="problem") 
@@ -20,7 +26,11 @@
         li(class="topbar__nav__item topbar__section")
           router-link(:to="{name:'contestList'}")
             svg-icon(name="champion") 
-            span 竞赛&作业
+            span 竞赛
+        li(class="topbar__nav__item topbar__section")
+          router-link(:to="{name:'seriesList'}")
+            svg-icon(name="tournament") 
+            span 系列赛
         li(class="topbar__nav__item topbar__section")
           router-link(:to="{name:'ranklist'}")
             svg-icon(name="ranking") 
@@ -31,7 +41,7 @@
             span.username  {{$store.getters.userNick}}
           img(:src="imgUrl($store.getters.userAvatar)",@mouseover="showDropDownMenu = true")
           el-collapse-transition
-            ul(class="topbar__userinfo__dropdown",v-if="showDropDownMenu")
+            ul.topbar__userinfo__dropdown(v-if="showDropDownMenu")
               li 
                 router-link(:to="{name:'userinfo',params:{id:$store.getters.userId}}") 个人空间
               li 
@@ -47,37 +57,38 @@
             a  
               svg-icon(name="login") 
               span 登录
-    .topbar__mobile_nav
-      .mobile-humber(@click="toggleMobileNav")
-        a(href="#", :class="{active:showMobileNav}")
-          span(class="line")
-          span(class="line")
-          span(class="line")
 
   transition(name="slide-fade")
-    el-menu(:default-active="defaultActive",class="topbar__mobile__nav__menu",background-color="#545c64",
-    text-color="#fff",active-text-color="#ffd04b",:router="true", v-if="showMobileNav && screenWidth <= 960")
-      template(v-for="item in showItems")
-        template(v-if="item.meta.issub === false")
-          el-menu-item(:index="item.children[0].name", :route="{name:item.children[0].name}", class="submenu-title-noDropdown", :key="item.children[0].name")
-            svg-icon(:name="item.children[0].meta.icon")
-            span {{item.children[0].meta.title}}
-        template(v-else)
-          el-submenu(:index="item.meta.title", :key="item.meta.title")
-            template(slot="title")
-              svg-icon(:name="item.meta.icon")
-              span {{item.meta.title}}
-            template(v-for="children in item.children")
-              el-menu-item(:index="children.name", :route="{name:children.name}", :key="children.name") {{children.meta.title}}
-  el-dialog(:visible.sync="dialogFormVisible",width="400px",:close-on-click-modal="false")
-    .auth__dialog 
-      .title 
+      el-menu(:default-active="defaultActive",@select="toggleMobileNav",class="topbar__mobile__nav__menu",background-color="#545c64",
+      text-color="#fff",active-text-color="#ffd04b",:router="true", v-if="showMobileNav && screenWidth <= 960")
+        el-menu-item(:index="1", :route="{name:'problemSet'}", class="submenu-title-noDropdown")
+          svg-icon(name="problem")
+          span 问题集
+        el-menu-item(:index="1", :route="{name:'issueList'}", class="submenu-title-noDropdown")
+          svg-icon(name="chat")
+          span 讨论区
+        el-menu-item(:index="1", :route="{name:'status'}", class="submenu-title-noDropdown")
+          svg-icon(name="server")
+          span 评测机
+        el-menu-item(:index="1", :route="{name:'contestList'}", class="submenu-title-noDropdown")
+          svg-icon(name="champion")
+          span 竞赛
+        el-menu-item(:index="1", :route="{name:'seriesList'}", class="submenu-title-noDropdown")
+          svg-icon(name="tournament")
+          span 系列赛
+        el-menu-item(:index="1", :route="{name:'ranklist'}", class="submenu-title-noDropdown")
+          svg-icon(name="ranking")
+          span 排名
+
+  el-dialog(:visible.sync="dialogFormVisible",width="400px",:close-on-click-modal="false",custom-class="auth__dialog__wrapper")
+    .auth__dialog
+      .title(slot="header") 
         span(:class="[method=='login'?'active':'']",@click="method='login'") &nbsp登 录&nbsp
         span(:class="[method=='register'?'active':'']", @click="method='register'") &nbsp注 册&nbsp
       el-form(v-if="method=='login'", ref="loginForm", :model="loginForm", :rules="loginRules", key="login")
         el-form-item(prop="username")
           el-input(v-model="loginForm.username", placeholder="请输入用户名")
-             svg-icon(slot="prefix", name="user", class="auth__input__prefix")
+            svg-icon(slot="prefix", name="user", class="auth__input__prefix")
         el-form-item(prop="password")
           el-input(v-model="loginForm.password",type="password", placeholder="请输入密码")
               svg-icon(slot="prefix", name="password", class="auth__input__prefix")
@@ -130,6 +141,7 @@ export default {
       }
     };
     return {
+      showMobileNav: false,
       showDropDownMenu: false,
       dialogFormVisible: false,
       method: "login",
@@ -332,15 +344,17 @@ export default {
   transition: all 0.5s ease;
   max-height: 10rem;
 }
-.slide-fade-enter, .slide-fade-leave-to
-/* .slide-fade-leave-active for below version 2.1.8 */ {
+.slide-fade-enter,
+.slide-fade-leave-to {
   max-height: 0rem;
   opacity: 1;
 }
+
 .topbar__mobile__nav__menu {
+  text-align: left;
   overflow: hidden;
   position: absolute !important;
-  top: 0.8rem;
+  top: 100px;
   width: 100%;
   z-index: 1000;
 }
@@ -393,7 +407,7 @@ export default {
       & > .topbar__nav__item {
         flex: 0 1 auto;
       }
-      .topbar__nav__item {
+      li.topbar__nav__item {
         display: inline-block;
         height: 100%;
         position: relative;
@@ -401,6 +415,7 @@ export default {
       }
     }
     .topbar__section {
+      width: 200px;
       a {
         font-size: 18px;
         display: block;
@@ -476,19 +491,18 @@ export default {
           right: -35px;
           z-index: 100;
           background: $c15;
-          border: 0.01rem solid $c12;
+          border: 1px solid $c12;
           font-size: 0.18rem;
           transition: all 0.3s;
-          box-shadow: 0.01rem 0.01rem 0.01rem $c12;
           li {
             cursor: pointer;
             color: $c3;
-            height: 60px;
-            line-height: 60px;
+            height: 50px;
+            line-height: 50px;
             border-bottom: 0.01rem solid $c13;
             transition: all 0.3s;
             a {
-              font-size: 20px;
+              font-size: 16px;
             }
             &:hover {
               color: $pblue;
@@ -501,6 +515,7 @@ export default {
 }
 
 .auth__dialog {
+  border-radius: 10px;
   .title {
     text-align: left;
     margin-bottom: 0.1rem;
@@ -521,6 +536,68 @@ export default {
     height: 100%;
     line-height: 100%;
     width: 20px;
+  }
+}
+
+.topbar__mobile_nav {
+  position: relative;
+  height: 100px;
+  float: left;
+  .mobile-humber {
+    margin-top: 10px;
+    width: 120px;
+    float: left;
+    height: 80%;
+    box-sizing: border-box;
+    padding: 15px;
+    a {
+      height: 100%;
+      width: 80%;
+      margin: 0 auto;
+      display: block;
+      position: relative;
+      transition: all 0.3s;
+      .line {
+        position: absolute;
+        width: 100%;
+        margin: 0 auto;
+        height: 2px;
+        display: block;
+        background: $c15;
+        transition: all 0.3s;
+        &:nth-child(1) {
+          top: 0;
+        }
+        &:nth-child(2) {
+          top: 50%;
+        }
+        &:nth-child(3) {
+          top: 100%;
+        }
+      }
+    }
+    .active {
+      .line {
+        position: absolute;
+        width: 100%;
+        margin: 0 auto;
+        height: 2px;
+        display: block;
+        background: $c15;
+        transition: all 0.3s;
+        &:nth-child(1) {
+          top: 0;
+          transform: translateY(25px) rotate(45deg);
+        }
+        &:nth-child(2) {
+          display: none;
+        }
+        &:nth-child(3) {
+          top: 100%;
+          transform: translateY(-25px) rotate(-45deg);
+        }
+      }
+    }
   }
 }
 </style>

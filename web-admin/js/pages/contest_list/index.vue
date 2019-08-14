@@ -2,7 +2,7 @@
 .admin-content
   .content__breadcrumb
     el-breadcrumb(separator="/")
-      el-breadcrumb-item(:to="{name:`adminIndex`}") 首页
+      el-breadcrumb-item(:to="{name:`home`}") 首页
       el-breadcrumb-item {{$route.meta.title}}
   .content__main
     .content__searchbar__wrapper
@@ -77,9 +77,7 @@ export default {
     },
     async handleToggleContestStatus(row) {
       const self = this;
-      let msg = `确认要${row.defunct == 0 ? "保留" : "启用"}竞赛&作业${
-        row.name
-      }吗?`;
+      let msg = `确认要${row.defunct == 0 ? "保留" : "启用"}竞赛${row.name}吗?`;
       try {
         await self.$confirm(msg, "提示", {
           confirmButtonText: "确定",
@@ -109,7 +107,7 @@ export default {
     async handleDeleteContest(row) {
       const self = this;
       try {
-        await self.$confirm(`确认要删除竞赛&作业${row.name}吗?`, "提示", {
+        await self.$confirm(`确认要删除竞赛${row.name}吗?`, "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
@@ -140,6 +138,9 @@ export default {
         });
       }
     }
+  },
+  activated() {
+    this.fetchContestList();
   }
 };
 </script>

@@ -2,7 +2,7 @@
 .admin-content
   .content__breadcrumb
     el-breadcrumb(separator="/")
-      el-breadcrumb-item(:to="{name:`adminIndex`}") 首页
+      el-breadcrumb-item(:to="{name:`home`}") 首页
       el-breadcrumb-item {{$route.meta.title}}
   .content__main
     .content__button__wrapper
@@ -81,7 +81,9 @@ export default {
       tableData: []
     };
   },
-  mounted() {},
+  mounted() {
+    this.fetchSeriesList();
+  },
   methods: {
     async fetchSeriesList() {
       const self = this;

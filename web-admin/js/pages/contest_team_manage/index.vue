@@ -2,11 +2,11 @@
 .admin-content
   .content__breadcrumb
     el-breadcrumb(separator="/")
-      el-breadcrumb-item(:to="{name:`adminIndex`}") 首页
+      el-breadcrumb-item(:to="{name:`home`}") 首页
       el-breadcrumb-item {{$route.meta.title}}
   .content__main
     el-card.content__card__wrapper
-      p 竞赛&作业名称: {{contest.name}}
+      p 竞赛名称: {{contest.name}}
       p 包含团队总数: {{contestTeamList.length}}
     .content__button__wrapper
       el-button(type="success", @click="handleAddUser") 添加团队
@@ -62,6 +62,8 @@ import {
 } from "@/web-admin/js/api/contest.js";
 
 import { getAllTeams } from "@/web-admin/js/api/team.js";
+import FileSaver from "file-saver";
+import XLSX from "xlsx";
 
 export default {
   data() {

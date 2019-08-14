@@ -7,7 +7,9 @@ let baseURL = '/api'
 axios.interceptors.request.use((config) => {
     // 如果本地有token
     if (Cookies.get("access-token")) {
-        config.headers = { 'Authorization': Cookies.get("access-token") };
+        config.headers = {
+            'Authorization': Cookies.get("access-token")
+        };
     }
     return config;
 }, (err) => {
@@ -26,21 +28,24 @@ axios.interceptors.request.use((config) => {
 function errorState(response) {
     // 如果http状态码正常，则直接返回数据
     if (response && (response.status === 200 || response.status === 304 || response.status === 400)) {
-        // 如果不需要除了data之外的数据，可以直接 return response.data
         return response
     } else {
+        // this.$message({
+        //     message: '服务器内部错误',
+        //     type: 'error'
+        // });
         return response
     }
 }
 
 // 封装数据返回成功提示函数
-function successState(res) {
-    // 统一判断后端返回的错误码(错误码与后台协商而定)
-    if (res.data.code === '000000') {
-        console.log('success')
-        return res
-    }
-}
+// function successState(res) {
+//     // 统一判断后端返回的错误码(错误码与后台协商而定)
+//     if (res.data.code === '000000') {
+//         console.log('success')
+//         return res
+//     }
+// }
 
 // 封装axios
 function request(method, url, payload) {
@@ -58,7 +63,7 @@ function request(method, url, payload) {
     return new Promise(async (resolve, reject) => {
         try {
             let res = await axios(httpDefault);
-            successState(res)
+            // successState(res)
             resolve(res)
         } catch (err) {
             errorState(err)

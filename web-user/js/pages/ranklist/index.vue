@@ -1,7 +1,7 @@
 <template lang="pug">
   .content
     .content__main
-      .ranklist__wrapper
+      .one-main
         h1.content__panel__title 排名
         el-table(:data="tableData", style="width: 100%", class="dataTable", v-loading="loading")
           el-table-column(label="排名", width="60")
@@ -21,7 +21,7 @@
           el-table-column(label="解决",width="70",prop="solved")
           el-table-column(label="提交",width="70",prop="submit")
 
-        el-pagination.tal(@current-change="fetchRankList",:current-page.sync="currentPage",background,
+        el-pagination.tal.mt20(@current-change="fetchRankList",:current-page.sync="currentPage",background,
         :page-size="perpage",layout="prev, pager, next,jumper",:total="total")
 </template>
 
@@ -72,14 +72,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.ranklist__wrapper {
-  background: $c15;
-  .user__avatar__wrapper {
-    img {
-      width: 50px;
-      height: 50px;
-      border-radius: 25px;
-    }
+.user__avatar__wrapper {
+  img {
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
   }
 }
 </style>

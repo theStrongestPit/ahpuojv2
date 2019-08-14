@@ -28,10 +28,7 @@ func IndexNew(c *gin.Context) {
 	whereString += " order by top desc, id desc"
 	utils.Consolelog(whereString)
 	rows, total, err := model.Paginate(page, perpage, "new", []string{"*"}, whereString)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 	var news []map[string]interface{}
@@ -68,10 +65,7 @@ func GetNew(c *gin.Context) {
 func StoreNew(c *gin.Context) {
 	var req request.New
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "请求参数错误",
-		})
+	if utils.CheckError(c, err, "请求参数错误") != nil {
 		return
 	}
 	new := model.New{
@@ -79,10 +73,7 @@ func StoreNew(c *gin.Context) {
 		Content: sql.NullString{req.Content, true},
 	}
 	err = new.Save()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "新建新闻失败，该新闻已存在",
-		})
+	if utils.CheckError(c, err, "新建新闻失败，该新闻已存在") != nil {
 		return
 	}
 
@@ -96,11 +87,7 @@ func UpdateNew(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	var req request.New
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "请求参数错误",
-		})
+	if utils.CheckError(c, err, "请求参数错误") != nil {
 		return
 	}
 	new := model.New{
@@ -109,10 +96,7 @@ func UpdateNew(c *gin.Context) {
 		Content: sql.NullString{req.Content, true},
 	}
 	err = new.Update()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "编辑新闻失败，该新闻已存在",
-		})
+	if utils.CheckError(c, err, "编辑新闻失败，该新闻已存在") != nil {
 		return
 	}
 
@@ -128,10 +112,7 @@ func DeleteNew(c *gin.Context) {
 		Id: id,
 	}
 	err := new.Delete()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "删除新闻失败，该新闻不存在",
-		})
+	if utils.CheckError(c, err, "删除新闻失败，该新闻不存在") != nil {
 		return
 	}
 	c.JSON(200, gin.H{
@@ -146,10 +127,7 @@ func ToggleNewStatus(c *gin.Context) {
 	}
 
 	err := new.ToggleStatus()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "删除新闻失败，该新闻不存在",
-		})
+	if utils.CheckError(c, err, "删除新闻失败，该新闻不存在") != nil {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -164,10 +142,7 @@ func ToggleNewTopStatus(c *gin.Context) {
 	}
 
 	err := new.ToggleTopStatus()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "更改新闻置顶状态失败，该新闻不存在",
-		})
+	if utils.CheckError(c, err, "更改新闻置顶状态失败，该新闻不存在") != nil {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{

@@ -3,6 +3,7 @@ package model
 import (
 	"ahpuoj/utils"
 	"errors"
+	"strconv"
 )
 
 type Series struct {
@@ -14,6 +15,8 @@ type Series struct {
 	CreatedAt   string `db:"created_at"`
 	UpdatedAt   string `db:"updated_at"`
 	IsDeleted   int    `db:"is_deleted"`
+	// 附加信息
+	ContestInfos []map[string]interface{}
 }
 
 func (series *Series) Save() error {
@@ -56,13 +59,37 @@ func (series *Series) ToggleStatus() error {
 	return err
 }
 
+func (series *Series) AttachContestInfo() {
+	contestInfos := make([]map[string]interface{}, 0)
+	rows, err := DB.Queryx("select contest.* from contest inner join contest_series on contest_series.contest_id = contest.id where contest_series.series_id = ? and contest.team_mode = ? and contest.is_deleted = 0 and contest.defunct = 0", series.Id, series.TeamMode)
+	if err != nil {
+		utils.Consolelog(err)
+		return
+	}
+	index := 1
+	for rows.Next() {
+		var contest Contest
+		rows.StructScan(&contest)
+		contest.CalcStatus()
+		contestInfo := map[string]interface{}{
+			"id":     strconv.Itoa(contest.Id),
+			"name":   contest.Name,
+			"status": contest.Status,
+		}
+		index++
+		contestInfos = append(contestInfos, contestInfo)
+	}
+	series.ContestInfos = contestInfos
+}
+
 func (series *Series) Response() map[string]interface{} {
 
 	return map[string]interface{}{
-		"id":          series.Id,
-		"name":        series.Name,
-		"defunct":     series.Defunct,
-		"description": series.Description,
-		"team_mode":   series.TeamMode,
+		"id":           series.Id,
+		"name":         series.Name,
+		"defunct":      series.Defunct,
+		"description":  series.Description,
+		"team_mode":    series.TeamMode,
+		"contestinfos": series.ContestInfos,
 	}
 }

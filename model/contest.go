@@ -99,7 +99,6 @@ func (contest *Contest) AddProblems(reqProblems string) {
 			var pid int
 			err := checkStmt.Get(&pid, problemId)
 			if err != nil {
-				utils.Consolelog(err)
 				insertable = false
 			}
 			if insertable {

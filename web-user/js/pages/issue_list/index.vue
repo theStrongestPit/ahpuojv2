@@ -1,38 +1,42 @@
 <template lang="pug">
   .content
-    title {{contest?`问题P${$route.params.id}的讨论版 - AHPUOJ`:''}}
+    title {{$route.name=="issueList"?`讨论版 总版 - AHPUOJ`:`问题P${$route.params.id}的讨论版 - AHPUOJ`}}
     .content__main
-      .issues__wrapper
+      .one-main(v-if="issueEnable==true")
         .link.fr
           router-link(v-if="$route.name=='problemIssueList'",:to="{name:'problem',params:{id:$route.params.id}}") {{`转到问题`}}
         h1.content__panel__title {{$route.name=="issueList"?"讨论版 总版":`问题P${$route.params.id}的讨论版`}}
-        template(v-for="item in data")
-          .issue__box
-            .issue__userinfo__wrapper
-              ul
-                li.issue__user__avatar
-                  router-link(:to="{name:'userinfo',params:{id:item.user.id}}")
-                    img(:src="imgUrl(item.user.avatar)")
-                li.issue__user__name.ell 
-                  router-link(:to="{name:'userinfo',params:{id:item.user.id}}") {{item.user.nick}}
-            .issue__content(:class="item.is_deleted == 1?'issue-content--deleted':''")     
-              router-link(:to="{name:'issue',params:{id:item.id}}",target="_blank") {{item.title}}
-              .issue__addon.mt10
-                el-button.fl(v-if="$store.getters.userRole=='admin'",:type="item.is_deleted == 0?'danger':'success'",size="mini",@click="toggleIssueStatus(item.id)") {{item.is_deleted == 0 ? "删除":"恢复"}}
-                .issue__addon__info.tar
-                  router-link(v-if="item.problem.id>0",:to="{name:'problem',params:{id:item.problem.id}}") {{`In P${item.problem.id} ${item.problem.title}`}}
-                  p(v-else) 总版
-                  p {{item.reply_count}}个回复 最后回复时间 {{item.updated_at}}
-        el-pagination.tal(@current-change="fetchIssueList",:current-page.sync="currentPage",background,
+        .issue__box__list
+          template(v-for="item in data")
+            .issue__box
+              .issue__userinfo__wrapper
+                ul
+                  li.issue__user__avatar
+                    router-link(:to="{name:'userinfo',params:{id:item.user.id}}")
+                      img(:src="imgUrl(item.user.avatar)")
+                  li.issue__user__name.ell 
+                    router-link(:to="{name:'userinfo',params:{id:item.user.id}}") {{item.user.nick}}
+              .issue__content(:class="item.is_deleted == 1?'issue-content--deleted':''")     
+                router-link(:to="{name:'issue',params:{id:item.id}}",target="_blank") {{item.title}}
+                .issue__addon.mt10
+                  el-button.fl(v-if="$store.getters.userRole=='admin'",:type="item.is_deleted == 0?'danger':'success'",size="mini",@click="toggleIssueStatus(item.id)") {{item.is_deleted == 0 ? "删除":"恢复"}}
+                  .issue__addon__info.tar
+                    router-link(v-if="item.problem.id>0",:to="{name:'problem',params:{id:item.problem.id}}") {{`In P${item.problem.id} ${item.problem.title}`}}
+                    p(v-else) 总版
+                    p.text-muted {{item.reply_count}}条回复 最后回复时间 {{item.updated_at}}
+        el-pagination.tal.mt20(@current-change="fetchIssueList",:current-page.sync="currentPage",background,
         :page-size="perpage",layout="prev, pager, next,jumper",:total="total")
-
-        h1.content__panel__title 发表新讨论
+        .mt30
+        h1.content__panel__title 发表新回复
         .post__box__wrapper
           .post__box(v-if="$store.getters.username")
             el-input(placeholder="请输入讨论标题",v-model="issueForm.title",:autofocus="true")
             tinymce-editor.mt10(v-model="replyForm.content",:height="300")
             el-button.mt10(type="primary",@click="postIssue") 发表
           a(v-else,@click="goLogin") 请登陆后发表讨论
+      div(v-else-if="issueEnable==false")
+        p 讨论版功能已经被管理员关闭
+      div(v-else)
 </template>
 
 <script>
@@ -48,6 +52,7 @@ export default {
   name: "",
   data() {
     return {
+      issueEnable: null,
       currentPage: 1,
       perpage: 20,
       problemId: 0,
@@ -85,8 +90,9 @@ export default {
           self.currentPage,
           self.perpage
         );
-        console.log(res);
         let data = res.data;
+
+        self.issueEnable = data.issue_enable;
         self.data = data.data;
         self.total = data.total;
       } catch (err) {
@@ -165,69 +171,59 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.issues__wrapper {
-  .link {
-    font-size: 0.24rem;
-    line-height: 0.5rem;
-    padding-right: 0.2rem;
+.link {
+  font-size: 0.24rem;
+  line-height: 0.5rem;
+  padding-right: 0.2rem;
+}
+.issue__box {
+  background: $c15;
+  position: relative;
+  padding: 0.1rem;
+  &:not(:last-of-type) {
+    border-bottom: 1px solid $c13;
   }
-  h1.content__panel__title {
-    background: $c15;
+  .issue__userinfo__wrapper {
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-all;
+    img {
+      width: 60px;
+      height: 60px;
+      border-radius: 30px;
+      border: 1px solid $c12;
+      box-shadow: 1px 1px 1px 1px $c12;
+    }
+    float: left;
+    width: 100px;
   }
-  .issue__box {
-    background: $c15;
-    position: relative;
-    margin-top: 0.2rem;
-    padding: 0.2rem;
-    border: 1px solid $c13;
-    .issue__userinfo__wrapper {
-      text-align: center;
-      word-wrap: break-word;
-      word-break: break-all;
-      img {
-        width: 60px;
-        height: 60px;
-        border-radius: 30px;
-        border: 1px solid $c12;
-        box-shadow: 1px 1px 1px 1px $c12;
-      }
-      float: left;
-      width: 100px;
-    }
-    &:last-child {
-      border-bottom: 1px solid $c13;
-    }
-    .issue__content {
-      a {
-        font-size: 24px;
-      }
-      box-sizing: border-box;
-      padding: 0.2rem 0 0 0.2rem;
-      margin-left: 100px;
-      min-height: 80px;
-      text-align: left;
-      font-size: 0.16rem;
-    }
-    .issue-content--deleted {
-      // background-color: #f5f7fa;
-      text-decoration: line-through;
-    }
-    .issue__addon {
-      .issue__addon__info {
-        a {
-          font-size: 0.16rem;
-        }
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-      }
-    }
+  .issue__user__name {
+    font-size: 14px;
   }
-  .post__box__wrapper {
-    min-height: 100px;
+  .issue__content {
+    a {
+      font-size: 18px;
+    }
+    box-sizing: border-box;
+    padding: 0.1rem 0 0 0.3rem;
+    margin-left: 100px;
+    min-height: 80px;
     text-align: left;
-    background: $c15;
-    padding: 0.2rem;
+    font-size: 0.16rem;
+  }
+  .issue-content--deleted {
+    // background-color: #f5f7fa;
+    text-decoration: line-through;
+  }
+  .issue__addon {
+    .issue__addon__info {
+      a {
+        font-size: 0.16rem;
+      }
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+    }
   }
 }
 </style>

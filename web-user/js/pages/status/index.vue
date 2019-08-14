@@ -1,23 +1,23 @@
 <template lang="pug">
   .content
     .content__main
-      .status__siderbar(class="fr")
-        ul.status__siderbar__list
+      .siderbar
+        ul.siderbar__item__list
           li
             el-button(size="mini",round,@click="handleSearchByResetConf()",style="margin-top:10px;") 重置
             el-button(size="mini",round,@click="handleSearchMine(0)",style="margin-top:10px;",:disabled="$store.getters.username.length===0") 我的记录
           li
-            p 按问题检索：
+            .section__title 按问题检索：
             .siderbar__searchbar__wrapper
               el-input(style="max-width:20em", :placeholder=" $route.name=='status'?'请输入问题名/ID':'请输入题号(如A)'", @keyup.enter.native="handleSearchByProblem", v-model="queryParam", maxlength="20", clearable)
                 el-button(slot="append" icon="el-icon-search", @click="handleSearchByParam")
           li
-            p 按用户检索：
+            .section__title 按用户检索：
             .siderbar__searchbar__wrapper
               el-input(style="max-width:20em", placeholder="请输入用户昵称", @keyup.enter.native="handleSearchByNick", v-model="nick", maxlength="20", clearable)
                 el-button(slot="append" icon="el-icon-search", @click="handleSearchByNick")
           li
-            p 按语言检索：
+            .section__title 按语言检索：
             ul.button-list
               li
                 el-button(size="mini",:class="['tag__button',language==-1?'tag__button__active':'']", @click="handleSearchByLanguage(-1)", round) 全部
@@ -25,14 +25,14 @@
                 li(v-if="item.available")
                   el-button(size="mini",:class="['tag__button',language==index?'tag__button__active':'']",@click="handleSearchByLanguage(index)",round) {{item.name}}
           li
-            p 按结果检索：
+            .section__title 按结果检索：
             ul.button-list
               li
                 el-button(size="mini",:class="['tag__button',result==-1?'tag__button__active':'']", @click="handleSearchByResult(-1)", round) 全部
               template(v-for="item in searchableResultList")
                 li
                   el-button(size="mini",:class="['tag__button',result==item.code?'tag__button__active':'']", @click="handleSearchByResult(item.code)", round) {{item.name}}
-      .status__main
+      .main
         h1.content__panel__title 评测记录
         el-table(:data="tableData", style="width: 100%", class="dataTable", v-loading="loading")
           el-table-column(label="ID", prop="id", width="60")
@@ -67,7 +67,7 @@
           el-table-column(label="公开", min-width="60",v-if="$route.name=='status'")
             template(slot-scope="scope") 
               span {{ scope.row.public == 1?"是":"否"}}
-        el-pagination.tal(@current-change="getSolutionList",:current-page.sync="currentPage",background,
+        el-pagination.tal.mt20(@current-change="getSolutionList",:current-page.sync="currentPage",background,
         :page-size="perpage",layout="prev, pager, next,jumper",:total="total")
 </template>
 
@@ -235,44 +235,11 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.status__main {
-  background: $c15;
-  margin-right: 250px;
-  .user__avatar__wrapper {
-    img {
-      width: 50px;
-      height: 50px;
-      border-radius: 25px;
-    }
-  }
-}
-.status__siderbar {
-  text-align: left;
-  min-height: 600px;
-  width: 240px;
-  background: $c15;
-  box-sizing: border-box;
-  padding: 0.1rem;
-  ul.status__siderbar__list {
-    font-size: 20px;
-    & > li {
-      &:not(:last-child) {
-        border-bottom: 1px solid $c13;
-      }
-      padding: 10px 0;
-      &:first-child {
-        padding-top: 0px;
-      }
-    }
-  }
-  ul.button-list {
-    display: flex;
-    justify-content: flex-start;
-    align-content: flex-start;
-    flex-wrap: wrap;
-    li {
-      flex: 0 1 auto;
-    }
+.user__avatar__wrapper {
+  img {
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
   }
 }
 </style>

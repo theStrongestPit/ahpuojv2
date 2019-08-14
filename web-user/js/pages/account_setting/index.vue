@@ -1,25 +1,25 @@
 <template lang="pug">
   .content
     .content__main
-      .account-setting__wrapper
+      .one-main
         h1.content__panel__title 账号设置 
-        .account-setting__section
-          h2 昵称设置
+        .main__section
+          h3 昵称设置
           p 用户名 {{$store.getters.username}}
           el-form(:inline="true",:model="resetNickForm",ref="resetNickForm",:rules="resetNickFormRules",@submit.native.prevent)
             el-form-item(label="昵称",prop="nick")
               el-input(v-model="resetNickForm.nick",@keyup.enter.native="submitResetNick",placeholder="请输入昵称") 
             el-form-item
               el-button(type="primary",@click="submitResetNick") 保存
-        .account-setting__section
-          h2 头像设置
+        .main__section
+          h3 头像设置
           .account-setting__img-wrapper
             img.account-setting__avatar(:src="imgUrl($store.getters.userAvatar)")
             a(@click="toggleShow()")
               .img-mask
                 p 更换头像
-        .account-setting__section
-          h2 修改密码
+        .main__section
+          h3 修改密码
             el-form(:model="resetPasswordForm",ref="resetPasswordForm", :rules="resetPasswordRules",style="width:400px;")
               el-form-item(prop="oldpassword")
                 el-input(v-model="resetPasswordForm.oldpassword",type="password", placeholder="请输入原密码")
@@ -30,8 +30,8 @@
               el-form-item
                 el-button(type="primary",style="width:100%;",@click="submitResetPassword") 重设密码
         //- todo
-        //- .account-setting__section                
-        //-   h2 修改绑定邮箱
+        //- .main__section                
+        //-   h3 修改绑定邮箱
         //-   .account-setting__img-wrapper
         //-     img.account-setting__avatar(:src="imgUrl($store.getters.userAvatar)")
         //-     a(@click="toggleShow()")
@@ -230,12 +230,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.account-setting__wrapper {
+.one-main {
   background: $c15;
-  .account-setting__section {
+  .main__section {
     margin: 0 0 0.2rem 0.1rem;
     text-align: left;
-    h2 {
+    h3 {
       color: $c3;
       text-align: left;
       font-size: 20px;

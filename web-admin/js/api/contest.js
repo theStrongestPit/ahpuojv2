@@ -11,7 +11,11 @@ export function getContest(id) {
     return request("GET", `admin/contest/${id}`)
 }
 export function getContestList(page, perpage, queryParam) {
-    return request("GET", "admin/contests", { "page": page, "perpage": perpage, "param": queryParam })
+    return request("GET", "admin/contests", {
+        "page": page,
+        "perpage": perpage,
+        "param": queryParam
+    })
 }
 export function getAllContests() {
     return request("GET", "admin/allcontests")
@@ -23,7 +27,11 @@ export function toggleContestStatus(id) {
     return request("PUT", `admin/contest/${id}/status`)
 }
 export function getContestUserList(id, page, perpage, queryParam) {
-    return request("GET", `admin/contest/${id}/users`, { "page": page, "perpage": perpage, "param": queryParam })
+    return request("GET", `admin/contest/${id}/users`, {
+        "page": page,
+        "perpage": perpage,
+        "param": queryParam
+    })
 }
 export function addContestUser(id, data) {
     return request("POST", `admin/contest/${id}/users`, data)
@@ -31,7 +39,6 @@ export function addContestUser(id, data) {
 export function deleteContestUser(contestId, userId) {
     return request("DELETE", `admin/contest/${contestId}/user/${userId}`)
 }
-
 export function getContestTeams(id) {
     return request("GET", `admin/contest/${id}/teams`)
 }

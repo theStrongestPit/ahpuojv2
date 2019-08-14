@@ -17,13 +17,20 @@ module.exports = {
         rules: [      // rules 各种规则(数组类型) 每个规则可以分为三部分 - 条件(condition)，结果(result)和嵌套规则(nested rule)
             {
                 test: /\.js$/,
-                loader: 'babel-loader',
                 include: [
                     path.resolve('web-user'),
                     path.resolve('web-admin'),
                     path.resolve('web-common'),
                     path.resolve('/node_modules/vue-image-crop-upload'),
-                ]
+                ],
+                use: {
+                    loader: "babel-loader",
+                    options: {
+                        plugins: [
+                            "babel-plugin-syntax-dynamic-import"
+                        ]
+                    }
+                },
             },
             {
                 test: /\.css$/,
@@ -94,20 +101,32 @@ module.exports = {
                     },
                 }
             }),
-        ]
+        ],
+        splitChunks: {
+            cacheGroups: {
+                // 注意: priority属性
+                // 其次: 打包业务中公共代码
+                common: {
+                    name: "common",
+                    chunks: "all",
+                    minSize: 1,
+                    priority: 0
+                },
+                // 首先: 打包node_modules中的文件
+                vendor: {
+                    name: "vendor",
+                    test: /[\\/]node_modules[\\/]/,
+                    chunks: "all",
+                    priority: 10
+                }
+            }
+        }
     },
     plugins: [
         new ExtractTextPlugin({
             filename: "[name].min.css",
             allChunks: false // 注意 2
         }),
-        // new CleanWebpackPlugin(['dist']),  // 告诉清理插件的目录
-        // new HtmlWebpackPlugin({            // 构建html
-        //     filename: 'index.html',      //文件名
-        //     title: 'my-vue-cli',            //title
-        //     template: './index.html',       //参照模板样式
-        // }),
-        // new webpack.HotModuleReplacementPlugin(),  //热模块替换开启
         new VueLoaderPlugin(),                 //vue-loader插件开启
         new CompressionPlugin({
             test: /\.js(\?.*)?$/i,

@@ -124,6 +124,23 @@ export default [{
         component: () => import('@/web-user/js/pages/contest_list'),
     },
     {
+        path: 'series/:id',
+        name: 'series',
+        meta: {
+            keepAlive: false,
+        },
+        component: () => import('@/web-user/js/pages/series'),
+    },
+    {
+        path: 'serieses',
+        name: 'seriesList',
+        meta: {
+            keepAlive: true,
+            title: '系列赛 - AHPUOJ',
+        },
+        component: () => import('@/web-user/js/pages/series_list'),
+    },
+    {
         path: 'ranklist',
         name: 'ranklist',
         meta: {

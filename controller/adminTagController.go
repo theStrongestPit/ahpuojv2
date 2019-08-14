@@ -27,10 +27,7 @@ func IndexTag(c *gin.Context) {
 
 	utils.Consolelog(whereString)
 	rows, total, err := model.Paginate(page, perpage, "tag", []string{"*"}, whereString)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 	var tags []map[string]interface{}
@@ -49,10 +46,7 @@ func IndexTag(c *gin.Context) {
 
 func GetAllTags(c *gin.Context) {
 	rows, err := DB.Queryx("select * from tag order by id desc")
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 	var tags []map[string]interface{}
@@ -70,20 +64,14 @@ func GetAllTags(c *gin.Context) {
 func StoreTag(c *gin.Context) {
 	var req request.Tag
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "请求参数错误",
-		})
+	if utils.CheckError(c, err, "请求参数错误") != nil {
 		return
 	}
 	tag := model.Tag{
 		Name: req.Name,
 	}
 	err = tag.Save()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "新建标签失败，该标签已存在",
-		})
+	if utils.CheckError(c, err, "新建标签失败，该标签已存在") != nil {
 		return
 	}
 
@@ -97,11 +85,7 @@ func UpdateTag(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	var req request.Tag
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "请求参数错误",
-		})
+	if utils.CheckError(c, err, "请求参数错误") != nil {
 		return
 	}
 	tag := model.Tag{
@@ -109,10 +93,7 @@ func UpdateTag(c *gin.Context) {
 		Name: req.Name,
 	}
 	err = tag.Update()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "编辑标签失败，该标签已存在",
-		})
+	if utils.CheckError(c, err, "编辑标签失败，该标签已存在") != nil {
 		return
 	}
 
@@ -128,10 +109,7 @@ func DeleteTag(c *gin.Context) {
 		Id: id,
 	}
 	err := tag.Delete()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "删除标签失败，该标签不存在",
-		})
+	if utils.CheckError(c, err, "删除标签失败，该标签不存在") != nil {
 		return
 	}
 

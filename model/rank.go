@@ -42,10 +42,37 @@ type TeamRankInfo struct {
 	} `json:"team"`
 }
 
+type UserSeriesRankInfo struct {
+	Solved  map[int]int   `json:"solved"`
+	Time    map[int]int   `json:"time"`
+	WaCount map[int][]int `json:"wa_count"`
+	AcTime  map[int][]int `json:"ac_time"`
+	TeamId  map[int]int   `json:"team_id"`
+	User    struct {
+		Id       int    `json:"id"`
+		Username string `json:"username"`
+		Nick     string `json:"nick"`
+	} `json:"user"`
+}
+
+type TeamSeriesRankInfo struct {
+	Solved  map[int]int   `json:"solved"`
+	Time    map[int]int   `json:"time"`
+	WaCount map[int][]int `json:"wa_count"`
+	AcCount map[int][]int `json:"ac_count"`
+	AcTime  map[int][]int `json:"ac_time"`
+	Team    struct {
+		Id   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"team"`
+}
+
 type UserRankInfoList []UserRankInfo
 type UserRankSortByTeam []UserRankInfo
 
 type TeamRankInfoList []TeamRankInfo
+
+type UserSeriesRankInfoList []UserSeriesRankInfo
 
 func (userRankInfo *UserRankInfo) Add(rankItem RankItem, startTimeStr string) {
 	startTime, _ := time.ParseInLocation("2006-01-02 15:04:05", startTimeStr, time.Local)
@@ -56,10 +83,39 @@ func (userRankInfo *UserRankInfo) Add(rankItem RankItem, startTimeStr string) {
 		userRankInfo.WaCount[rankItem.Num-1]++
 	} else {
 		acTime, _ := time.ParseInLocation("2006-01-02 15:04:05", rankItem.InDate, time.Local)
+		// useTime可能为负，正常情况下不会出现这种问题，暂先不处理
 		useTime := int(acTime.Unix() - startTime.Unix())
 		userRankInfo.AcTime[rankItem.Num-1] = useTime
 		userRankInfo.Solved++
 		userRankInfo.Time += useTime + 1200*userRankInfo.WaCount[rankItem.Num-1]
+	}
+}
+
+func (userSeriesRankInfo *UserSeriesRankInfo) Add(rankItem RankItem, contestId int, startTimeStr string, problemCount int) {
+	startTime, _ := time.ParseInLocation("2006-01-02 15:04:05", startTimeStr, time.Local)
+
+	// 如果map的值还未初始化，初始化
+	_, ok := userSeriesRankInfo.AcTime[contestId]
+	if !ok {
+		userSeriesRankInfo.AcTime[contestId] = make([]int, problemCount)
+	}
+	_, ok = userSeriesRankInfo.WaCount[contestId]
+	if !ok {
+		userSeriesRankInfo.WaCount[contestId] = make([]int, problemCount)
+	}
+
+	if userSeriesRankInfo.AcTime[contestId][rankItem.Num-1] > 0 {
+		return
+	}
+	if rankItem.Result != 4 {
+		userSeriesRankInfo.WaCount[contestId][rankItem.Num-1]++
+	} else {
+		acTime, _ := time.ParseInLocation("2006-01-02 15:04:05", rankItem.InDate, time.Local)
+		// useTime可能为负，正常情况下不会出现这种问题，暂先不处理
+		useTime := int(acTime.Unix() - startTime.Unix())
+		userSeriesRankInfo.AcTime[contestId][rankItem.Num-1] = useTime
+		userSeriesRankInfo.Solved[contestId]++
+		userSeriesRankInfo.Time[contestId] += useTime + 1200*userSeriesRankInfo.WaCount[contestId][rankItem.Num-1]
 	}
 }
 

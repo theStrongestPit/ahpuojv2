@@ -1,9 +1,10 @@
 <template lang="pug">
   .content
-    title {{contest?`竞赛&作业团队排名 -- ${contest.name} - AHPUOJ`:''}}
+    title {{contest?`竞赛团队排名 -- ${contest.name} - AHPUOJ`:''}}
     .content__main
-      .contest-ranklist__wrapper
-        h1.content__panel__title {{contest?`竞赛&作业团队排名 -- ${contest.name}`:""}}
+      .one-main
+        el-button.fr.mr10.mt10(type="primary",@click="exportExcel") 下载excel
+        h1.content__panel__title {{contest?`竞赛团队排名 -- ${contest.name}`:""}}
         el-table(v-if="seeable",:data="tableData", style="width: 100%", class="dataTable",:cell-style="cellStyle")
           el-table-column(label="排名", type="index",min-width="40")
           el-table-column(label="团队名",min-width="160",prop="team.name")
@@ -20,6 +21,8 @@
 
 <script>
 import { getContestTeamRankList } from "@/web-user/js/api/nologin.js";
+import FileSaver from "file-saver";
+import XLSX from "xlsx";
 export default {
   name: "",
   data() {
@@ -103,15 +106,31 @@ export default {
     if (this.timer) {
       clearInterval(this.timer);
     }
+  },
+  exportExcel() {
+    /* generate workbook object from table */
+    let wb = XLSX.utils.table_to_book(document.querySelector("#ranktable"));
+    /* get binary string as output */
+    let wbout = XLSX.write(wb, {
+      bookType: "xlsx",
+      bookSST: true,
+      type: "array"
+    });
+    try {
+      FileSaver.saveAs(
+        new Blob([wbout], { type: "application/octet-stream" }),
+        `${this.contest.name}团队排名.xlsx`
+      );
+    } catch (e) {
+      if (typeof console !== "undefined") console.log(e, wbout);
+    }
+    return wbout;
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.contest-ranklist__wrapper {
-  background: $c15;
-  .link {
-    padding: 0 0.1rem;
-  }
+.link {
+  padding: 0 0.1rem;
 }
 </style>

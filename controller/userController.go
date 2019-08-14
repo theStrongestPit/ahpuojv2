@@ -31,25 +31,15 @@ func GetUser(c *gin.Context) {
 // 账号设置中重设昵称的接口
 func ResetNick(c *gin.Context) {
 	var user model.User
-	userInterface, _ := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, _ = GetUserInstance(c)
 	var req request.UserNick
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "参数错误",
-		})
+	if utils.CheckError(c, err, "参数错误") != nil {
 		return
 	}
 	user.Nick = req.Nick
 	_, err = DB.Exec("update user set nick = ? where id = ?", req.Nick, user.Id)
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "该昵称已被使用",
-		})
+	if utils.CheckError(c, err, "该昵称已被使用") != nil {
 		return
 	}
 	c.JSON(200, gin.H{
@@ -61,17 +51,10 @@ func ResetNick(c *gin.Context) {
 // 账号设置中重设密码的接口
 func ResetPassword(c *gin.Context) {
 	var user model.User
-	userInterface, _ := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, _ = GetUserInstance(c)
 	var req request.UserResetPassword
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "参数错误",
-		})
+	if utils.CheckError(c, err, "参数错误") != nil {
 		return
 	}
 
@@ -295,10 +278,7 @@ func ToggleSolutionStatus(c *gin.Context) {
 	var user model.User
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	userInterface, _ := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, _ = GetUserInstance(c)
 
 	var solutionUserId int
 	DB.Get(&solutionUserId, "select user_id from solution where solution_id = ?", id)
@@ -318,10 +298,7 @@ func ToggleSolutionStatus(c *gin.Context) {
 // 下载题目数据文件
 func DownloadDataFile(c *gin.Context) {
 	var user model.User
-	userInterface, _ := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, _ = GetUserInstance(c)
 
 	pidStr := c.Query("pid")
 	sidStr := c.Query("sid")
@@ -332,23 +309,13 @@ func DownloadDataFile(c *gin.Context) {
 	// 检验提交是否存在
 	userId := 0
 	err := DB.Get(&userId, "select 1 from solution where solution_id = ? and problem_id = ? and user_id = ?", sid, pid, user.Id)
-	if err != nil {
-		utils.Consolelog(err)
-		c.AbortWithStatusJSON(400,
-			gin.H{
-				"message": "数据不存在",
-			})
+	if utils.CheckError(c, err, "数据不存在") != nil {
 		return
 	}
 	// 检验错误信息是否与数据库信息匹配
 	errFilename := ""
 	err = DB.Get(&errFilename, "select error from runtimeinfo where solution_id = ?", sid)
-	if err != nil {
-		utils.Consolelog(err)
-		c.AbortWithStatusJSON(400,
-			gin.H{
-				"message": "数据不存在",
-			})
+	if utils.CheckError(c, err, "数据不存在") != nil {
 		return
 	}
 	errFilenameWithoutSuffix := strings.TrimSuffix(errFilename, filepath.Ext(errFilename))
@@ -387,10 +354,7 @@ func UploadAvatar(c *gin.Context) {
 	}
 
 	var user model.User
-	userInterface, _ := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, _ = GetUserInstance(c)
 	// 如果不是默认头像 删除原头像
 	defaultAvatar, _ := utils.GetCfg().GetValue("preset", "avatar")
 	if user.Avatar != defaultAvatar {
@@ -412,10 +376,7 @@ func PostIssue(c *gin.Context) {
 	var err error
 	var user model.User
 
-	userInterface, _ := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, _ = GetUserInstance(c)
 	var req request.Issue
 	err = c.ShouldBindJSON(&req)
 
@@ -458,10 +419,7 @@ func ReplyToIssue(c *gin.Context) {
 	var user model.User
 	issueId, _ := strconv.Atoi(c.Param("id"))
 
-	userInterface, _ := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, _ = GetUserInstance(c)
 	var req request.Reply
 	err = c.ShouldBindJSON(&req)
 
@@ -526,7 +484,7 @@ func GetMyReplys(c *gin.Context) {
 	}
 
 	// 第一步只获取对主题的回复
-	whereString := "where reply.reply_user_id = " + strconv.Itoa(user.Id) +" and reply.user_id != "+ strconv.Itoa(user.Id)
+	whereString := "where reply.reply_user_id = " + strconv.Itoa(user.Id) + " and reply.user_id != " + strconv.Itoa(user.Id)
 	// 管理员可以查看被删除的回复
 	if user.Role != "admin" {
 		whereString += " and is_deleted = 0 "
@@ -584,13 +542,10 @@ func GetLatestContestSource(c *gin.Context) {
 	var err error
 	var user model.User
 
-	userInterface, _ := c.Get("user")
+	user, _ = GetUserInstance(c)
 	contestId, _ := strconv.Atoi(c.Param("id"))
 	num, _ := strconv.Atoi(c.Param("num"))
 
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
 	if utils.CheckError(c, err, "参数错误") != nil {
 		return
 	}

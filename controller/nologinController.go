@@ -11,13 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// 访客获取新闻列表的接口
 func NologinGetNewList(c *gin.Context) {
 
 	var user model.User
-	userInterface, exist := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, loggedIn := GetUserInstance(c)
+
 	pageStr := c.Query("page")
 	perpageStr := c.Query("perpage")
 	page, _ := strconv.Atoi(pageStr)
@@ -26,7 +25,7 @@ func NologinGetNewList(c *gin.Context) {
 		page = 1
 	}
 	whereString := ""
-	if exist {
+	if loggedIn {
 		if user.Role != "admin" {
 			whereString += " where defunct = 0 "
 		}
@@ -34,10 +33,7 @@ func NologinGetNewList(c *gin.Context) {
 	whereString += " order by top desc, id desc"
 
 	rows, total, err := model.Paginate(page, perpage, "new", []string{"*"}, whereString)
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 
@@ -54,13 +50,11 @@ func NologinGetNewList(c *gin.Context) {
 	})
 }
 
+// 访客获取问题列表的接口
 func NologinGetProblemList(c *gin.Context) {
 
 	var user model.User
-	userInterface, loggedIn := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, loggedIn := GetUserInstance(c)
 	pageStr := c.Query("page")
 	perpageStr := c.Query("perpage")
 	param := c.Query("param")
@@ -100,11 +94,8 @@ func NologinGetProblemList(c *gin.Context) {
 	rows, total, err := model.Paginate(page, perpage, "problem left join problem_tag on problem.id = problem_tag.problem_id",
 		[]string{"problem.*"}, whereString)
 	utils.Consolelog(whereString)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 
@@ -154,13 +145,12 @@ func NologinGetProblemList(c *gin.Context) {
 	})
 }
 
+// 访客获取竞赛列表的接口
 func NologinGetContestList(c *gin.Context) {
 
 	var user model.User
-	userInterface, loggedIn := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+
+	user, loggedIn := GetUserInstance(c)
 
 	pageStr := c.Query("page")
 	perpageStr := c.Query("perpage")
@@ -185,12 +175,10 @@ func NologinGetContestList(c *gin.Context) {
 	utils.Consolelog(whereString)
 	rows, total, err := model.Paginate(page, perpage, "contest", []string{"*"}, whereString)
 
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
+
 	var contests []map[string]interface{}
 	for rows.Next() {
 		var contest model.Contest
@@ -206,6 +194,7 @@ func NologinGetContestList(c *gin.Context) {
 	})
 }
 
+// 访客获取评测记录列表的接口
 func NologinGetSolutionList(c *gin.Context) {
 
 	pageStr := c.Query("page")
@@ -241,12 +230,10 @@ func NologinGetSolutionList(c *gin.Context) {
 		whereString += " and solution.contest_id=" + contestIdStr
 		num, err := utils.EngNumToInt(param)
 		// 搜索格式不对 直接PASS
-		if err != nil {
-			c.AbortWithStatusJSON(400, gin.H{
-				"message": "参数格式错误",
-			})
+		if utils.CheckError(c, err, "参数格式错误") != nil {
 			return
 		}
+
 		if num > 0 {
 			whereString += " and solution.num=" + strconv.Itoa(num)
 		}
@@ -271,20 +258,14 @@ func NologinGetSolutionList(c *gin.Context) {
 	inner join source_code on solution.solution_id=source_code.solution_id`,
 		[]string{"solution.*,user.username,user.nick,user.avatar,problem.title,source_code.public"}, whereString)
 
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
+
 	solutions := make([]map[string]interface{}, 0)
 	for rows.Next() {
 		var solution model.Solution
-		err = rows.StructScan(&solution)
-		if err != nil {
-			utils.Consolelog(err)
-		}
+		rows.StructScan(&solution)
 		solutions = append(solutions, solution.Response())
 	}
 
@@ -296,12 +277,10 @@ func NologinGetSolutionList(c *gin.Context) {
 	})
 }
 
+// 获取评测记录信息的接口
 func NologinGetSolution(c *gin.Context) {
 	var user model.User
-	userInterface, loggedIn := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, loggedIn := GetUserInstance(c)
 
 	var solution model.Solution
 	id, _ := strconv.Atoi(c.Param("id"))
@@ -312,11 +291,7 @@ func NologinGetSolution(c *gin.Context) {
 	inner join source_code on solution.solution_id=source_code.solution_id 
 	where solution.solution_id = ?`, id)
 
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "记录不存在",
-		})
+	if utils.CheckError(c, err, "记录不存在") != nil {
 		return
 	}
 
@@ -367,12 +342,10 @@ func NologinGetSolution(c *gin.Context) {
 	})
 }
 
+// 获取全部标签的接口
 func NologinGetAllTags(c *gin.Context) {
 	rows, err := DB.Queryx("select * from tag order by id desc")
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 	var tags []map[string]interface{}
@@ -389,27 +362,22 @@ func NologinGetAllTags(c *gin.Context) {
 
 func NologinGetProblem(c *gin.Context) {
 	var user model.User
-	userInterface, exist := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, loggedIn := GetUserInstance(c)
 
 	var problem model.Problem
 	id, _ := strconv.Atoi(c.Param("id"))
 	var err error
-	err = DB.Get(&problem, "select * from problem where id = ?", id)
-	if exist {
-		if user.Role != "admin" {
-			err = DB.Get(&problem, "select * from problem where id = ? and defunct = 0", id)
-		}
+
+	if loggedIn && user.Role != "admin" || !loggedIn {
+		err = DB.Get(&problem, "select * from problem where id = ? and defunct = 0", id)
+	} else {
+		err = DB.Get(&problem, "select * from problem where id = ?", id)
 	}
 
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "问题不存在",
-		})
+	if utils.CheckError(c, err, "问题不存在") != nil {
 		return
 	}
+
 	problem.FetchTags()
 
 	c.JSON(200, gin.H{
@@ -418,30 +386,31 @@ func NologinGetProblem(c *gin.Context) {
 	})
 }
 
+// 获取竞赛作业问题信息的接口
 func NologinGetContestProblem(c *gin.Context) {
 	var err error
 	var user model.User
-	userInterface, exist := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, loggedIn := GetUserInstance(c)
 	cid, _ := strconv.Atoi(c.Param("id"))
 	num, _ := strconv.Atoi(c.Param("num"))
 	var contest model.Contest
 
-	err = DB.Get(&contest, "select * from contest where id = ?", cid)
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "竞赛&作业不存在",
-		})
+	if loggedIn && user.Role != "admin" || !loggedIn {
+		err = DB.Get(&contest, "select * from contest where id = ? and is_deleted = 0 and defunct = 0", cid)
+	} else {
+		err = DB.Get(&contest, "select * from contest where id = ? and is_deleted = 0", cid)
+	}
+
+	if utils.CheckError(c, err, "竞赛&作业不存在") != nil {
 		return
 	}
+
 	var problem model.Problem
 	contest.CalcStatus()
 	seeable := true
 	reason := ""
 
-	if exist {
+	if loggedIn {
 		// 不是管理员
 		if user.Role != "admin" {
 			// 如果竞赛作业尚未开始，题目不可见
@@ -483,11 +452,7 @@ func NologinGetContestProblem(c *gin.Context) {
 		problem.Accepted = contestAccepted
 	}
 
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "问题不存在",
-		})
+	if utils.CheckError(c, err, "问题不存在") != nil {
 		return
 	}
 
@@ -506,20 +471,22 @@ func NologinGetContestProblem(c *gin.Context) {
 	}
 }
 
+// 获取竞赛信息的接口
 func NologinGetContest(c *gin.Context) {
+	var err error
 	var user model.User
-	userInterface, loggedIn := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, loggedIn := GetUserInstance(c)
 	var contest model.Contest
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	err := DB.Get(&contest, "select * from contest where id = ? and is_deleted = 0", id)
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "竞赛&作业不存在",
-		})
+	// 非管理员无法查看被保留的竞赛作业
+	if loggedIn && user.Role != "admin" || !loggedIn {
+		err = DB.Get(&contest, "select * from contest where id = ? and is_deleted = 0 and defunct = 0", id)
+	} else {
+		err = DB.Get(&contest, "select * from contest where id = ? and is_deleted = 0", id)
+	}
+
+	if utils.CheckError(c, err, "竞赛&作业不存在") != nil {
 		return
 	}
 
@@ -595,20 +562,16 @@ func NologinGetContest(c *gin.Context) {
 	})
 }
 
+// 获取竞赛作业排名的接口
 func NologinGetContestRankList(c *gin.Context) {
 	var user model.User
-	userInterface, loggedIn := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, loggedIn := GetUserInstance(c)
 	var contest model.Contest
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	err := DB.Get(&contest, "select * from contest where id = ? and is_deleted = 0", id)
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "竞赛&作业不存在",
-		})
+
+	if utils.CheckError(c, err, "竞赛&作业不存在") != nil {
 		return
 	}
 
@@ -694,7 +657,9 @@ func NologinGetContestRankList(c *gin.Context) {
 			userRankInfo.Add(rankItem, contest.StartTime)
 			lastUserId = rankItem.UserId
 		}
-		userRankInfoList = append(userRankInfoList, userRankInfo)
+		if userRankInfo.User.Id != 0 {
+			userRankInfoList = append(userRankInfoList, userRankInfo)
+		}
 	}
 	sort.Sort(userRankInfoList)
 	c.JSON(200, gin.H{
@@ -714,22 +679,19 @@ func NologinGetContestRankList(c *gin.Context) {
 	})
 }
 
+// 获取竞赛作业团队排名的接口
 func NologinGetContestTeamRankList(c *gin.Context) {
 	var user model.User
-	userInterface, loggedIn := c.Get("user")
-	if userInterface, ok := userInterface.(model.User); ok {
-		user = userInterface
-	}
+	user, loggedIn := GetUserInstance(c)
 	var contest model.Contest
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	err := DB.Get(&contest, "select * from contest where id = ? and is_deleted = 0", id)
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "竞赛&作业不存在",
-		})
+
+	if utils.CheckError(c, err, "竞赛&作业不存在") != nil {
 		return
 	}
+
 	if contest.TeamMode != 1 {
 		c.AbortWithStatusJSON(400, gin.H{
 			"message": "竞赛&作业不是团队模式",
@@ -779,7 +741,6 @@ func NologinGetContestTeamRankList(c *gin.Context) {
 	if seeable {
 		// 获得竞赛作业题目总数
 		DB.Get(&problemCount, "select count(1) from contest_problem where contest_id = ?", id)
-
 		rows, _ := DB.Queryx(`select s.problem_id,s.team_id,s.user_id,s.contest_id,s.num,s.in_date,s.result,u.username,u.nick,u.avatar,r.name from
 		solution s inner join user u on s.user_id = u.id inner join role r on u.role_id = r.id where s.contest_id = ? order by s.user_id, s.in_date asc`, id)
 
@@ -891,6 +852,178 @@ out:
 	})
 }
 
+// 访客获取竞赛列表的接口
+func NologinGetSeriesList(c *gin.Context) {
+
+	var user model.User
+
+	user, loggedIn := GetUserInstance(c)
+
+	pageStr := c.Query("page")
+	perpageStr := c.Query("perpage")
+	param := c.Query("param")
+	page, _ := strconv.Atoi(pageStr)
+	perpage, _ := strconv.Atoi(perpageStr)
+	if page == 0 {
+		page = 1
+	}
+	whereString := " where is_deleted = 0 "
+	if len(param) > 0 {
+		whereString += " and name like '%" + param + "%' "
+	}
+	// 非管理员无法查看隐藏的竞赛
+	if loggedIn {
+		if user.Role != "admin" {
+			whereString += " and defunct = 0 "
+		}
+	}
+
+	whereString += " order by id desc"
+	rows, total, err := model.Paginate(page, perpage, "series", []string{"*"}, whereString)
+	if utils.CheckError(c, err, "数据获取失败") != nil {
+		return
+	}
+
+	var serieses []map[string]interface{}
+	for rows.Next() {
+		var series model.Series
+		rows.StructScan(&series)
+		serieses = append(serieses, series.Response())
+	}
+
+	c.JSON(200, gin.H{
+		"message": "数据获取成功",
+		"total":   total,
+		"perpage": perpage,
+		"data":    serieses,
+	})
+}
+
+// 访客获取系列赛信息的接口  真难啊 写吐了都/(ㄒoㄒ)/~~
+func NologinGetSeries(c *gin.Context) {
+	var err error
+	var user model.User
+	user, loggedIn := GetUserInstance(c)
+	var series model.Series
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	if loggedIn && user.Role != "admin" || !loggedIn {
+		err = DB.Get(&series, "select * from series where id = ? and defunct = 0", id)
+	} else {
+		err = DB.Get(&series, "select * from series where id = ?", id)
+	}
+
+	if utils.CheckError(c, err, "竞赛&作业不存在") != nil {
+		return
+	}
+
+	series.AttachContestInfo()
+	// 取得系列赛包含的竞赛作业数据
+	rows, err := DB.Queryx("select contest.* from contest inner join contest_series on contest_series.contest_id = contest.id where contest_series.series_id = ? and contest.team_mode = ? and contest.is_deleted = 0 and contest.defunct = 0", id, series.TeamMode)
+	if utils.CheckError(c, err, "数据库查询失败") != nil {
+		return
+	}
+	var contestList []model.Contest
+	contestStrList := ""
+	for rows.Next() {
+		var contest model.Contest
+		rows.StructScan(&contest)
+		contest.CalcStatus()
+		contestList = append(contestList, contest)
+		if len(contestStrList) > 0 {
+			contestStrList += "," + strconv.Itoa(contest.Id)
+		} else {
+			contestStrList += strconv.Itoa(contest.Id)
+		}
+	}
+
+	var contestCount int
+	var problemCount int
+
+	var userSeriesRankInfo model.UserSeriesRankInfo
+	var userSeriesRankInfoList model.UserSeriesRankInfoList
+
+	DB.Get(&contestCount, "select count(*) from contest_series inner join contest on contest_series.contest_id = contest.id where contest.is_deleted = 0 and contest.defunct = 0 and series_id = ? and contest.team_mode = ?", id, series.TeamMode)
+	DB.Get(&problemCount, "select count(*) from contest_series inner join contest_problem on contest_series.contest_id = contest_problem.contest_id inner join contest on contest_series.contest_id = contest.id where contest.is_deleted = 0 and contest.defunct = 0 and series_id = ? and contest.team_mode = ?", id, series.TeamMode)
+
+	// 如果竞赛作业数量为0，不进行后续处理
+	if contestCount == 0 {
+		c.JSON(200, gin.H{
+			"message":      "数据获取成功",
+			"series":       series.Response(),
+			"userranklist": userSeriesRankInfoList,
+		})
+		return
+	}
+
+	// 个人模式排名汇总,取得系列赛全部的提交记录
+	rows, err = DB.Queryx(`select s.problem_id,s.team_id,s.user_id,s.contest_id,s.num,s.in_date,s.result,u.username,u.nick,u.avatar,r.name from
+	solution s inner join user u on s.user_id = u.id 
+	inner join role r on u.role_id = r.id
+	where s.contest_id in (` + contestStrList + `) order by s.user_id, s.in_date asc`)
+	lastUserId := 0
+	if utils.CheckError(c, err, "err") != nil {
+		return
+	}
+
+	for rows.Next() {
+		var rankItem model.RankItem
+		var contest model.Contest
+
+		rows.StructScan(&rankItem)
+		// 获取当前提交的竞赛信息
+		for _, c := range contestList {
+			if rankItem.ContestId == c.Id {
+				contest = c
+				// break
+			}
+		}
+
+		// 忽略管理员的提交
+		if rankItem.UserRole == "admin" {
+			continue
+		}
+
+		// 如果是新的用户的数据
+		if rankItem.UserId != lastUserId {
+			if userSeriesRankInfo.User.Id != 0 {
+				userSeriesRankInfoList = append(userSeriesRankInfoList, userSeriesRankInfo)
+			}
+			userSeriesRankInfo = model.UserSeriesRankInfo{
+				Solved:  make(map[int]int, contestCount),
+				Time:    make(map[int]int, contestCount),
+				WaCount: make(map[int][]int, problemCount),
+				AcTime:  make(map[int][]int, problemCount),
+				User: struct {
+					Id       int    `json:"id"`
+					Username string `json:"username"`
+					Nick     string `json:"nick"`
+				}{
+					Id:       rankItem.UserId,
+					Username: rankItem.Username,
+					Nick:     rankItem.Nick,
+				},
+			}
+		}
+		userSeriesRankInfo.Add(rankItem, contest.Id, contest.StartTime, problemCount)
+		lastUserId = rankItem.UserId
+	}
+	if userSeriesRankInfo.User.Id != 0 {
+		userSeriesRankInfoList = append(userSeriesRankInfoList, userSeriesRankInfo)
+	}
+
+	// todolist 处理团队系列赛排名 这部分太复杂了 先搁置
+
+	// 数据的排序交给前端处理，菜鸡不会用go处理这种排序(⊙﹏⊙)b
+
+	c.JSON(200, gin.H{
+		"message":      "数据获取成功",
+		"series":       series.Response(),
+		"userranklist": userSeriesRankInfoList,
+	})
+}
+
+// 获取系统可用语言列表的接口
 func NologinGetLanguageList(c *gin.Context) {
 	cfg := utils.GetCfg()
 	numberStr, _ := cfg.GetValue("language", "number")
@@ -917,8 +1050,24 @@ func NologinGetLanguageList(c *gin.Context) {
 	})
 }
 
-// 获取回复列表的接口
+// 获取讨论列表的接口
 func NologinGetIssueList(c *gin.Context) {
+
+	// 判断当前是否已经关闭讨论版
+	var enableIssueString string
+	err := DB.Get(&enableIssueString, "select value from config where item = 'enable_issue'")
+	if utils.CheckError(c, err, "数据库配置错误") != nil {
+		return
+	}
+
+	if enableIssueString == "false" {
+		c.JSON(200, gin.H{
+			"message":      "数据获取成功",
+			"issue_enable": false,
+		})
+		return
+	}
+
 	problemIdStr := c.Param("id")
 	problemId, _ := strconv.Atoi(problemIdStr)
 
@@ -959,10 +1108,7 @@ func NologinGetIssueList(c *gin.Context) {
 		[]string{"user.username,user.nick,user.avatar,issue.*,problem.title ptitle,(select count(1) from reply where issue_id = issue.id) as reply_count"}, whereString)
 	utils.Consolelog(rows, total, err)
 
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 
@@ -974,15 +1120,31 @@ func NologinGetIssueList(c *gin.Context) {
 		issues = append(issues, issue.Response())
 	}
 	c.JSON(200, gin.H{
-		"message": "数据获取成功",
-		"total":   total,
-		"data":    issues,
+		"message":      "数据获取成功",
+		"total":        total,
+		"issue_enable": true,
+		"data":         issues,
 	})
 }
 
 // 获得讨论以及评论的接口
 func NologinGetIssue(c *gin.Context) {
-	var err error
+
+	// 判断当前是否已经关闭讨论版
+	var enableIssueString string
+	err := DB.Get(&enableIssueString, "select value from config where item = 'enable_issue'")
+	if utils.CheckError(c, err, "数据库配置错误") != nil {
+		return
+	}
+
+	if enableIssueString == "false" {
+		c.JSON(200, gin.H{
+			"message":      "数据获取成功",
+			"issue_enable": false,
+		})
+		return
+	}
+
 	issueIdStr := c.Param("id")
 	issueId, _ := strconv.Atoi(issueIdStr)
 
@@ -1043,10 +1205,11 @@ func NologinGetIssue(c *gin.Context) {
 		replys = append(replys, reply.Response())
 	}
 	c.JSON(200, gin.H{
-		"message": "数据获取成功",
-		"total":   total,
-		"issue":   issue.Response(),
-		"replys":  replys,
+		"message":      "数据获取成功",
+		"total":        total,
+		"issue":        issue.Response(),
+		"replys":       replys,
+		"issue_enable": true,
 	})
 }
 
@@ -1059,10 +1222,7 @@ func NologinGetUserInfo(c *gin.Context) {
 	var user model.User
 	// 检查用户是否存在
 	err = DB.Get(&user, `select * from user where id = ?`, userId)
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "用户不存在",
-		})
+	if utils.CheckError(c, err, "用户不存在") != nil {
 		return
 	}
 
@@ -1180,19 +1340,13 @@ func NologinGetRankList(c *gin.Context) {
 	// 不统计比赛用户和管理员用户的数据
 	whereString := " where user.is_compete_user = 0 and role.name != 'admin' order by user.solved desc, user.submit asc"
 	rows, total, err := model.Paginate(page, perpage, "user inner join role on user.role_id = role.id", []string{"user.*"}, whereString)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 	var users []map[string]interface{}
 	for rows.Next() {
 		var user model.User
-		err = rows.StructScan(&user)
-		if err != nil {
-			utils.Consolelog(err)
-		}
+		rows.StructScan(&user)
 		users = append(users, user.Response())
 	}
 	c.JSON(200, gin.H{

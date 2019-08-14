@@ -5,7 +5,6 @@ import (
 	"ahpuoj/request"
 	"ahpuoj/utils"
 	"database/sql"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -31,10 +30,7 @@ func IndexProblem(c *gin.Context) {
 	whereString += " order by id desc "
 
 	rows, total, err := model.Paginate(page, perpage, "problem", []string{"*"}, whereString)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 	var problems []map[string]interface{}
@@ -64,10 +60,7 @@ func GetProblem(c *gin.Context) {
 	var problem model.Problem
 	id, _ := strconv.Atoi(c.Param("id"))
 	err := DB.Get(&problem, "select * from problem where id = ?", id)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "问题不存在",
-		})
+	if utils.CheckError(c, err, "问题不存在") != nil {
 		return
 	}
 	problem.FetchTags()
@@ -81,10 +74,7 @@ func GetProblem(c *gin.Context) {
 func StoreProblem(c *gin.Context) {
 	var req request.Problem
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "请求参数错误",
-		})
+	if utils.CheckError(c, err, "请求参数错误") != nil {
 		return
 	}
 	problem := model.Problem{
@@ -101,11 +91,7 @@ func StoreProblem(c *gin.Context) {
 		MemoryLimit:  req.MemoryLimit,
 	}
 	err = problem.Save()
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "新建问题失败，该问题已存在",
-		})
+	if utils.CheckError(c, err, "新建问题失败，该问题已存在") != nil {
 		return
 	}
 	problem.AddTags(req.Tags)
@@ -120,11 +106,7 @@ func UpdateProblem(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	var req request.Problem
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "请求参数错误",
-		})
+	if utils.CheckError(c, err, "请求参数错误") != nil {
 		return
 	}
 	problem := model.Problem{
@@ -146,11 +128,7 @@ func UpdateProblem(c *gin.Context) {
 
 	err = problem.Update()
 	problem.AddTags(req.Tags)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "编辑问题失败，问题标题已存在或该问题不存在",
-		})
+	if utils.CheckError(c, err, "编辑问题失败，问题标题已存在或该问题不存在") != nil {
 		return
 	}
 	c.JSON(200, gin.H{
@@ -165,11 +143,7 @@ func DeleteProblem(c *gin.Context) {
 		Id: id,
 	}
 	err := problem.Delete()
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "删除问题失败，该问题不存在",
-		})
+	if utils.CheckError(c, err, "删除问题失败，该问题不存在") != nil {
 		return
 	}
 	c.JSON(200, gin.H{
@@ -183,11 +157,7 @@ func ToggleProblemStatus(c *gin.Context) {
 		Id: id,
 	}
 	err := problem.ToggleStatus()
-	if err != nil {
-		utils.Consolelog(err)
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "更改问题状态失败，该问题不存在",
-		})
+	if utils.CheckError(c, err, "更改问题状态失败，该问题不存在") != nil {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -271,13 +241,10 @@ func ReassignProblem(c *gin.Context) {
 	newDir := dataDir + "/" + strconv.Itoa(newId)
 	err = os.Rename(oldDir, newDir)
 
-	if err != nil {
-		fmt.Println(err)
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": "移动文件夹失败，请检查文件服务器文件权限设置",
-		})
+	if utils.CheckError(c, err, "移动文件夹失败，请检查文件服务器文件权限设置") != nil {
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "重排问题成功",
 	})
@@ -304,10 +271,8 @@ func IndexProblemData(c *gin.Context) {
 		})
 	}
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "获取数据目录信息失败，请检查权限设置",
-		})
+	if utils.CheckError(c, err, "获取数据目录信息失败，请检查权限设置") != nil {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -321,10 +286,8 @@ func AddProblemData(c *gin.Context) {
 	var req request.ProblemData
 	id, _ := strconv.Atoi(c.Param("id"))
 	err = c.ShouldBindJSON(&req)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "请求参数错误",
-		})
+
+	if utils.CheckError(c, err, "请求参数错误") != nil {
 		return
 	}
 
@@ -349,11 +312,10 @@ func AddProblemData(c *gin.Context) {
 		infos = append(infos, "文件"+req.FileName+".out"+"已经存在")
 	}
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "创建文件失败，请检查权限设置",
-		})
+	if utils.CheckError(c, err, "创建文件失败，请检查权限设置") != nil {
+		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "操作成功",
 		"info":    infos,
@@ -370,11 +332,11 @@ func GetProblemData(c *gin.Context) {
 	baseDir := dataDir + "/" + strconv.FormatInt(int64(id), 10)
 	filepath := baseDir + "/" + filename
 	content, err := ioutil.ReadFile(filepath)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "读取数据文件失败",
-		})
+
+	if utils.CheckError(c, err, "读取数据文件失败") != nil {
+		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "读取数据文件成功",
 		"content": string(content),
@@ -385,11 +347,8 @@ func EditProblemData(c *gin.Context) {
 	var err error
 	var req request.ProblemDataContent
 	err = c.ShouldBindJSON(&req)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(400, gin.H{
-			"message": "请求参数错误",
-		})
+
+	if utils.CheckError(c, err, "请求参数错误") != nil {
 		return
 	}
 
@@ -401,12 +360,11 @@ func EditProblemData(c *gin.Context) {
 	baseDir := dataDir + "/" + strconv.FormatInt(int64(id), 10)
 	filepath := baseDir + "/" + filename
 	err = ioutil.WriteFile(filepath, []byte(req.Content), 0755)
-	if err != nil {
-		utils.Consolelog(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "写入数据文件失败",
-		})
+
+	if utils.CheckError(c, err, "写入数据文件失败") != nil {
+		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "写入数据文件成功",
 	})
@@ -423,11 +381,11 @@ func DeleteProblemData(c *gin.Context) {
 	baseDir := dataDir + "/" + strconv.FormatInt(int64(id), 10)
 	filepath := baseDir + "/" + filename
 	err = os.Remove(filepath)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "删除文件失败",
-		})
+
+	if utils.CheckError(c, err, "删除文件失败") != nil {
+		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "删除文件成功",
 	})

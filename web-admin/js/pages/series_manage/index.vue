@@ -2,32 +2,32 @@
 .admin-content
   .content__breadcrumb
     el-breadcrumb(separator="/")
-      el-breadcrumb-item(:to="{name:`adminIndex`}") 首页
+      el-breadcrumb-item(:to="{name:`home`}") 首页
       el-breadcrumb-item {{$route.meta.title}}
   .content__main
     .content__searchbar__wrapper
       el-card.content__card__wrapper
-        p 系列赛名称: {{series.name}}
-        p 包含竞赛&作业总数: {{tableData.length}}
+        p 系列赛名称: {{series&&series.name}}
+        p 包含竞赛总数: {{tableData.length}}
     .content__button__wrapper
-      el-button(type="success", @click="handleAddUser") 添加竞赛&作业
+      el-button(type="success", @click="handleAddUser") 添加竞赛
     .content__searchbar__wrapper
-      el-input(style="max-width:20em", placeholder="请输入竞赛&作业名称", v-model="queryParam", maxlength="20", clearable)
+      el-input(style="max-width:20em", placeholder="请输入竞赛名称", v-model="queryParam", maxlength="20", clearable)
       el-button(icon="el-icon-search", type="primary", plain, @click="fetchSeriesContestList")
     el-table(:data="tableData", style="width:100%;", v-loading="loading")
       el-table-column(label="ID", prop="id", width="180")
       el-table-column(label="名称", prop="name", width="180")
       el-table-column(label="模式", min-width="150")
         template(slot-scope="scope")
-          span(:class="['text-button', scope.row.private == 0 ? 'text-button--danger':'text-button--success']") {{ scope.row.private == 0?"私有赛":"公开赛" }}
+          span(:class="['text-button', scope.row.private == 1 ? 'text-button--danger':'text-button--success']") {{ scope.row.private == 1?"私有赛":"公开赛" }}
           span(:class="['text-button', scope.row.team_mode == 0 ? 'text-button--success':'text-button--primary']") {{ scope.row.team_mode == 0?"个人赛":"团体赛" }}
       el-table-column(label="操作", width="180")
         template(slot-scope="scope")
           el-button(size="mini", type="danger", @click="handleDeleteSeriesContest(scope.row)") 删除
     el-pagination(@size-change="handleSizeChange", @current-change="fetchSeriesContestList", :current-page.sync="currentPage", :page-sizes="[10, 20, 30, 40,50]", :page-size="10", layout="total, sizes, prev, pager, next, jumper", :total="total")
-    el-dialog(title="添加竞赛&作业", :visible.sync="dialogFormVisible", @closed="closeDialog", @opened="openDialog", width="400px",:close-on-click-modal="false")
+    el-dialog(title="添加竞赛", :visible.sync="dialogFormVisible", @closed="closeDialog", @opened="openDialog", width="400px",:close-on-click-modal="false")
       el-form(:model="form", ref="form", :rules="rules", @submit.native.prevent)
-        el-form-item(label="选择竞赛&作业", prop="contest_id")
+        el-form-item(label="选择竞赛", prop="contest_id")
           el-select(v-model="form.contest_id",filterable,placeholder="请选择")
             el-option(v-for="item in contests",:key="item.id",:label="item.name",:value="item.id")
       .dialog-footer(slot="footer")
@@ -115,7 +115,7 @@ export default {
       this.$notify({
         title: "提示",
         message:
-          "每一行对应一个竞赛&作业ID，若对应竞赛&作业存在则加入系列赛，否则将忽略。",
+          "每一行对应一个竞赛ID，若对应竞赛存在则加入系列赛，否则将忽略。",
         duration: 6000
       });
       this.$refs.form.clearValidate();
@@ -159,15 +159,11 @@ export default {
     async handleDeleteSeriesContest(row) {
       const self = this;
       try {
-        await self.$confirm(
-          `确认要删除系列赛中的竞赛&作业${row.name}吗?`,
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          }
-        );
+        await self.$confirm(`确认要删除系列赛中的竞赛${row.name}吗?`, "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        });
         try {
           let res = await deleteSeriesContest(self.series.id, row.id);
           self.$message({

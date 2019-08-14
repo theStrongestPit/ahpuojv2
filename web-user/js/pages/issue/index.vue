@@ -2,48 +2,49 @@
   .content
     title {{issue?`${issue.title} - AHPUOJ`:''}}
     .content__main
-      .replys__wrapper
+      .one-main(v-if="issueEnable==true")
         .link.fr(v-if="issue")
           span 板块&nbsp;
           router-link(v-if="issue.problem.id == 0",:to="{name:'issueList'}") {{`总板`}}
           router-link(v-else,:to="{name:'problemIssueList',params:{id:issue.problem.id}}") {{`问题P ${issue.problem.title}`}}
         h1.content__panel__title {{issue?issue.title:''}}
-        template(v-for="item,index in replys")
-          .reply__box
-            .reply__userinfo__wrapper
-              ul
-                li.reply__user__avatar
-                  router-link(:to="{name:'userinfo',params:{id:item.user.id}}")
-                    img(:src="imgUrl(item.user.avatar)")
-                li.reply__user__name.ell 
-                  router-link(:to="{name:'userinfo',params:{id:item.user.id}}") {{item.user.nick}}
-            .reply__content(:class="item.is_deleted == 1?'reply-content--deleted':''")
-              div(v-html="item.content")
-              .reply__addon.mt10.clearfix
-                p.fr
-                  span  {{item.created_at}}&nbsp;
-                  a(v-if="item.reply_count>0",@click="toggleReplyList(item)") {{`${item.reply_count}个回复(${item.showReplys ===  undefined  || item.showReplys === true ?"收起":"展开"})`}}
-                el-button.ml10(type="primary",size="mini",@click="handleReplyToReply(item.id,item.user.id)") 回复
-                el-button.ml10(v-if="$store.getters.userRole=='admin'",:type="item.is_deleted == 0?'danger':'success'",size="mini",@click="toggleReplyStatus(item.id)") {{item.is_deleted == 0 ? "删除":"恢复"}}
-            el-collapse-transition
-              .subreplys__wrapper.mt10(v-show="item.showReplys ===  undefined  || item.showReplys === true")
-                template(v-for="subitem,subindex in item.sub_replys")
-                  .subreply__box
-                    .subreply__userinfo__wrapper
-                      ul
-                        li.reply__user__avatar
-                          router-link(:to="{name:'userinfo',params:{id:subitem.user.id}}")
-                            img(:src="imgUrl(subitem.user.avatar)")
-                        li.reply__user__name.ell 
-                          router-link(:to="{name:'userinfo',params:{id:subitem.user.id}}") {{subitem.user.nick}}                  
-                    .subreply__content(:class="subitem.is_deleted == 1?'reply-content--deleted':''")
-                      div(v-html="calcSubReply(subitem)")
-                      .reply__addon.clearfix  
-                        p.fr
-                          span  {{item.created_at}}&nbsp;
-                        el-button.ml10(type="primary",size="mini",@click="handleReplyToReply(item.id,subitem.user.id)") 回复
-                        el-button.ml10(v-if="$store.getters.userRole=='admin'",:type="subitem.is_deleted == 0?'danger':'success'",size="mini",@click="toggleReplyStatus(subitem.id)") {{subitem.is_deleted == 0 ? "删除":"恢复"}}
-        el-pagination.tal.mt10.mb10(@current-change="fetchIssue",:current-page.sync="currentPage",background,
+        .reply__box__list
+          template(v-for="item,index in replys")
+            .reply__box
+              .reply__userinfo__wrapper
+                ul
+                  li.reply__user__avatar
+                    router-link(:to="{name:'userinfo',params:{id:item.user.id}}")
+                      img(:src="imgUrl(item.user.avatar)")
+                  li.reply__user__name.ell 
+                    router-link(:to="{name:'userinfo',params:{id:item.user.id}}") {{item.user.nick}}
+              .reply__content(:class="item.is_deleted == 1?'reply-content--deleted':''")
+                div(v-html="item.content")
+                .reply__addon.mt10.clearfix
+                  p.fr.mr10
+                    span.text-muted  {{item.created_at}}&nbsp;
+                    a(v-if="item.reply_count>0",@click="toggleReplyList(item)") {{`${item.reply_count}个回复(${item.showReplys ===  undefined  || item.showReplys === true ?"收起":"展开"})`}}
+                  el-button.ml10(type="primary",size="mini",@click="handleReplyToReply(item.id,item.user.id)") 回复
+                  el-button.ml10(v-if="$store.getters.userRole=='admin'",:type="item.is_deleted == 0?'danger':'success'",size="mini",@click="toggleReplyStatus(item.id)") {{item.is_deleted == 0 ? "删除":"恢复"}}
+              el-collapse-transition
+                .subreplys__wrapper.mt10(v-show="item.showReplys ===  undefined  || item.showReplys === true")
+                  template(v-for="subitem,subindex in item.sub_replys")
+                    .subreply__box
+                      .subreply__userinfo__wrapper
+                        ul
+                          li.reply__user__avatar
+                            router-link(:to="{name:'userinfo',params:{id:subitem.user.id}}")
+                              img(:src="imgUrl(subitem.user.avatar)")
+                          li.reply__user__name.ell 
+                            router-link(:to="{name:'userinfo',params:{id:subitem.user.id}}") {{subitem.user.nick}}                  
+                      .subreply__content(:class="subitem.is_deleted == 1?'reply-content--deleted':''")
+                        div(v-html="calcSubReply(subitem)")
+                        .reply__addon.clearfix  
+                          p.fr
+                            span  {{item.created_at}}&nbsp;
+                          el-button.ml10(type="primary",size="mini",@click="handleReplyToReply(item.id,subitem.user.id)") 回复
+                          el-button.ml10(v-if="$store.getters.userRole=='admin'",:type="subitem.is_deleted == 0?'danger':'success'",size="mini",@click="toggleReplyStatus(subitem.id)") {{subitem.is_deleted == 0 ? "删除":"恢复"}}
+        el-pagination.tal.mt20.mt10.mb10(@current-change="fetchIssue",:current-page.sync="currentPage",background,
         :page-size="perpage",layout="prev, pager, next,jumper",:total="total",style="background:#fff;")
 
         h1.content__panel__title 发表新回复
@@ -52,13 +53,14 @@
             tinymce-editor.mt10(v-model="replyContent",:height="300")
             el-button.mt10(type="primary",@click="reply(1)") 发表
           a(v-else,@click="goLogin") 请登陆后发表讨论
-
+      div(v-else-if="issueEnable==false")
+        p 讨论版功能已经被管理员关闭
+      div(v-else)
     el-dialog(title="回复内容", :visible.sync="dialogFormVisible", @closed="closeDialog", @opened="openDialog", width="800px",:close-on-click-modal="false")
       tinymce-editor.mt10(v-model="subReplyContent",:height="300")
       .dialog-footer(slot="footer")
         el-button(@click="cancel") 取消
         el-button(type="primary", native-type="submit", @click="reply(2)") 确定
-
 </template>
 
 <script>
@@ -74,6 +76,7 @@ export default {
   name: "",
   data() {
     return {
+      issueEnable: null,
       currentPage: 1,
       dialogFormVisible: false,
       perpage: 20,
@@ -106,11 +109,11 @@ export default {
           self.currentPage,
           self.perpage
         );
-        console.log(res);
         let data = res.data;
         self.issue = data.issue;
         self.replys = data.replys;
         self.total = data.total;
+        self.issueEnable = data.issue_enable;
       } catch (err) {
         console.log(err);
       }
@@ -213,91 +216,84 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.replys__wrapper {
-  .link {
-    font-size: 0.24rem;
-    line-height: 0.5rem;
-    padding-right: 0.2rem;
+.link {
+  font-size: 16px;
+  line-height: 0.5rem;
+  padding-right: 0.2rem;
+}
+h1.content__panel__title {
+  background: $c15;
+}
+.reply__box {
+  background: $c15;
+  position: relative;
+  padding: 0.1rem;
+  &:not(:last-of-type) {
+    border-bottom: 1px solid $c13;
   }
-  h1.content__panel__title {
-    background: $c15;
-  }
-  .reply__box {
-    background: $c15;
-    position: relative;
-    margin-top: 0.2rem;
-    padding: 0.2rem;
-    border: 1px solid $c13;
-    .reply__userinfo__wrapper {
-      text-align: center;
-      img {
-        width: 60px;
-        height: 60px;
-        border-radius: 30px;
-        border: 1px solid $c12;
-        box-shadow: 1px 1px 1px 1px $c12;
-      }
-      float: left;
-      width: 100px;
+  .reply__userinfo__wrapper {
+    text-align: center;
+    img {
+      width: 60px;
+      height: 60px;
+      border-radius: 30px;
+      border: 1px solid $c12;
+      box-shadow: 1px 1px 1px 1px $c12;
     }
-    &:last-child {
-      border-bottom: 1px solid $c13;
-    }
-    .reply__content {
-      position: relative;
-      box-sizing: border-box;
-      padding: 0.1rem 0.2rem 0.3rem 0.1rem;
-      margin-left: 100px;
-      min-height: 100px;
-      text-align: left;
-      font-size: 16px;
-    }
-    .reply-content--deleted {
-      background-color: #f5f7fa;
-      text-decoration: line-through;
-    }
-    .reply__addon {
+    float: left;
+    width: 100px;
+    .reply__user__name {
       font-size: 14px;
-      position: absolute;
-      width: 100%;
-      left: 0px;
-      bottom: 0px;
-    }
-    .subreplys__wrapper {
-      .subreply__box {
-        padding: 0.1rem;
-        margin-left: 100px;
-        border: 1px solid $c13;
-        .subreply__userinfo__wrapper {
-          text-align: center;
-          padding-top: 20px;
-          img {
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
-            border: 1px solid $c12;
-            box-shadow: 1px 1px 1px 1px $c12;
-          }
-          float: left;
-          width: 100px;
-        }
-        .subreply__content {
-          position: relative;
-          box-sizing: border-box;
-          padding: 0.15rem;
-          margin-left: 100px;
-          min-height: 100px;
-          text-align: left;
-          font-size: 16px;
-        }
-      }
     }
   }
-  .post__box__wrapper {
+  .reply__content {
+    position: relative;
+    box-sizing: border-box;
+    padding: 0.1rem 0.2rem 0.4rem 0.1rem;
+    margin-left: 100px;
     min-height: 100px;
     text-align: left;
-    background: $c15;
-    padding: 1rem;
+    font-size: 16px;
+  }
+  .reply-content--deleted {
+    background-color: #f5f7fa;
+    text-decoration: line-through;
+  }
+  .reply__addon {
+    font-size: 14px;
+    position: absolute;
+    width: 100%;
+    left: 0px;
+    bottom: 0px;
+  }
+  .subreplys__wrapper {
+    .subreply__box {
+      padding: 0.1rem;
+      margin-left: 100px;
+      border-top: 1px solid $c13;
+      .subreply__userinfo__wrapper {
+        text-align: center;
+        padding-top: 20px;
+        img {
+          width: 40px;
+          height: 40px;
+          border-radius: 20px;
+          border: 1px solid $c12;
+          box-shadow: 1px 1px 1px 1px $c12;
+        }
+        float: left;
+        width: 100px;
+      }
+      .subreply__content {
+        position: relative;
+        box-sizing: border-box;
+        padding: 0.15rem 0.15rem 0.4rem 0.15rem;
+        margin-left: 100px;
+        min-height: 100px;
+        text-align: left;
+        font-size: 16px;
+      }
+    }
   }
 }
 </style>

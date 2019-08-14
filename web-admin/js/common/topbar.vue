@@ -2,15 +2,15 @@
 .topbar__wrapper
   .topbar
     .topbar__title AHPUOJ后台管理系统
-    .topbar__userinfo.fr {{`欢迎您，${$store.getters.userNick}`}}
-    .topbar__mobile_nav
+    .topbar__userinfo.fr(v-if="screenWidth > 960") {{`欢迎您，${$store.getters.userNick}`}}
+    .topbar__mobile_nav(v-else)
       .mobile-humber(@click="toggleMobileNav")
         a(href="#", :class="{active:showMobileNav}")
           span(class="line")
           span(class="line")
           span(class="line")
   transition(name="slide-fade")
-    el-menu(:default-active="defaultActive",@select="toggleMobileNav",class="topbar__mobile__nav__menu",background-color="#545c64",
+    el-menu.tal(:default-active="defaultActive",@select="toggleMobileNav",class="topbar__mobile__nav__menu",background-color="#545c64",
     text-color="#fff",active-text-color="#ffd04b",:router="true", v-if="showMobileNav && screenWidth <= 960")
       template(v-for="item in showItems")
         template(v-if="item.meta.issub === false")
@@ -24,6 +24,9 @@
               span {{item.meta.title}}
             template(v-for="children in item.children")
               el-menu-item(:index="children.name", :route="{name:children.name}", :key="children.name") {{children.meta.title}}
+      el-menu-item(class="submenu-title-noDropdown",@click.native="jumpToFront")
+        svg-icon(name="logout")
+        span 返回前台
 </template>
 
 <script>
@@ -43,6 +46,9 @@ export default {
   methods: {
     toggleMobileNav() {
       this.showMobileNav = !this.showMobileNav;
+    },
+    jumpToFront() {
+      window.location.href = "/";
     }
   },
   computed: {
@@ -105,9 +111,6 @@ export default {
   .topbar__mobile_nav {
     position: relative;
     height: 100%;
-    @media screen and (min-width: 960px) {
-      display: none;
-    }
     .mobile-humber {
       width: 100px;
       float: right;

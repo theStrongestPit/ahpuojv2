@@ -29,19 +29,13 @@ func IndexUser(c *gin.Context) {
 	}
 	whereString += " order by id desc"
 	rows, total, err := model.Paginate(page, perpage, "user", []string{"*"}, whereString)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "数据获取失败",
-		})
+	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}
 	var users []map[string]interface{}
 	for rows.Next() {
 		var user model.User
-		err = rows.StructScan(&user)
-		if err != nil {
-			utils.Consolelog(err)
-		}
+		rows.StructScan(&user)
 		users = append(users, user.Response())
 	}
 	c.JSON(200, gin.H{
@@ -59,10 +53,7 @@ func ToggleUserStatus(c *gin.Context) {
 	}
 
 	err := user.ToggleStatus()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "更改用户状态失败，用户不存在",
-		})
+	if utils.CheckError(c, err, "更改用户状态失败，用户不存在") != nil {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -75,10 +66,7 @@ func ChangeUserPass(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	var req request.UserPass
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "请求参数错误",
-		})
+	if utils.CheckError(c, err, "请求参数错误") != nil {
 		return
 	}
 
@@ -97,10 +85,7 @@ func ChangeUserPass(c *gin.Context) {
 	}
 
 	err = user.ChangePass()
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "更改用户密码失败，用户不存在",
-		})
+	if utils.CheckError(c, err, "更改用户密码失败，用户不存在") != nil {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{

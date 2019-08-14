@@ -17,11 +17,7 @@ func Login(c *gin.Context) {
 	var req request.Login
 	var user model.User
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		utils.Consolelog(err.Error())
-		c.JSON(400, gin.H{
-			"message": "参数错误",
-		})
+	if utils.CheckError(c, err, "参数错误") != nil {
 		return
 	}
 
@@ -68,10 +64,7 @@ func Login(c *gin.Context) {
 func Register(c *gin.Context) {
 	var req request.Register
 	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "参数错误",
-		})
+	if utils.CheckError(c, err, "参数错误") != nil {
 		return
 	}
 
@@ -93,31 +86,28 @@ func Register(c *gin.Context) {
 
 	err = user.Save()
 
-	if err != nil {
-		utils.Consolelog(err.Error())
-		c.JSON(400, gin.H{
-			"message": "该邮箱/用户名/昵称已被注册",
-		})
-	} else {
-		token := utils.CreateToken(user.Username)
-
-		// 更新redis的token,过期时间为15天
-		conn := REDISPOOL.Get()
-		defer conn.Close()
-		conn.Do("set", "token:"+user.Username, token)
-		conn.Do("expire", "token:"+user.Username, 60*60*24*15)
-
-		// 设置cookies
-		cfg := utils.GetCfg()
-		domain, _ := cfg.GetValue("project", "server")
-		cookieLiveTimeStr, _ := cfg.GetValue("project", "cookielivetime")
-		cookieLiveTime, _ := strconv.Atoi(cookieLiveTimeStr)
-		c.SetCookie("access-token", token, cookieLiveTime, "/", domain, false, false)
-		c.JSON(200, gin.H{
-			"message": "注册成功",
-			"token":   token,
-		})
+	if utils.CheckError(c, err, "该邮箱/用户名/昵称已被注册") != nil {
+		return
 	}
+
+	token := utils.CreateToken(user.Username)
+
+	// 更新redis的token,过期时间为15天
+	conn := REDISPOOL.Get()
+	defer conn.Close()
+	conn.Do("set", "token:"+user.Username, token)
+	conn.Do("expire", "token:"+user.Username, 60*60*24*15)
+
+	// 设置cookies
+	cfg := utils.GetCfg()
+	domain, _ := cfg.GetValue("project", "server")
+	cookieLiveTimeStr, _ := cfg.GetValue("project", "cookielivetime")
+	cookieLiveTime, _ := strconv.Atoi(cookieLiveTimeStr)
+	c.SetCookie("access-token", token, cookieLiveTime, "/", domain, false, false)
+	c.JSON(200, gin.H{
+		"message": "注册成功",
+		"token":   token,
+	})
 }
 
 // 发送重设密码邮件的接口

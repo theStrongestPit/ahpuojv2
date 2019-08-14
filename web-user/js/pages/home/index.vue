@@ -1,7 +1,7 @@
 <template lang="pug">
   .content
     .content__main
-      .home__wrapper
+      .one-main
         p(class="welcome__title") 欢迎使用AHPUOJ
         .carousel__wrapper
           el-carousel(trigger="click",height="400px", indicator-position="outside")
@@ -11,8 +11,9 @@
           .new__box
             .new__title {{item.title}}
             .new__content(v-html="item.content")
-            .new__time {{item.updated_at}}
-        el-pagination.tal(@current-change="fetchNewList",:current-page.sync="currentPage",background,
+            .new__time
+              span.text-muted {{item.updated_at}}
+        el-pagination.tal.mt20(@current-change="fetchNewList",:current-page.sync="currentPage",background,
         :page-size="perpage",layout="prev, pager, next,jumper",:total="total")
 </template>
 
@@ -52,40 +53,38 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.home__wrapper {
-  background: $c15;
-  .welcome__title {
-    padding-top: 0.2rem;
-    font-size: 40px;
+.welcome__title {
+  padding-top: 0.2rem;
+  font-size: 40px;
+}
+.carousel__wrapper {
+  padding: 0 2rem;
+  .el-carousel {
+    overflow: hidden;
   }
-  .carousel__wrapper {
-    padding: 0 2rem;
-    .el-carousel {
-      overflow: hidden;
-    }
+}
+.new__box {
+  position: relative;
+  padding: 0.3rem 0.5rem;
+  border-top: 1px solid $c13;
+  &:last-child {
+    border-bottom: 1px solid $c13;
   }
-  .new__box {
-    position: relative;
-    padding: 0.3rem 0.5rem;
-    border-top: 1px solid $c13;
-    &:last-child {
-      border-bottom: 1px solid $c13;
-    }
-    .new__title {
-      text-align: left;
-      font-size: 30px;
-      color: $c0;
-    }
-    .new__content {
-      min-height: 200px;
-      text-align: left;
-      font-size: 24px;
-    }
-    .new__time {
-      position: absolute;
-      bottom: 5px;
-      right: 5px;
-    }
+  .new__title {
+    text-align: left;
+    font-size: 30px;
+    color: $ctitle;
+  }
+  .new__content {
+    min-height: 200px;
+    text-align: left;
+    font-size: 24px;
+  }
+  .new__time {
+    font-size: 14px;
+    position: absolute;
+    bottom: 5px;
+    right: 0.5rem;
   }
 }
 </style>
