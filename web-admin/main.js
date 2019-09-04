@@ -1,4 +1,4 @@
-import Vue from 'vue/dist/vue.esm.js'
+import Vue from 'vue'
 import App from '@/web-admin/js/App.vue'
 import router from '@/web-admin/js/router'
 import ElementUI from 'element-ui'

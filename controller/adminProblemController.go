@@ -146,6 +146,29 @@ func DeleteProblem(c *gin.Context) {
 	if utils.CheckError(c, err, "删除问题失败，该问题不存在") != nil {
 		return
 	}
+	// 删除其他相关数据
+
+	// 删除source_code
+	DB.Exec("delete source_code from source_code inner join solution on source_code.solution_id = solution.solution_id where solution.problem_id = ?", problem.Id)
+	DB.Exec("delete compileinfo from compileinfo inner join solution on compileinfo.solution_id = solution.solution_id where solution.problem_id = ?", problem.Id)
+	DB.Exec("delete runtimeinfo from runtimeinfo inner join solution on runtimeinfo.solution_id = solution.solution_id where solution.problem_id = ?", problem.Id)
+
+	// 删除solution记录
+	DB.Exec("delete from solution where problem_id = ?", problem.Id)
+
+	// 删除tag关联记录
+	DB.Exec("delete from problem_tag where problem_id = ?", problem.Id)
+	// 删除reply
+	DB.Exec("delete reply from reply inner join issue on reply.issue_id =issue.id where issue.problem_id = ?", problem.Id)
+	// 删除issue
+	DB.Exec("delete from issue where problem_id = ?", problem.Id)
+
+	var maxId int
+	// 更新自增起始ID
+	DB.Get(&maxId, "select max(id) from problem")
+	newAutoIncrement := strconv.Itoa(maxId + 1)
+	DB.Exec("alter table problem auto_increment=" + newAutoIncrement)
+
 	c.JSON(200, gin.H{
 		"message": "删除问题成功",
 	})
@@ -234,7 +257,8 @@ func ReassignProblem(c *gin.Context) {
 	DB.Exec("update issue set problem_id = ? where problem_id = ?", newId, oldId)
 	// 更新自增起始ID
 	DB.Get(&maxId, "select max(id) from problem")
-	DB.Exec("alter table problem auto_increment = ?", maxId)
+	newAutoIncrement := strconv.Itoa(maxId + 1)
+	DB.Exec("alter table problem auto_increment=" + newAutoIncrement)
 	// 移动文件夹
 	dataDir, _ := utils.GetCfg().GetValue("project", "datadir")
 	oldDir := dataDir + "/" + strconv.Itoa(oldId)

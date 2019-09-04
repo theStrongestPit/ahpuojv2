@@ -29,7 +29,7 @@
                   span(v-if="user") {{user.created_at}}
         .main__section
           h3 近期提交情况
-          line-chart(:option="chartOption",:flag="renderFlag",:id="'chart'",style="width:100%;height:500px;")
+          line-chart(:option="chartOption",:flag="renderFlag",:id="'chart'",style="width:100%;height:5rem;")
         .main__section
           h3 已解决的问题
           .problem__links(v-if="user")
@@ -130,27 +130,27 @@ export default {
 <style lang="scss" scoped>
 .userinfo__avatart__wrapper {
   img {
-    height: 200px;
-    width: 200px;
-    border-radius: 100px;
-    border: 1px solid $c14;
+    height: 2rem;
+    width: 2rem;
+    border-radius: 1rem;
+    border: 0.01rem solid $c14;
   }
 }
 ul.infolist {
   text-align: left;
   li {
     margin-top: 0.15rem;
-    font-size: 16px;
+    font-size: 0.16rem;
     span {
       display: inline-block;
       &:first-child {
-        width: 100px;
+        width: 1rem;
       }
     }
   }
 }
 .problem__links {
-  font-size: 16px;
-  word-spacing: 16px;
+  font-size: 0.16rem;
+  word-spacing: 0.16rem;
 }
 </style>

@@ -14,6 +14,12 @@ server {
         location /admin {
             try_files $uri $uri/ /admin_index.html;
         }
+        location = /index.html {
+	    add_header Cache-Control "no-cache, no-store";
+	    }
+        location = /admin_index.html {
+            add_header Cache-Control "no-cache, no-store";
+        }
         location /api{
                 try_files $uri @backend;
         }

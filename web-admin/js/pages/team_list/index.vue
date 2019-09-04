@@ -8,8 +8,8 @@
     .content__button__wrapper
       el-button(type="success", @click="handleCreateTeam") 新建团队
     .content__searchbar__wrapper
-      el-input(style="max-width:20em", placeholder="请输入团队名称", v-model="queryParam", maxlength="20", clearable)
-      el-button(icon="el-icon-search",type="primary",plain,@click="fetchTeamList")
+      el-input(style="max-width:20em", placeholder="请输入团队名称", v-model="queryParam", @keyup.enter.native="handleSearchByParam",maxlength="20", clearable)
+      el-button(icon="el-icon-search",type="primary",plain,@click="handleSearchByParam")
     el-table(:data="tableData", style="width:100%;", v-loading="loading")
       el-table-column(label="ID", prop="id", width="180")
       el-table-column(label="团队名称", prop="name")
@@ -18,7 +18,7 @@
           el-button(size="mini", type="primary" @click="$router.push({name:'adminTeamManage',params:{id:scope.row.id}})") 管理
           el-button(size="mini", @click="handleEditTeam(scope.row)") 编辑
           el-button(size="mini", type="danger", @click="handleDeleteTeam(scope.row)") 删除
-    el-pagination(@size-change="handleSizeChange",@current-change="fetchTeamList",:current-page.sync="currentPage",
+    el-pagination(@size-change="handleSizeChange",@current-change="fetchDataList",:current-page.sync="currentPage",
         :page-sizes="[10, 20, 30, 40,50]",:page-size="10",layout="total, sizes, prev, pager, next, jumper",:total="total")
   el-dialog(:title="dialogFormTitle",:visible.sync="dialogFormVisible",@closed="closeDialog",@opened="openDialog",width="400px",:close-on-click-modal="false")
     el-form(:model="form" ref="form" :rules="rules" @submit.native.prevent)
@@ -71,7 +71,7 @@ export default {
   },
   mounted() {},
   methods: {
-    async fetchTeamList() {
+    async fetchDataList() {
       const self = this;
       self.loading = true;
       try {
@@ -90,10 +90,15 @@ export default {
         console.log(err);
       }
     },
+    handleSearchByParam() {
+      this.currentPage = 1;
+      this.loading = true;
+      this.fetchDataList();
+    },
     handleSizeChange(val) {
       this.perpage = val;
       console.log(this.perpage);
-      this.fetchTeamList();
+      this.fetchDataList();
     },
     openDialog() {
       this.$refs.form.clearValidate();
@@ -119,7 +124,7 @@ export default {
               message: res.data.message,
               type: "success"
             });
-            self.fetchTeamList();
+            self.fetchDataList();
           } catch (err) {
             self.$message({
               message: err.response.data.message,
@@ -161,7 +166,7 @@ export default {
             type: "success",
             message: res.data.message
           });
-          self.fetchTeamList();
+          self.fetchDataList();
         } catch (err) {
           self.$message({
             type: "error",
@@ -177,7 +182,7 @@ export default {
     }
   },
   activated() {
-    this.fetchTeamList();
+    this.fetchDataList();
   }
 };
 </script>

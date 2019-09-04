@@ -14,7 +14,7 @@ services:
       - "2345:2345"
     volumes: 
       - ${OJ_CODE_PATH_HOST}:${OJ_CODE_PATH_CONTAINER}${OJ_CODE_CONTAINER_FLAG}
-      # - /home/judge/data
+      - ${OJ_DATA_PATH_HOST}:${OJ_DATA_PATH_CONTAINER}${OJ_CODE_CONTAINER_FLAG}
     links:
       - db
     entrypoint: /usr/local/bin/docker-entrypoint.sh

@@ -8,8 +8,9 @@
     .content__button__wrapper
       el-button(type="success", @click="handleCreateTag") 新建标签
     .content__searchbar__wrapper
-      el-input(style="max-width:20em", placeholder="请输入标签名称", v-model="queryParam", maxlength="20", clearable)
-      el-button(icon="el-icon-search",type="primary",plain,@click="fetchTagList")
+      el-input(style="max-width:20em", placeholder="请输入标签名称", v-model="queryParam", 
+@keyup.enter.native="handleSearchByParam",maxlength="20", clearable)
+      el-button(icon="el-icon-search",type="primary",plain,@click="handleSearchByParam")
     el-table(:data="tableData", style="width:100%;", v-loading="loading")
       el-table-column(label="ID", prop="id", width="180")
       el-table-column(label="标签名称", prop="name")
@@ -17,7 +18,7 @@
         template(slot-scope="scope")
           el-button(size="mini", @click="handleEditTag(scope.row)") 编辑
           el-button(size="mini", type="danger", @click="handleDeleteTag(scope.row)") 删除
-    el-pagination(@size-change="handleSizeChange",@current-change="fetchTagList",:current-page.sync="currentPage",
+    el-pagination(@size-change="handleSizeChange",@current-change="fetchDataList",:current-page.sync="currentPage",
         :page-sizes="[10, 20, 30, 40,50]",:page-size="10",layout="total, sizes, prev, pager, next, jumper",:total="total")
   el-dialog(:title="dialogFormTitle",:visible.sync="dialogFormVisible",@closed="closeDialog",@opened="openDialog",width="400px",:close-on-click-modal="false")
     el-form(:model="form", ref="form" :rules="rules", @submit.native.prevent)
@@ -70,7 +71,7 @@ export default {
   },
   mounted() {},
   methods: {
-    async fetchTagList() {
+    async fetchDataList() {
       const self = this;
       self.loading = true;
       try {
@@ -89,10 +90,15 @@ export default {
         console.log(err);
       }
     },
+    handleSearchByParam() {
+      this.currentPage = 1;
+      this.loading = true;
+      this.fetchDataList();
+    },
     handleSizeChange(val) {
       this.perpage = val;
       console.log(this.perpage);
-      this.fetchTagList();
+      this.fetchDataList();
     },
     openDialog() {
       this.$refs.form.clearValidate();
@@ -118,7 +124,7 @@ export default {
               message: res.data.message,
               type: "success"
             });
-            self.fetchTagList();
+            self.fetchDataList();
           } catch (err) {
             self.$message({
               message: err.response.data.message,
@@ -166,7 +172,7 @@ export default {
               self.currentPage--;
             }
           }
-          self.fetchTagList();
+          self.fetchDataList();
         } catch (err) {
           self.$message({
             type: "error",
@@ -182,7 +188,7 @@ export default {
     }
   },
   activated() {
-    this.fetchTagList();
+    this.fetchDataList();
   }
 };
 </script>

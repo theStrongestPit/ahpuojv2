@@ -540,7 +540,7 @@ void make_diff_out_simple(FILE *f1, FILE *f2, int c1, int c2, const char *path)
 	// execute_cmd("diff '%s' user.out -q>>diff.out", path);
 }
 
-void record_error_data_point(FILE *f1, FILE *f2, int c1, int c2, const char *path)
+void record_error_data_point(const char *path)
 {
 	execute_cmd("echo %s>>diff.out\n", getFileNameFromPath(path));
 	// execute_cmd("diff '%s' user.out -q>>diff.out", path);
@@ -612,12 +612,12 @@ int compare_zoj(const char *file1, const char *file2)
 		}
 end:
 	// 此处有修改，当答案错的的时候改为记录发生错误的数据点
-	if (ret == OJ_WA || ret == OJ_PE || ret == OJ_TL || ret == OJ_ML)
+	if (ret == OJ_WA)
 	{
 		// if (full_diff)
 		// make_diff_out_full(f1, f2, c1, c2, file1);
 		// else
-		record_error_data_point(f1, f2, c1, c2, file1);
+		record_error_data_point(file1);
 	}
 	if (f1)
 		fclose(f1);
@@ -974,7 +974,7 @@ void addreinfo(int solution_id)
 	}
 }
 
-void adddiffinfo(int solution_id)
+void addwrongpointinfo(int solution_id)
 {
 
 	if (http_judge)
@@ -2219,7 +2219,11 @@ void judge_solution(int &ACflg, int &usedtime, int time_lmt, int isspj,
 		ACflg = OJ_TL;
 	if (topmemory > mem_lmt * STD_MB)
 		ACflg = OJ_ML; //issues79
-	// compare
+					   // compare
+	// 此处有修改 在TL和ML时候增加错误点的输出
+	if (ACflg == OJ_TL || ACflg == OJ_ML)
+		record_error_data_point(outfile);
+	// TOADD
 	if (ACflg == OJ_AC)
 	{
 		if (isspj)
@@ -2973,12 +2977,13 @@ int main(int argc, char **argv)
 		update_solution(solution_id, ACflg, usedtime, topmemory >> 10, sim,
 						sim_s_id, 0);
 	}
-	if ((oi_mode && finalACflg == OJ_WA) || ACflg == OJ_WA)
+	// 此处有修改，修改为在TL和ML的时候也输出
+	if ((oi_mode && finalACflg == OJ_WA) || (ACflg >= OJ_WA && ACflg <= OJ_ML))
 	{
 		if (DEBUG)
 			printf("add diff info of %d..... \n", solution_id);
 		if (!isspj)
-			adddiffinfo(solution_id);
+			addwrongpointinfo(solution_id);
 	}
 	if (!turbo_mode)
 		update_user(user_id);

@@ -1,86 +1,88 @@
 <template lang="pug">
 .topbar__wrapper
-  .topbar
-    .topbar__title(v-if="screenWidth > 960")
-      router-link(:to="{name:'index'}") AHPUOJ
-    .topbar__mobile_nav(v-else)
-      .mobile-humber(@click="toggleMobileNav")
-        a(href="#", :class="{active:showMobileNav}")
-          span(class="line")
-          span(class="line")
-          span(class="line")
-    .topbar__nav
-      ul(class="topbar__nav__bar clearfix",v-if="screenWidth > 960")
-        li(class="topbar__nav__item topbar__section")
-          router-link(:to="{name:'problemSet'}")
-            svg-icon(name="problem") 
-            span 问题集
-        li(class="topbar__nav__item topbar__section")
-          router-link(:to="{name:'issueList'}")
-            svg-icon(name="chat") 
-            span 讨论区
-        li(class="topbar__nav__item topbar__section")
-          router-link(:to="{name:'status'}",@click.native="resetSolutionFilter")
-            svg-icon(name="server") 
-            span 评测机
-        li(class="topbar__nav__item topbar__section")
-          router-link(:to="{name:'contestList'}")
-            svg-icon(name="champion") 
-            span 竞赛
-        li(class="topbar__nav__item topbar__section")
-          router-link(:to="{name:'seriesList'}")
-            svg-icon(name="tournament") 
-            span 系列赛
-        li(class="topbar__nav__item topbar__section")
-          router-link(:to="{name:'ranklist'}")
-            svg-icon(name="ranking") 
-            span 排名
-      .topbar__right__section
-        .topbar__userinfo__wrapper(v-if="$store.getters.token && $store.getters.userDefunct == 0",@mouseleave="showDropDownMenu=false")
-          .username-wrapper.ell.tar
-            span.username  {{$store.getters.userNick}}
-          img(:src="imgUrl($store.getters.userAvatar)",@mouseover="showDropDownMenu = true")
-          el-collapse-transition
-            ul.topbar__userinfo__dropdown(v-if="showDropDownMenu")
-              li 
-                router-link(:to="{name:'userinfo',params:{id:$store.getters.userId}}") 个人空间
-              li 
-                router-link(:to="{name:'account'}") 账号设置
-              li
-                router-link(:to="{name:'myreplys'}") 查看回复
-              li(v-if="$store.getters.userRole=='admin'") 
-                a(href="/admin") 后台管理
-              li(@click="handleLogout") 
-                a 登出
+  .topbar__title(v-if="screenWidth > 960")
+    router-link(:to="{name:'index'}") AHPUOJ
+  .topbar__mobile_nav(v-else)
+    .mobile-humber(@click="toggleMobileNav")
+      a(href="#", :class="{active:showMobileNav}")
+        span.line
+        span.line
+        span.line
+  .topbar__nav(v-if="screenWidth > 960")
+    ul.topbar__nav__bar.clearfix
+      li.topbar__nav__item.topbar__section
+        router-link(:to="{name:'problemSet'}")
+          svg-icon(name="problem") 
+          span 问题集
+      li.topbar__nav__item.topbar__section
+        router-link(:to="{name:'issueList'}")
+          svg-icon(name="chat") 
+          span 讨论区
+      li.topbar__nav__item.topbar__section
+        router-link(:to="{name:'status'}",@click.native="resetSolutionFilter")
+          svg-icon(name="server") 
+          span 评测机
+      li.topbar__nav__item.topbar__section
+        router-link(:to="{name:'contestList'}")
+          svg-icon(name="champion") 
+          span 竞赛
+      li.topbar__nav__item.topbar__section
+        router-link(:to="{name:'seriesList'}")
+          svg-icon(name="tournament") 
+          span 系列赛
+      li.topbar__nav__item.topbar__section
+        router-link(:to="{name:'ranklist'}")
+          svg-icon(name="ranking") 
+          span 排名
+  .topbar__right__section
+    .topbar__userinfo__wrapper(v-if="$store.getters.token && $store.getters.userDefunct == 0",@mouseleave="showDropDownMenu=false")
+      .username-wrapper.ell.tar
+        span.username  {{$store.getters.userNick}}
+      img(:src="imgUrl($store.getters.userAvatar)",@mouseover="showDropDownMenu = true")
+      el-collapse-transition
+        ul.topbar__userinfo__dropdown(v-if="showDropDownMenu")
+          li 
+            router-link(:to="{name:'userinfo',params:{id:$store.getters.userId}}") 个人空间
+          li 
+            router-link(:to="{name:'account'}") 账号设置
+          li
+            router-link(:to="{name:'myreplys'}") 查看回复
+          li(v-if="$store.getters.userRole=='admin'") 
+            a(href="/admin") 后台管理
+          li(@click="handleLogout") 
+            a 登出
 
-        .topbar__login__wrapper(v-else, @click="handleLogin",class="topbar__section")
-            a  
-              svg-icon(name="login") 
-              span 登录
+    .topbar__login__wrapper(v-else, @click="handleLogin")
+        a  
+          svg-icon(name="login") 
+          span 登录
 
   transition(name="slide-fade")
-      el-menu(:default-active="defaultActive",@select="toggleMobileNav",class="topbar__mobile__nav__menu",background-color="#545c64",
+      el-menu(@select="toggleMobileNav",class="topbar__mobile__nav__menu",background-color="#111144",
       text-color="#fff",active-text-color="#ffd04b",:router="true", v-if="showMobileNav && screenWidth <= 960")
+        el-menu-item(:index="1", :route="{name:'index'}", class="submenu-title-noDropdown")
+          svg-icon.m__svg(name="dashboard")
+          span 首页
         el-menu-item(:index="1", :route="{name:'problemSet'}", class="submenu-title-noDropdown")
-          svg-icon(name="problem")
+          svg-icon.m__svg(name="problem")
           span 问题集
         el-menu-item(:index="1", :route="{name:'issueList'}", class="submenu-title-noDropdown")
-          svg-icon(name="chat")
+          svg-icon.m__svg(name="chat")
           span 讨论区
         el-menu-item(:index="1", :route="{name:'status'}", class="submenu-title-noDropdown")
-          svg-icon(name="server")
+          svg-icon.m__svg(name="server")
           span 评测机
         el-menu-item(:index="1", :route="{name:'contestList'}", class="submenu-title-noDropdown")
-          svg-icon(name="champion")
+          svg-icon.m__svg(name="champion")
           span 竞赛
         el-menu-item(:index="1", :route="{name:'seriesList'}", class="submenu-title-noDropdown")
-          svg-icon(name="tournament")
+          svg-icon.m__svg(name="tournament")
           span 系列赛
         el-menu-item(:index="1", :route="{name:'ranklist'}", class="submenu-title-noDropdown")
-          svg-icon(name="ranking")
+          svg-icon.m__svg(name="ranking")
           span 排名
 
-  el-dialog(:visible.sync="dialogFormVisible",width="400px",:close-on-click-modal="false",custom-class="auth__dialog__wrapper")
+  el-dialog(:visible.sync="dialogFormVisible",width="5rem",:close-on-click-modal="false",custom-class="auth__dialog__wrapper")
     .auth__dialog
       .title(slot="header") 
         span(:class="[method=='login'?'active':'']",@click="method='login'") &nbsp登 录&nbsp
@@ -119,7 +121,6 @@
 import { login, register } from "@/web-user/js/api/auth.js";
 import { EventBus } from "@/web-common/eventbus";
 export default {
-  name: "topbar",
   data() {
     var validatePassword = (rule, value, callback) => {
       if (value === "") {
@@ -146,8 +147,8 @@ export default {
       dialogFormVisible: false,
       method: "login",
       loginForm: {
-        username: "admin",
-        password: "123456"
+        username: "",
+        password: ""
       },
       registerForm: {
         email: "",
@@ -339,6 +340,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+$mibile-nav-height: 50px;
+
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: all 0.5s ease;
@@ -354,15 +357,19 @@ export default {
   text-align: left;
   overflow: hidden;
   position: absolute !important;
-  top: 100px;
+  top: $mibile-nav-height;
   width: 100%;
   z-index: 1000;
 }
 
 .topbar__wrapper {
+  position: relative;
   background: $pddblue;
   border-bottom: 1px solid $pdblue;
   height: 100px;
+  @media screen and (max-width: 960px) {
+    height: $mibile-nav-height;
+  }
   .topbar__title {
     text-indent: 10px;
     a {
@@ -458,56 +465,83 @@ export default {
         }
       }
     }
-
-    .topbar__right__section {
-      font-size: 0.24rem;
-      width: 200px;
-      height: 100%;
-      position: absolute;
-      right: 0.4rem;
-      top: 0;
+  }
+  .topbar__right__section {
+    line-height: 100px;
+    height: 100%;
+    font-size: 0.22rem;
+    width: 200px;
+    position: absolute;
+    right: 0.4rem;
+    top: 0;
+    a {
+      color: $c9;
+      svg {
+        height: 30px !important;
+      }
+    }
+    .topbar__userinfo__wrapper {
+      position: relative;
+      .username-wrapper {
+        box-sizing: border-box;
+        float: left;
+        padding: 0 20px;
+        height: 100px;
+        width: 140px;
+        line-height: 100px;
+        color: $c12;
+        font-size: 16px;
+      }
+      img {
+        cursor: pointer;
+        margin: 20px 0 0 0;
+        height: 60px;
+        border-radius: 30px;
+      }
+      .topbar__userinfo__dropdown {
+        position: absolute;
+        width: 150px;
+        top: 100px;
+        right: -35px;
+        z-index: 100;
+        background: $c15;
+        border: 1px solid $c12;
+        font-size: 0.18rem;
+        transition: all 0.3s;
+        li {
+          cursor: pointer;
+          color: $c3;
+          height: 50px;
+          line-height: 50px;
+          border-bottom: 0.01rem solid $c13;
+          transition: all 0.3s;
+          a {
+            font-size: 16px;
+          }
+          &:hover {
+            color: $pblue;
+          }
+        }
+      }
+    }
+    .topbar__login__wrapper {
+      margin-right: -20px;
+    }
+    @media screen and (max-width: 960px) {
+      height: $mibile-nav-height;
+      line-height: $mibile-nav-height;
       .topbar__userinfo__wrapper {
-        position: relative;
         .username-wrapper {
-          box-sizing: border-box;
-          float: left;
-          padding: 0 20px;
-          height: 100px;
-          width: 140px;
-          line-height: 100px;
-          color: $c12;
-          font-size: 16px;
+          height: $mibile-nav-height;
+          line-height: $mibile-nav-height;
         }
         img {
-          cursor: pointer;
-          margin: 20px 0 0 0;
-          height: 60px;
-          border-radius: 30px;
+          margin: 5px 0 0 0;
+          height: 40px;
+          border-radius: 20px;
         }
         .topbar__userinfo__dropdown {
-          position: absolute;
-          width: 150px;
-          top: 100px;
-          right: -35px;
-          z-index: 100;
-          background: $c15;
-          border: 1px solid $c12;
-          font-size: 0.18rem;
-          transition: all 0.3s;
-          li {
-            cursor: pointer;
-            color: $c3;
-            height: 50px;
-            line-height: 50px;
-            border-bottom: 0.01rem solid $c13;
-            transition: all 0.3s;
-            a {
-              font-size: 16px;
-            }
-            &:hover {
-              color: $pblue;
-            }
-          }
+          top: $mibile-nav-height;
         }
       }
     }
@@ -541,18 +575,18 @@ export default {
 
 .topbar__mobile_nav {
   position: relative;
-  height: 100px;
+  height: 100%;
   float: left;
   .mobile-humber {
-    margin-top: 10px;
-    width: 120px;
+    margin-left: 10px;
+    width: 40px;
     float: left;
-    height: 80%;
+    height: 100%;
     box-sizing: border-box;
-    padding: 15px;
+    padding: 10px 0;
     a {
       height: 100%;
-      width: 80%;
+      width: 100%;
       margin: 0 auto;
       display: block;
       position: relative;
@@ -587,14 +621,14 @@ export default {
         transition: all 0.3s;
         &:nth-child(1) {
           top: 0;
-          transform: translateY(25px) rotate(45deg);
+          transform: translateY(15px) rotate(45deg);
         }
         &:nth-child(2) {
           display: none;
         }
         &:nth-child(3) {
           top: 100%;
-          transform: translateY(-25px) rotate(-45deg);
+          transform: translateY(-15px) rotate(-45deg);
         }
       }
     }

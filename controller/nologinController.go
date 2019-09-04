@@ -320,14 +320,14 @@ func NologinGetSolution(c *gin.Context) {
 	if seeable {
 		DB.Get(&source, "select source from source_code where solution_id = ?", solution.Id)
 	}
-	err = DB.Get(&runtimeInfo, "select error from runtimeinfo where solution_id = ?", solution.Id)
-	if err != nil {
-		runtimeInfo = ""
+	// 当 result 为 WA TL ML PE  CE时，返回运行时错误信息
+	if (solution.Result >= 5 && solution.Result <= 8) || solution.Result == 10 {
+		DB.Get(&runtimeInfo, "select error from runtimeinfo where solution_id = ?", solution.Id)
 	}
-	err = DB.Get(&compileInfo, "select error from compileinfo where solution_id = ?", solution.Id)
-	if err != nil {
-		compileInfo = ""
+	if solution.Result == 11 {
+		DB.Get(&compileInfo, "select error from compileinfo where solution_id = ?", solution.Id)
 	}
+
 	responseData := make(map[string]interface{}, 0)
 	responseData["runtime_info"] = runtimeInfo
 	responseData["compile_info"] = compileInfo
@@ -1337,9 +1337,9 @@ func NologinGetRankList(c *gin.Context) {
 		page = 1
 	}
 
-	// 不统计比赛用户和管理员用户的数据
-	whereString := " where user.is_compete_user = 0 and role.name != 'admin' order by user.solved desc, user.submit asc"
-	rows, total, err := model.Paginate(page, perpage, "user inner join role on user.role_id = role.id", []string{"user.*"}, whereString)
+	// 不统计比赛用户的数据
+	whereString := " where user.is_compete_user = 0 order by user.solved desc, user.submit asc"
+	rows, total, err := model.Paginate(page, perpage, "user", []string{"user.*"}, whereString)
 	if utils.CheckError(c, err, "数据获取失败") != nil {
 		return
 	}

@@ -15,8 +15,8 @@
               span 中回复了你
               br
               .reply__content(v-html="calcContent(item.content)")
-        el-pagination.tal.mt20.mt10.mb10(@current-change="fetchMyReplys",:current-page.sync="currentPage",background,
-        :page-size="perpage",layout="prev, pager, next,jumper",:total="total",style="background:#fff;")
+        el-pagination.tal.mt20(@current-change="fetchData",:current-page.sync="currentPage",background,
+        :page-size="perpage",:layout="'prev, pager, next'+(screenWidth>960?',jumper':'')",:total="total",:small="!(screenWidth>960)")
 </template>
 
 <script>
@@ -36,11 +36,16 @@ export default {
       total: 0
     };
   },
+  props: {
+    screenWidth: {
+      type: Number
+    }
+  },
   mounted() {
-    this.fetchMyReplys();
+    this.fetchData();
   },
   methods: {
-    async fetchMyReplys(resetScroll) {
+    async fetchData(resetScroll) {
       if (resetScroll != false) {
         window.pageYOffset = 0;
         document.documentElement.scrollTop = 0;

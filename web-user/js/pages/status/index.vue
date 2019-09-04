@@ -67,8 +67,8 @@
           el-table-column(label="公开", min-width="60",v-if="$route.name=='status'")
             template(slot-scope="scope") 
               span {{ scope.row.public == 1?"是":"否"}}
-        el-pagination.tal.mt20(@current-change="getSolutionList",:current-page.sync="currentPage",background,
-        :page-size="perpage",layout="prev, pager, next,jumper",:total="total")
+        el-pagination.tal.mt20(@current-change="fetchData",:current-page.sync="currentPage",background,
+        :page-size="perpage",:layout="'prev, pager, next'+(screenWidth>960?',jumper':'')",:total="total",:small="!(screenWidth>960)")
 </template>
 
 <script>
@@ -93,13 +93,18 @@ export default {
       timer: 0
     };
   },
+  props: {
+    screenWidth: {
+      type: Number
+    }
+  },
   async mounted() {
     let res = await getLanguageList();
     this.resultList = resultList;
     this.langList = res.data.languages;
   },
   methods: {
-    async getSolutionList() {
+    async fetchData() {
       const self = this;
       try {
         let res = await getSolutionList(
@@ -127,39 +132,46 @@ export default {
       this.nick = "";
       this.language = -1;
       this.result = -1;
-      this.getSolutionList();
+      this.fetchData();
     },
     handleSearchMine() {
+      this.currentPage = 1;
       this.loading = true;
       this.nick = this.$store.getters.userNick;
-      this.getSolutionList();
+      this.fetchData();
     },
     handleSearchByProblem() {
+      this.currentPage = 1;
       this.loading = true;
-      this.getSolutionList();
+      this.fetchData();
     },
     handleSearchByParam() {
+      this.currentPage = 1;
       this.loading = true;
-      this.getSolutionList();
+      this.fetchData();
     },
     handleSearchByNick() {
+      this.currentPage = 1;
       this.loading = true;
-      this.getSolutionList();
+      this.fetchData();
     },
     handleSearchByLanguage(language) {
+      this.currentPage = 1;
       this.loading = true;
       this.language = language;
-      this.getSolutionList();
+      this.fetchData();
     },
     handleSearchByResult(result) {
+      this.currentPage = 1;
       this.loading = true;
       this.result = result;
-      this.getSolutionList();
+      this.fetchData();
     },
     handleSearchByTag(tagId) {
+      this.currentPage = 1;
       this.loading = true;
       this.tagId = tagId;
-      this.getSolutionList();
+      this.fetchData();
     },
     calcRate(row) {
       let rate = row.submit == 0 ? 0 : row.solved / row.submit;
@@ -189,7 +201,6 @@ export default {
     } else {
       this.contestId = 0;
     }
-    console.log(123);
     // 如果bus中记录了搜索条件 获得bus中的搜索条件
     if ("" + this.$store.getters.solutionQueryParam) {
       this.queryParam = "" + this.$store.getters.solutionQueryParam;
@@ -205,9 +216,9 @@ export default {
     }
     this.$store.dispatch("resetSolutionFilter");
     // 5s请求一次数据
-    this.getSolutionList();
+    this.fetchData();
     this.timer = setInterval(() => {
-      this.getSolutionList();
+      this.fetchData();
     }, 5000);
   },
   deactivated() {

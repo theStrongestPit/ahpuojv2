@@ -53,8 +53,8 @@
             template(slot-scope="scope") {{calcRate(scope.row)}}
           el-table-column(label="通过", prop="accepted", min-width="60")
           el-table-column(label="提交", prop="submit", min-width="60")
-        el-pagination.tal.mt20(@current-change="fetchProblemList",:current-page.sync="currentPage",background,
-        :page-size="perpage",layout="prev, pager, next,jumper",:total="total")
+        el-pagination.tal.mt20(@current-change="fetchData",:current-page.sync="currentPage",background,
+        :page-size="perpage",:layout="'prev, pager, next'+(screenWidth>960?',jumper':'')",:total="total",:small="!(screenWidth>960)")
 </template>
 
 <script>
@@ -74,15 +74,20 @@ export default {
       tags: []
     };
   },
+  props: {
+    screenWidth: {
+      type: Number
+    }
+  },
   async mounted() {
     this.tagId = this.$store.getters.tagId;
     console.log(this.tagId);
-    this.fetchProblemList();
+    this.fetchData();
     let res = await getAllTags();
     this.tags = res.data.tags;
   },
   methods: {
-    async fetchProblemList() {
+    async fetchData() {
       const self = this;
       window.pageYOffset = 0;
       document.documentElement.scrollTop = 0;
@@ -112,21 +117,24 @@ export default {
       this.level = -1;
       this.tagId = -1;
       this.queryParam = "";
-      this.fetchProblemList();
+      this.fetchData();
     },
     handleSearchByParam() {
+      this.currentPage = 1;
       this.loading = true;
-      this.fetchProblemList();
+      this.fetchData();
     },
     handleSearchByLevel(level) {
+      this.currentPage = 1;
       this.loading = true;
       this.level = level;
-      this.fetchProblemList();
+      this.fetchData();
     },
     handleSearchByTag(tagId) {
+      this.currentPage = 1;
       this.loading = true;
       this.tagId = tagId;
-      this.fetchProblemList();
+      this.fetchData();
     },
     calcRate(row) {
       let rate = row.submit == 0 ? 0 : row.accepted / row.submit;
@@ -137,7 +145,7 @@ export default {
     console.log(this.$store.getters.tagId);
     if (this.$store.getters.tagId != -1) {
       this.tagId = this.$store.getters.tagId;
-      this.fetchProblemList();
+      this.fetchData();
     }
     this.$store.dispatch("resetTag");
   }

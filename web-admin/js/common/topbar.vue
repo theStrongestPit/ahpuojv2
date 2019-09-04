@@ -1,7 +1,7 @@
 <template lang="pug">
 .topbar__wrapper
   .topbar
-    .topbar__title AHPUOJ后台管理系统
+    .topbar__title(v-if="screenWidth > 960") AHPUOJ后台管理系统
     .topbar__userinfo.fr(v-if="screenWidth > 960") {{`欢迎您，${$store.getters.userNick}`}}
     .topbar__mobile_nav(v-else)
       .mobile-humber(@click="toggleMobileNav")

@@ -85,14 +85,14 @@ export default {
     try {
       let res = await getProblem(id);
       this.problem = res.data.problem;
-      this.fetchProblemDataList();
+      this.fetchDataList();
     } catch (err) {
       this.$router.replace({ name: "admin404Page" });
       console.log(err);
     }
   },
   methods: {
-    async fetchProblemDataList(id) {
+    async fetchDataList(id) {
       const self = this;
       try {
         let res = await getProblemDataList(self.problem.id);
@@ -155,7 +155,7 @@ export default {
                 });
               }, 500 * i);
             }
-            self.fetchProblemDataList();
+            self.fetchDataList();
           } catch (err) {
             console.log(err);
             self.$message({
@@ -199,7 +199,7 @@ export default {
             type: "success",
             message: res.data.message
           });
-          self.fetchProblemDataList();
+          self.fetchDataList();
         } catch (err) {
           self.$message({
             type: "error",

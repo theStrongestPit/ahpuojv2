@@ -7,8 +7,8 @@
             .tags__wrapper
               .section__title 查找竞赛：
               .siderbar__searchbar__wrapper
-                el-input(style="max-width:20em", placeholder="请输入竞赛名称", @keyup.enter.native="fetchContestList", v-model="queryParam", maxlength="20", clearable)
-                  el-button(slot="append" icon="el-icon-search", @click="fetchContestList")
+                el-input(style="max-width:20em", placeholder="请输入竞赛名称", @keyup.enter.native="handleSearchByParam", v-model="queryParam", maxlength="20", clearable)
+                  el-button(slot="append" icon="el-icon-search", @click="handleSearchByParam")
       .main
         h1.content__panel__title 竞赛列表
         el-table(:data="tableData", style="width: 100%", class="dataTable")
@@ -32,8 +32,8 @@
             template(slot-scope="scope")
               span(class="contestlist__time__tag") {{spliteDate(scope.row.end_time)}}&nbsp
               span(class="contestlist__time__tag") {{spliteTime(scope.row.end_time)}}
-        el-pagination.tal.mt20(@current-change="fetchContestList",:current-page.sync="currentPage",background,
-        :page-size="perpage",layout="prev, pager, next,jumper",:total="total")
+        el-pagination.tal.mt20(@current-change="fetchData",:current-page.sync="currentPage",background,
+        :page-size="perpage",:layout="'prev, pager, next'+(screenWidth>960?',jumper':'')",:total="total",:small="!(screenWidth>960)")
 </template>
 
 <script>
@@ -50,8 +50,13 @@ export default {
       tags: []
     };
   },
+  props: {
+    screenWidth: {
+      type: Number
+    }
+  },
   methods: {
-    async fetchContestList() {
+    async fetchData() {
       console.log("??");
       const self = this;
       window.pageYOffset = 0;
@@ -71,6 +76,11 @@ export default {
         console.log(err);
       }
     },
+    handleSearchByParam() {
+      this.currentPage = 1;
+      this.loading = true;
+      this.fetchData();
+    },
     spliteDate(dateTimeString) {
       return new String(dateTimeString).split(" ")[0];
     },
@@ -79,7 +89,7 @@ export default {
     }
   },
   activated() {
-    this.fetchContestList();
+    this.fetchData();
   }
 };
 </script>

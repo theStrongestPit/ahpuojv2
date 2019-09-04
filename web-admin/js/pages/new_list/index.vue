@@ -6,8 +6,8 @@
       el-breadcrumb-item {{$route.meta.title}}
   .content__main
     .content__searchbar__wrapper
-      el-input(placeholder="请输入新闻名称", style="max-width:20em", v-model="queryParam", maxlength="20", clearable)
-      el-button(icon="el-icon-search" type="primary" plain @click="fetchNewList")
+      el-input(placeholder="请输入新闻名称", style="max-width:20em", v-model="queryParam", @keyup.enter.native="handleSearchByParam",maxlength="20", clearable)
+      el-button(icon="el-icon-search" type="primary" plain @click="handleSearchByParam")
     el-table(:data="tableData", style="width:100%;", v-loading="loading")
       el-table-column(label="ID", prop="id", width="180")
       el-table-column(label="标题", prop="title")
@@ -22,7 +22,7 @@
           el-button(size="mini", :type="scope.row.top == 0?'success':'danger'", @click="handleToggleNewTopStatus(scope.row)") {{scope.row.top == 0?'置顶':'取置'}}
           el-button(size="mini" type="danger" @click="handleDeleteNew(scope.row)") 删除
       .content__pagination__wrapper
-    el-pagination(@size-change="handleSizeChange",@current-change="fetchNewList",:current-page.sync="currentPage",
+    el-pagination(@size-change="handleSizeChange",@current-change="fetchDataList",:current-page.sync="currentPage",
         :page-sizes="[10, 20, 30, 40,50]",:page-size="10",layout="total, sizes, prev, pager, next, jumper",:total="total")
 
 </template>
@@ -68,7 +68,7 @@ export default {
   },
   mounted() {},
   methods: {
-    async fetchNewList() {
+    async fetchDataList() {
       const self = this;
       self.loading = true;
       try {
@@ -87,9 +87,14 @@ export default {
         console.log(err);
       }
     },
+    handleSearchByParam() {
+      this.currentPage = 1;
+      this.loading = true;
+      this.fetchDataList();
+    },
     handleSizeChange(val) {
       this.perpage = val;
-      this.fetchNewList();
+      this.fetchDataList();
     },
     async handleDeleteNew(row) {
       const self = this;
@@ -111,7 +116,7 @@ export default {
               self.currentPage--;
             }
           }
-          self.fetchNewList();
+          self.fetchDataList();
         } catch (err) {
           self.$message({
             type: "error",
@@ -171,7 +176,7 @@ export default {
             type: "success",
             message: res.data.message
           });
-          self.fetchNewList();
+          self.fetchDataList();
         } catch (err) {
           self.$message({
             type: "error",
@@ -187,7 +192,7 @@ export default {
     }
   },
   activated() {
-    this.fetchNewList();
+    this.fetchDataList();
   }
 };
 </script>

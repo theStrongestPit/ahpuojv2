@@ -6,21 +6,21 @@ RUN set -ex \
 	&& apt-get update \
 	&& export DEBIAN_FRONTEND=noninteractive \
 	&& apt-get install -y tzdata
-	
-RUN set -ex \
-	&& apt-get install -y \
-		make flex g++ libmysqlclient-dev libmysql++-dev \
-		nginx \
-		openjdk-8-jdk \
-		nano \
-		python3.7
 
 RUN set -ex \
 	&& apt-get install -y \
-		mysql-client-5.7 \
-		golang-1.10 \
-		busybox \
-		supervisor
+	make flex g++ libmysqlclient-dev libmysql++-dev \
+	nginx \
+	openjdk-8-jdk \
+	nano \
+	python3.7
+
+RUN set -ex \
+	&& apt-get install -y \
+	mysql-client-5.7 \
+	golang-1.10 \
+	busybox \
+	supervisor
 
 RUN set -ex \
 	&& apt-get install -y git
@@ -30,14 +30,14 @@ RUN set -ex \
 RUN set -ex \
 	&& ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
 	&& dpkg-reconfigure -f noninteractive tzdata
-	
+
 WORKDIR /home/judge/
 
 COPY ./default /etc/nginx/sites-enabled/default
 COPY ./nginx.conf /etc/nginx/nginx.conf
 COPY ./supervisor_ahpuoj.conf /etc/supervisor/conf.d/
 COPY ./docker-entrypoint.sh /usr/local/bin/
-COPY ./core /home/judge/core
+COPY ../../core /home/judge/core
 COPY ./install /home/judge/install
 
 ENV GOROOT /usr/lib/go-1.10

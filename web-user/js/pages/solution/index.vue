@@ -98,7 +98,7 @@ export default {
         let data = res.data;
         self.seeable = data.seeable;
         self.solution = data.solution;
-
+        console.log(res);
         // 需要重复询问
         let loading;
         if (self.solution.result < 4) {
@@ -176,13 +176,16 @@ export default {
       );
     },
     renderWrongInfo() {
+      if (!this.solution) {
+        return "";
+      }
       if (!this.solution.runtime_info) {
         return "没有错误信息";
       }
       if (this.solution.result >= 5 && this.solution.result <= 8) {
         return "测试样例" + this.wrongFileName + "处发生了错误";
       } else {
-        return solution.runtime_info;
+        return this.solution.runtime_info;
       }
     }
   },

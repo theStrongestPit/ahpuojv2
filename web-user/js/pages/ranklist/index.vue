@@ -21,8 +21,8 @@
           el-table-column(label="解决",width="70",prop="solved")
           el-table-column(label="提交",width="70",prop="submit")
 
-        el-pagination.tal.mt20(@current-change="fetchRankList",:current-page.sync="currentPage",background,
-        :page-size="perpage",layout="prev, pager, next,jumper",:total="total")
+        el-pagination.tal.mt20(@current-change="fetchData",:current-page.sync="currentPage",background,
+        :page-size="perpage",:layout="'prev, pager, next'+(screenWidth>960?',jumper':'')",:total="total",:small="!(screenWidth>960)")
 </template>
 
 <script>
@@ -40,14 +40,19 @@ export default {
       total: 0
     };
   },
+  props: {
+    screenWidth: {
+      type: Number
+    }
+  },
   mounted() {
-    this.fetchRankList();
+    this.fetchData();
   },
   methods: {
     test(row) {
       console.log(row);
     },
-    async fetchRankList() {
+    async fetchData() {
       const self = this;
       self.loading = true;
       try {

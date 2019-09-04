@@ -1,4 +1,4 @@
-import Vue from 'vue/dist/vue.esm.js'
+import Vue from 'vue'
 import routes from '@/web-user/js/routes'
 import store from '@/web-user/js/store'
 import { Message } from 'element-ui'

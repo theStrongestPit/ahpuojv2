@@ -12,8 +12,8 @@
     .content__button__wrapper
       el-button(type="success", @click="handleAddUser") 添加竞赛
     .content__searchbar__wrapper
-      el-input(style="max-width:20em", placeholder="请输入竞赛名称", v-model="queryParam", maxlength="20", clearable)
-      el-button(icon="el-icon-search", type="primary", plain, @click="fetchSeriesContestList")
+      el-input(style="max-width:20em", placeholder="请输入竞赛名称", v-model="queryParam", @keyup.enter.native="handleSearchByParam",maxlength="20", clearable)
+      el-button(icon="el-icon-search", type="primary", plain, @click="handleSearchByParam")
     el-table(:data="tableData", style="width:100%;", v-loading="loading")
       el-table-column(label="ID", prop="id", width="180")
       el-table-column(label="名称", prop="name", width="180")
@@ -24,7 +24,7 @@
       el-table-column(label="操作", width="180")
         template(slot-scope="scope")
           el-button(size="mini", type="danger", @click="handleDeleteSeriesContest(scope.row)") 删除
-    el-pagination(@size-change="handleSizeChange", @current-change="fetchSeriesContestList", :current-page.sync="currentPage", :page-sizes="[10, 20, 30, 40,50]", :page-size="10", layout="total, sizes, prev, pager, next, jumper", :total="total")
+    el-pagination(@size-change="handleSizeChange", @current-change="fetchDataList", :current-page.sync="currentPage", :page-sizes="[10, 20, 30, 40,50]", :page-size="10", layout="total, sizes, prev, pager, next, jumper", :total="total")
     el-dialog(title="添加竞赛", :visible.sync="dialogFormVisible", @closed="closeDialog", @opened="openDialog", width="400px",:close-on-click-modal="false")
       el-form(:model="form", ref="form", :rules="rules", @submit.native.prevent)
         el-form-item(label="选择竞赛", prop="contest_id")
@@ -76,7 +76,7 @@ export default {
     try {
       let res = await getSeries(id);
       this.series = res.data.series;
-      this.fetchSeriesContestList();
+      this.fetchDataList();
       res = await getAllContests();
       this.contests = res.data.contests;
     } catch (err) {
@@ -85,7 +85,7 @@ export default {
     }
   },
   methods: {
-    async fetchSeriesContestList() {
+    async fetchDataList() {
       const self = this;
       self.loading = true;
       try {
@@ -106,10 +106,15 @@ export default {
         console.log(err);
       }
     },
+    handleSearchByParam() {
+      this.currentPage = 1;
+      this.loading = true;
+      this.fetchDataList();
+    },
     handleSizeChange(val) {
       this.perpage = val;
       console.log(this.perpage);
-      this.fetchSeriesContestList();
+      this.fetchDataList();
     },
     openDialog() {
       this.$notify({
@@ -136,7 +141,7 @@ export default {
               message: res.data.message,
               type: "success"
             });
-            self.fetchSeriesContestList();
+            self.fetchDataList();
           } catch (err) {
             console.log(err);
             self.$message({
@@ -176,7 +181,7 @@ export default {
               self.currentPage--;
             }
           }
-          self.fetchSeriesContestList();
+          self.fetchDataList();
         } catch (err) {
           self.$message({
             type: "error",

@@ -68,7 +68,7 @@ export default {
       }
     },
     handleSizeChange(val) {
-      this.fetchNewList();
+      this.fetchData();
     },
     calcProblemStatus(row, index) {
       let res = "";

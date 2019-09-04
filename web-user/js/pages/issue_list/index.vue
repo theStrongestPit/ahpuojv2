@@ -24,10 +24,10 @@
                     router-link(v-if="item.problem.id>0",:to="{name:'problem',params:{id:item.problem.id}}") {{`In P${item.problem.id} ${item.problem.title}`}}
                     p(v-else) 总版
                     p.text-muted {{item.reply_count}}条回复 最后回复时间 {{item.updated_at}}
-        el-pagination.tal.mt20(@current-change="fetchIssueList",:current-page.sync="currentPage",background,
-        :page-size="perpage",layout="prev, pager, next,jumper",:total="total")
+        el-pagination.tal.mt20(@current-change="fetchData",:current-page.sync="currentPage",background,
+        :page-size="perpage",:layout="'prev, pager, next'+(screenWidth>960?',jumper':'')",:total="total",:small="!(screenWidth>960)")
         .mt30
-        h1.content__panel__title 发表新回复
+        h1.content__panel__title 发表新讨论
         .post__box__wrapper
           .post__box(v-if="$store.getters.username")
             el-input(placeholder="请输入讨论标题",v-model="issueForm.title",:autofocus="true")
@@ -70,11 +70,16 @@ export default {
       }
     };
   },
+  props: {
+    screenWidth: {
+      type: Number
+    }
+  },
   mounted() {
-    this.fetchIssueList();
+    this.fetchData();
   },
   methods: {
-    async fetchIssueList() {
+    async fetchData() {
       window.pageYOffset = 0;
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
@@ -142,7 +147,7 @@ export default {
         });
         self.issueForm.title = "";
         self.replyForm.content = "";
-        self.fetchIssueList();
+        self.fetchData();
       } catch (err) {
         self.$message({
           message: err.response.data.message,
@@ -158,7 +163,7 @@ export default {
           message: "变更主题状态成功",
           type: "success"
         });
-        self.fetchIssueList();
+        self.fetchData();
       } catch (err) {
         self.$message({
           message: err.response.data.message,
@@ -181,33 +186,33 @@ export default {
   position: relative;
   padding: 0.1rem;
   &:not(:last-of-type) {
-    border-bottom: 1px solid $c13;
+    border-bottom: 0.01rem solid $c13;
   }
   .issue__userinfo__wrapper {
     text-align: center;
     word-wrap: break-word;
     word-break: break-all;
     img {
-      width: 60px;
-      height: 60px;
-      border-radius: 30px;
-      border: 1px solid $c12;
-      box-shadow: 1px 1px 1px 1px $c12;
+      width: 0.6rem;
+      height: 0.6rem;
+      border-radius: 0.3rem;
+      border: 0.01rem solid $c12;
+      box-shadow: 0.01rem 0.01rem 0.01rem 0.01rem $c12;
     }
     float: left;
-    width: 100px;
+    width: 1rem;
   }
   .issue__user__name {
-    font-size: 14px;
+    font-size: 0.14rem;
   }
   .issue__content {
     a {
-      font-size: 18px;
+      font-size: 0.18rem;
     }
     box-sizing: border-box;
     padding: 0.1rem 0 0 0.3rem;
-    margin-left: 100px;
-    min-height: 80px;
+    margin-left: 1rem;
+    min-height: 0.8rem;
     text-align: left;
     font-size: 0.16rem;
   }
@@ -221,8 +226,8 @@ export default {
         font-size: 0.16rem;
       }
       position: absolute;
-      bottom: 10px;
-      right: 10px;
+      bottom: 0.1rem;
+      right: 0.1rem;
     }
   }
 }

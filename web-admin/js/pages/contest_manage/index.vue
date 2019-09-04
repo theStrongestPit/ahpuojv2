@@ -11,8 +11,8 @@
     .content__button__wrapper
       el-button(type="success", @click="handleAddUser") 添加人员
     .content__searchbar__wrapper
-      el-input(style="max-width:20em", placeholder="请输入用户名或昵称", v-model="queryParam", maxlength="20", clearable)
-      el-button(icon="el-icon-search", type="primary", plain, @click="fetchContestUserList")
+      el-input(style="max-width:20em", placeholder="请输入用户名或昵称", v-model="queryParam", @keyup.enter.native="handleSearchByParam",maxlength="20", clearable)
+      el-button(icon="el-icon-search", type="primary", plain, @click="handleSearchByParam")
     el-table(:data="tableData", style="width:100%;", v-loading="loading")
       el-table-column(label="ID", prop="id", width="180")
       el-table-column(label="用户名", prop="username", width="180")
@@ -20,7 +20,7 @@
       el-table-column(label="操作", width="180")
         template(slot-scope="scope")
           el-button(size="mini", type="danger", @click="handleDeleteContestUser(scope.row)") 删除
-    el-pagination(@size-change="handleSizeChange", @current-change="fetchContestUserList", :current-page.sync="currentPage", :page-sizes="[10, 20, 30, 40,50]", :page-size="10", layout="total, sizes, prev, pager, next, jumper", :total="total")
+    el-pagination(@size-change="handleSizeChange", @current-change="fetchDataList", :current-page.sync="currentPage", :page-sizes="[10, 20, 30, 40,50]", :page-size="10", layout="total, sizes, prev, pager, next, jumper", :total="total")
     el-dialog(title="添加竞赛成员", :visible.sync="dialogFormVisible", @closed="closeDialog", @opened="openDialog", width="400px",:close-on-click-modal="false")
       el-form(:model="form", ref="form", :rules="rules", @submit.native.prevent)
         el-form-item(label="用户名列表", prop="userList")
@@ -78,14 +78,14 @@ export default {
     try {
       let res = await getContest(id);
       this.contest = res.data.contest;
-      this.fetchContestUserList();
+      this.fetchDataList();
     } catch (err) {
       this.$router.replace({ name: "admin404Page" });
       console.log(err);
     }
   },
   methods: {
-    async fetchContestUserList() {
+    async fetchDataList() {
       const self = this;
       self.loading = true;
       try {
@@ -106,10 +106,15 @@ export default {
         console.log(err);
       }
     },
+    handleSearchByParam() {
+      this.currentPage = 1;
+      this.loading = true;
+      this.fetchDataList();
+    },
     handleSizeChange(val) {
       this.perpage = val;
       console.log(this.perpage);
-      this.fetchContestUserList();
+      this.fetchDataList();
     },
     openDialog() {
       this.$notify({
@@ -138,7 +143,7 @@ export default {
               message: res.data.message,
               type: "success"
             });
-            self.fetchContestUserList();
+            self.fetchDataList();
           } catch (err) {
             self.$message({
               message: err.response.data.message,
@@ -177,7 +182,7 @@ export default {
               self.currentPage--;
             }
           }
-          self.fetchContestUserList();
+          self.fetchDataList();
         } catch (err) {
           self.$message({
             type: "error",

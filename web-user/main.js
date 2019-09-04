@@ -1,4 +1,4 @@
-import Vue from 'vue/dist/vue.esm.js'
+import Vue from 'vue'
 import App from '@/web-user/js/App.vue'
 import router from '@/web-user/js/router'
 import ElementUI from 'element-ui'
@@ -22,7 +22,8 @@ const req = require.context('@/static/icons', false, /\.svg$/)
 requireAll(req)
 
 new Vue({
+  el: '#app',
   router,
   store,
   render: h => h(App),
-}).$mount('#app')
+})

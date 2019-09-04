@@ -13,8 +13,8 @@
             .new__content(v-html="item.content")
             .new__time
               span.text-muted {{item.updated_at}}
-        el-pagination.tal.mt20(@current-change="fetchNewList",:current-page.sync="currentPage",background,
-        :page-size="perpage",layout="prev, pager, next,jumper",:total="total")
+        el-pagination.tal.mt20(@current-change="fetchData",:current-page.sync="currentPage",background,
+        :page-size="perpage",:layout="'prev, pager, next'+(screenWidth>960?',jumper':'')",:total="total",:small="!(screenWidth>960)")
 </template>
 
 <script>
@@ -29,11 +29,16 @@ export default {
       total: 0
     };
   },
+  props: {
+    screenWidth: {
+      type: Number
+    }
+  },
   mounted() {
-    this.fetchNewList();
+    this.fetchData();
   },
   methods: {
-    async fetchNewList() {
+    async fetchData() {
       window.pageYOffset = 0;
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
@@ -55,7 +60,7 @@ export default {
 <style lang="scss" scoped>
 .welcome__title {
   padding-top: 0.2rem;
-  font-size: 40px;
+  font-size: 0.4rem;
 }
 .carousel__wrapper {
   padding: 0 2rem;
@@ -72,16 +77,16 @@ export default {
   }
   .new__title {
     text-align: left;
-    font-size: 30px;
+    font-size: 0.3rem;
     color: $ctitle;
   }
   .new__content {
     min-height: 200px;
     text-align: left;
-    font-size: 24px;
+    font-size: 0.24rem;
   }
   .new__time {
-    font-size: 14px;
+    font-size: 0.14rem;
     position: absolute;
     bottom: 5px;
     right: 0.5rem;

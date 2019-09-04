@@ -165,9 +165,10 @@ func SubmitToTestRun(c *gin.Context) {
 	}
 
 	// 删除测试运行的记录
-	DB.Exec("delect from solution where solution_id = ?", solution.Id)
-	DB.Exec("delect from runtimeinfo where solution_id = ?", solution.Id)
-	DB.Exec("delect from compileinfo where solution_id = ?", solution.Id)
+	DB.Exec("delete from solution where solution_id = ?", solution.Id)
+	DB.Exec("delete from runtimeinfo where solution_id = ?", solution.Id)
+	DB.Exec("delete from compileinfo where solution_id = ?", solution.Id)
+	DB.Exec("delete from source_code where solution_id = ?", solution.Id)
 
 	c.JSON(200, gin.H{
 		"message":       "测试运行成功",

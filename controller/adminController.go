@@ -16,7 +16,7 @@ func GetSubmitStatistic(c *gin.Context) {
 	var recentSubmitStatistic = make([][]interface{}, 0)
 
 	rows, _ = DB.Queryx(`
-	select  dualdate.date,count(distinct(problem_id)) count from 
+	select  dualdate.date,count(*) count from 
 	(select * from solution) s 
 	right join  
 	(select date_sub(curdate(), interval(cast(help_topic_id as signed integer)) day) date

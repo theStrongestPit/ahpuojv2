@@ -6,8 +6,8 @@
       el-breadcrumb-item {{$route.meta.title}}
   .content__main
     .content__searchbar__wrapper
-      el-input(style="max-width:20em", placeholder="请输入标签名称", v-model="queryParam", maxlength="20", clearable)
-      el-button(icon="el-icon-search",type="primary",plain,@click="fetchContestList")
+      el-input(style="max-width:20em", placeholder="请输入标签名称", @keyup.enter.native="handleSearchByParam", maxlength="20", clearable)
+      el-button(icon="el-icon-search",type="primary",plain,@click="handleSearchByParam")
     el-table(:data="tableData" style="width: 100%", v-loading="loading")
       el-table-column(label="ID", prop="id", width="180")
       el-table-column(label="名称",min-width="300")
@@ -24,7 +24,7 @@
           el-button(size="mini", @click="$router.push({name: (scope.row.team_mode == 0)? 'adminContestManage':'adminContestTeamManage' ,params:{id:scope.row.id}})", :disabled="scope.row.private == 0") 人员
           el-button(size="mini", :type="scope.row.defunct == 0?'danger':'success'", @click="handleToggleContestStatus(scope.row)") {{scope.row.defunct == 0?'保留':'启用'}}
           el-button(size="mini", type="danger", @click="handleDeleteContest(scope.row)") 删除
-    el-pagination(@size-change="handleSizeChange",@current-change="fetchContestList",:current-page.sync="currentPage",
+    el-pagination(@size-change="handleSizeChange",@current-change="fetchDataList",:current-page.sync="currentPage",
         :page-sizes="[10, 20, 30, 40,50]",:page-size="10",layout="total, sizes, prev, pager, next, jumper",:total="total")
 </template>
 
@@ -49,10 +49,10 @@ export default {
     };
   },
   mounted() {
-    this.fetchContestList();
+    this.fetchDataList();
   },
   methods: {
-    async fetchContestList() {
+    async fetchDataList() {
       const self = this;
       self.loading = true;
       try {
@@ -71,9 +71,14 @@ export default {
         console.log(err);
       }
     },
+    handleSearchByParam() {
+      this.currentPage = 1;
+      this.loading = true;
+      this.fetchDataList();
+    },
     handleSizeChange(val) {
       this.perpage = val;
-      this.fetchContestList();
+      this.fetchDataList();
     },
     async handleToggleContestStatus(row) {
       const self = this;
@@ -124,7 +129,7 @@ export default {
               self.currentPage--;
             }
           }
-          self.fetchContestList();
+          self.fetchDataList();
         } catch (err) {
           self.$message({
             type: "error",
@@ -140,7 +145,7 @@ export default {
     }
   },
   activated() {
-    this.fetchContestList();
+    this.fetchDataList();
   }
 };
 </script>

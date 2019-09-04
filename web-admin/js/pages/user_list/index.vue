@@ -6,9 +6,9 @@
       el-breadcrumb-item {{$route.meta.title}}
   .content__main
     .content__searchbar__wrapper
-      el-input(style="max-width:20em", placeholder="请输入用户名或昵称", v-model="queryParam", maxlength="20", clearable)
-      el-button(icon="el-icon-search", type="primary", plain, @click="fetchUserList")
-      el-select(v-model="userType" @change="fetchUserList")
+      el-input(style="max-width:20em", placeholder="请输入用户名或昵称", v-model="queryParam", @keyup.enter.native="handleSearchByParam",maxlength="20", clearable)
+      el-button(icon="el-icon-search", type="primary", plain, @click="handleSearchByParam")
+      el-select(v-model="userType" @change="fetchDataList")
         el-option(label="普通用户",:value="0")
         el-option(label="比赛用户",:value="1")
     el-table(:data="tableData", style="width:100%;", v-loading="loading")
@@ -26,7 +26,7 @@
         template(slot-scope="scope")
           el-button(size="mini", type="warning", @click="handleChangePass(scope.row)") 修改密码
           el-button(size="mini", :type="scope.row.defunct == 0?'danger':'success'", @click="handleToggleUserStatus(scope.row)") {{scope.row.defunct == 0?'禁用':'启用'}}
-    el-pagination(@size-change="handleSizeChange", @current-change="fetchUserList", :current-page.sync="currentPage", :page-sizes="[10, 20, 30, 40,50]", :page-size="10", layout="total, sizes, prev, pager, next, jumper", :total="total")
+    el-pagination(@size-change="handleSizeChange", @current-change="fetchDataList", :current-page.sync="currentPage", :page-sizes="[10, 20, 30, 40,50]", :page-size="10", layout="total, sizes, prev, pager, next, jumper", :total="total")
   el-dialog(title="修改密码", :visible.sync="dialogFormVisible", @closed="closeDialog", @opened="openDialog", width="400px",:close-on-click-modal="false")
     el-form(:model="form", ref="form", :rules="rules", @submit.native.prevent)
       el-form-item(label="新密码", prop="password")
@@ -87,7 +87,7 @@ export default {
   },
   mounted() {},
   methods: {
-    async fetchUserList() {
+    async fetchDataList() {
       const self = this;
       self.loading = true;
       try {
@@ -107,9 +107,14 @@ export default {
         console.log(err);
       }
     },
+    handleSearchByParam() {
+      this.currentPage = 1;
+      this.loading = true;
+      this.fetchDataList();
+    },
     handleSizeChange(val) {
       this.perpage = val;
-      this.fetchUserList();
+      this.fetchDataList();
     },
     openDialog() {
       this.$refs.form.clearValidate();
@@ -183,7 +188,7 @@ export default {
     }
   },
   activated() {
-    this.fetchUserList();
+    this.fetchDataList();
   }
 };
 </script>

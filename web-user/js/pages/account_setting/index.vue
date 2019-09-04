@@ -20,7 +20,7 @@
                 p 更换头像
         .main__section
           h3 修改密码
-            el-form(:model="resetPasswordForm",ref="resetPasswordForm", :rules="resetPasswordRules",style="width:400px;")
+            el-form(:model="resetPasswordForm",ref="resetPasswordForm", :rules="resetPasswordRules",style="width:4rem;")
               el-form-item(prop="oldpassword")
                 el-input(v-model="resetPasswordForm.oldpassword",type="password", placeholder="请输入原密码")
               el-form-item(prop="password")
@@ -231,41 +231,29 @@ export default {
 
 <style lang="scss" scoped>
 .one-main {
-  background: $c15;
-  .main__section {
-    margin: 0 0 0.2rem 0.1rem;
-    text-align: left;
-    h3 {
-      color: $c3;
-      text-align: left;
-      font-size: 20px;
-      line-height: 30px;
-      padding: 10px 0;
-    }
-  }
   .account-setting__img-wrapper {
     position: relative;
     .account-setting__avatar {
-      height: 200px;
-      width: 200px;
-      border-radius: 150px;
-      border: 3px solid $c15;
+      height: 2rem;
+      width: 2rem;
+      border-radius: 1.5rem;
+      border: 0.03rem solid $c15;
     }
     .img-mask {
       text-align: center;
-      line-height: 200px;
-      font-size: 20px;
+      line-height: 2rem;
+      font-size: 0.2rem;
       position: absolute;
       left: 0;
       top: 0;
-      height: 200px;
-      width: 200px;
-      border: 3px solid $c15;
+      height: 2rem;
+      width: 2rem;
+      border: 0.03rem solid $c15;
       color: $c15;
       background: rgba($color: $c3, $alpha: 0.5);
       opacity: 0;
       transition: all 0.3s;
-      border-radius: 150px;
+      border-radius: 1.5rem;
       &:hover {
         opacity: 0.8;
       }

@@ -59,9 +59,6 @@ export default {
         console.log(err);
       }
     },
-    handleSizeChange(val) {
-      this.fetchNewList();
-    },
     calcProblemStatus(row, index) {
       let res = "";
       if (row.ac_time[index - 1] > 0) {

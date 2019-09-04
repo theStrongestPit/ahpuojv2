@@ -44,8 +44,8 @@
                             span  {{item.created_at}}&nbsp;
                           el-button.ml10(type="primary",size="mini",@click="handleReplyToReply(item.id,subitem.user.id)") 回复
                           el-button.ml10(v-if="$store.getters.userRole=='admin'",:type="subitem.is_deleted == 0?'danger':'success'",size="mini",@click="toggleReplyStatus(subitem.id)") {{subitem.is_deleted == 0 ? "删除":"恢复"}}
-        el-pagination.tal.mt20.mt10.mb10(@current-change="fetchIssue",:current-page.sync="currentPage",background,
-        :page-size="perpage",layout="prev, pager, next,jumper",:total="total",style="background:#fff;")
+        el-pagination.tal.mt20(@current-change="fetchData",:current-page.sync="currentPage",background,
+        :page-size="perpage",:layout="'prev, pager, next'+(screenWidth>960?',jumper':'')",:total="total",:small="!(screenWidth>960)")
 
         h1.content__panel__title 发表新回复
         .post__box__wrapper
@@ -56,7 +56,7 @@
       div(v-else-if="issueEnable==false")
         p 讨论版功能已经被管理员关闭
       div(v-else)
-    el-dialog(title="回复内容", :visible.sync="dialogFormVisible", @closed="closeDialog", @opened="openDialog", width="800px",:close-on-click-modal="false")
+    el-dialog(title="回复内容", :visible.sync="dialogFormVisible", @closed="closeDialog", @opened="openDialog", width="8rem",:close-on-click-modal="false")
       tinymce-editor.mt10(v-model="subReplyContent",:height="300")
       .dialog-footer(slot="footer")
         el-button(@click="cancel") 取消
@@ -92,11 +92,16 @@ export default {
       }
     };
   },
+  props: {
+    screenWidth: {
+      type: Number
+    }
+  },
   mounted() {
-    this.fetchIssue();
+    this.fetchData();
   },
   methods: {
-    async fetchIssue(resetScroll) {
+    async fetchData(resetScroll) {
       if (resetScroll != false) {
         window.pageYOffset = 0;
         document.documentElement.scrollTop = 0;
@@ -174,7 +179,7 @@ export default {
         self.replyForm.content = "";
         self.replyContent = "";
         self.dialogFormVisible = false;
-        self.fetchIssue(false);
+        self.fetchData(false);
       } catch (err) {
         self.$message({
           message: err.response.data.message,
@@ -203,7 +208,7 @@ export default {
           message: "变更回复状态成功",
           type: "success"
         });
-        self.fetchIssue(false);
+        self.fetchData(false);
       } catch (err) {
         self.$message({
           message: err.response.data.message,
@@ -217,7 +222,7 @@ export default {
 
 <style lang="scss" scoped>
 .link {
-  font-size: 16px;
+  font-size: 0.16rem;
   line-height: 0.5rem;
   padding-right: 0.2rem;
 }
@@ -234,64 +239,68 @@ h1.content__panel__title {
   .reply__userinfo__wrapper {
     text-align: center;
     img {
-      width: 60px;
-      height: 60px;
-      border-radius: 30px;
+      width: 0.6rem;
+      height: 0.6rem;
+      border-radius: 0.3rem;
       border: 1px solid $c12;
       box-shadow: 1px 1px 1px 1px $c12;
     }
     float: left;
-    width: 100px;
+    width: 1rem;
     .reply__user__name {
-      font-size: 14px;
+      font-size: 0.14rem;
     }
   }
   .reply__content {
     position: relative;
     box-sizing: border-box;
-    padding: 0.1rem 0.2rem 0.4rem 0.1rem;
-    margin-left: 100px;
+    padding: 0.1rem 0.2rem 0.6rem 0.1rem;
+    margin-left: 1rem;
     min-height: 100px;
     text-align: left;
-    font-size: 16px;
+    font-size: 0.16rem;
   }
   .reply-content--deleted {
     background-color: #f5f7fa;
     text-decoration: line-through;
   }
   .reply__addon {
-    font-size: 14px;
+    p span,
+    a {
+      vertical-align: -0.05rem;
+    }
+    font-size: 0.14rem;
     position: absolute;
     width: 100%;
-    left: 0px;
-    bottom: 0px;
+    left: 0;
+    bottom: 0.1rem;
   }
   .subreplys__wrapper {
     .subreply__box {
       padding: 0.1rem;
-      margin-left: 100px;
+      margin-left: 1rem;
       border-top: 1px solid $c13;
       .subreply__userinfo__wrapper {
         text-align: center;
         padding-top: 20px;
         img {
-          width: 40px;
-          height: 40px;
-          border-radius: 20px;
+          width: 0.5rem;
+          height: 0.5rem;
+          border-radius: 0.25rem;
           border: 1px solid $c12;
           box-shadow: 1px 1px 1px 1px $c12;
         }
         float: left;
-        width: 100px;
+        width: 1rem;
       }
       .subreply__content {
         position: relative;
         box-sizing: border-box;
-        padding: 0.15rem 0.15rem 0.4rem 0.15rem;
-        margin-left: 100px;
+        padding: 0.15rem 0.15rem 0.6rem 0.15rem;
+        margin-left: 1rem;
         min-height: 100px;
         text-align: left;
-        font-size: 16px;
+        font-size: 0.16rem;
       }
     }
   }

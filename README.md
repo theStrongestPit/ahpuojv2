@@ -54,4 +54,5 @@ gowatch
 * 将 docker-deploy 目录上传到服务器
 * 同开发环境部署类似，启动容器，服务器环境做了容器 web目录 和 data目录(保存题目数据) 的映射
 * 确保各项配置都已经正确设置，使用 go build 生成 go 的可执行程序，运行 npm run build 生成前端文件
-* 参考 remote_deploy_mycloud.sh 将程序上传到服务器上映射的 容器 web 目录，即部署完成
+* 参考 remote_deploy_mycloud.sh 将程序上传到服务器上映射的 容器 web 目录
+* 使用 supervisorctl 运行ahpuoj 

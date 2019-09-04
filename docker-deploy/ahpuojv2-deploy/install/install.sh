@@ -1,11 +1,9 @@
 #!/bin/bash
 
+#设置容器运行环境的脚本 生产与部署环境下通用的脚本
 #!/bin/bash
 # 设置go运行环境
 # echo 'export GOROOT=/usr/lib/go-1.10' >> /etc/profile
-# alter user 'root'@'%' identified by 'jsj123zxc' password expire never;
-# alter user 'root'@'%' identified with mysql_native_password by 'jsj123zxc';
-# flush privileges;
 
 # 创建用户
 /usr/sbin/useradd -m -u 1536 judge
@@ -83,11 +81,6 @@ CREATE TABLE IF NOT EXISTS casbin_rule (
   KEY IDX_casbin_rule_p_type (p_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 INSERT INTO casbin_rule VALUES ('p', 'admin', '/*', '*', NULL, NULL, NULL);
-INSERT INTO casbin_rule VALUES ('p', 'subadmin', '/problem/*', '*', NULL, NULL, NULL);
-INSERT INTO casbin_rule VALUES ('p', 'subadmin', '/contest/*', '*', NULL, NULL, NULL);
-INSERT INTO casbin_rule VALUES ('p', 'subadmin', '/tag/*', '*', NULL, NULL, NULL);
-INSERT INTO casbin_rule VALUES ('p', 'subadmin', '/user/*', '*', NULL, NULL, NULL);
-INSERT INTO casbin_rule VALUES ('p', 'subadmin', '/generator/*', '*', NULL, NULL, NULL);
 EOF
 
 # 语言运行环境设置

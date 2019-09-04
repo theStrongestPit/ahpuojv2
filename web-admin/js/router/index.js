@@ -1,4 +1,4 @@
-import Vue from 'vue/dist/vue.esm.js'
+import Vue from 'vue'
 import routes from '@/web-admin/js/routes'
 import store from '@/web-admin/js/store'
 import {

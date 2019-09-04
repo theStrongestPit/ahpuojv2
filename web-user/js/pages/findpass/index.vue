@@ -1,7 +1,7 @@
 <template lang="pug">
   .content
     .content__main
-      .wrapper
+      .one-main
         h1.content__panel__title 找回密码
         .steps-wrapper
           el-steps(:active="active",finish-status="success")
@@ -72,21 +72,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.wrapper {
-  background: $c15;
-  height: 600px;
-  .steps-wrapper {
-    padding-top: 30px;
-    width: 600px;
-    margin: 0 auto;
-  }
-  .form-wrapper {
-    width: 600px;
-    margin: 30px auto 0;
-    svg {
-      margin-left: -5px;
-      height: 20px;
-    }
+.steps-wrapper {
+  padding-top: 30px;
+  width: 600px;
+  margin: 0 auto;
+}
+.form-wrapper {
+  width: 600px;
+  margin: 30px auto 0;
+  svg {
+    margin-left: -5px;
+    height: 20px;
   }
 }
 </style>

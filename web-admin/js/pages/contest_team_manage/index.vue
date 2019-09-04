@@ -111,14 +111,14 @@ export default {
       this.contest = res.data.contest;
       res = await getAllTeams();
       this.teams = res.data.teams;
-      this.fetchContestTeamList();
+      this.fetchDataList();
     } catch (err) {
       this.$router.replace({ name: "admin404Page" });
       console.log(err);
     }
   },
   methods: {
-    async fetchContestTeamList() {
+    async fetchDataList() {
       const self = this;
       self.loading = true;
       try {
@@ -162,7 +162,7 @@ export default {
               message: res.data.message,
               type: "success"
             });
-            self.fetchContestTeamList();
+            self.fetchDataList();
           } catch (err) {
             console.log(err);
             self.$message({
@@ -195,7 +195,7 @@ export default {
               message: res.data.message,
               type: "success"
             });
-            self.fetchContestTeamList();
+            self.fetchDataList();
           } catch (err) {
             console.log(err);
             self.$message({
@@ -238,7 +238,7 @@ export default {
             type: "success",
             message: res.data.message
           });
-          self.fetchContestTeamList();
+          self.fetchDataList();
         } catch (err) {
           console.log(err);
           self.$message({
@@ -268,7 +268,7 @@ export default {
             type: "success",
             message: res.data.message
           });
-          self.fetchContestTeamList();
+          self.fetchDataList();
         } catch (err) {
           console.log(err);
           self.$message({
@@ -306,7 +306,7 @@ export default {
             type: "success",
             message: res.data.message
           });
-          self.fetchContestTeamList();
+          self.fetchDataList();
         } catch (err) {
           console.log(err);
           self.$message({
