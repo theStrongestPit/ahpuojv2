@@ -6,14 +6,13 @@
   .content__main
     .chart__wrapper
       h2.pl20.pt10 近期提交情况
-      line-chart(:option="chartOption",:flag="renderFlag",:id="'chart'",style="width:100%;height:500px;")
+      line-chart(:option="chartOption",:id="'chart'",style="width:100%;height:500px;")
 </template>
 
 <script>
 import LineChart from "@/web-common/components/linechart.vue";
 import { getSubmitStatistic } from "@/web-admin/js/api/admin.js";
 export default {
-  name: "",
   components: {
     LineChart
   },
@@ -39,8 +38,7 @@ export default {
             data: []
           }
         ]
-      },
-      renderFlag: false
+      }
     };
   },
   mounted() {
@@ -54,7 +52,6 @@ export default {
         let res = await getSubmitStatistic(id);
         let data = res.data;
         self.chartOption.series[0].data = data.recent_submit_statistic;
-        self.renderFlag = true;
       } catch (err) {
         console.log(err);
       }
@@ -65,6 +62,6 @@ export default {
 
 <style lang="scss" scoped>
 .chart__wrapper {
-  background: $c15;
+  background: $--color-level15;
 }
 </style>

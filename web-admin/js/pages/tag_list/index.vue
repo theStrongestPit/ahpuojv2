@@ -35,7 +35,7 @@ import {
   createTag,
   editTag,
   deleteTag
-} from "@/web-admin/js/api/tag.js";
+} from '@/web-admin/js/api/tag.js';
 
 export default {
   data() {
@@ -44,32 +44,34 @@ export default {
       currentPage: 1,
       currentRowId: 0,
       perpage: 10,
-      queryParam: "",
+      queryParam: '',
       total: 0,
-      dialogFormTitle: "",
+      dialogFormTitle: '',
       dialogFormVisible: false,
-      submitMode: "",
+      submitMode: '',
       form: {
-        name: ""
+        name: ''
       },
       rules: {
         name: [
           {
             required: true,
-            message: "请输入标签名称",
-            trigger: "blur"
+            message: '请输入标签名称',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "超出长度限制",
-            trigger: "blur"
+            message: '超出长度限制',
+            trigger: 'blur'
           }
         ]
       },
       tableData: []
     };
   },
-  mounted() {},
+  activated() {
+    this.fetchDataList();
+  },
   methods: {
     async fetchDataList() {
       const self = this;
@@ -107,28 +109,28 @@ export default {
     closeDialog() {
       this.$refs.form.resetFields();
       this.$refs.input.blur();
-      this.form.name = "";
+      this.form.name = '';
     },
     submit() {
       const self = this;
-      self.$refs["form"].validate(async valid => {
+      self.$refs['form'].validate(async valid => {
         if (valid) {
           try {
             let res;
-            if (self.submitMode == "create") {
+            if (self.submitMode == 'create') {
               res = await createTag(self.form);
             } else {
               res = await editTag(self.currentRowId, self.form);
             }
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
             self.fetchDataList();
           } catch (err) {
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
           self.dialogFormVisible = false;
@@ -141,13 +143,13 @@ export default {
       this.dialogFormVisible = false;
     },
     handleCreateTag() {
-      this.dialogFormTitle = "新建标签";
-      this.submitMode = "create";
+      this.dialogFormTitle = '新建标签';
+      this.submitMode = 'create';
       this.dialogFormVisible = true;
     },
     handleEditTag(row) {
-      this.dialogFormTitle = "编辑标签";
-      this.submitMode = "edit";
+      this.dialogFormTitle = '编辑标签';
+      this.submitMode = 'edit';
       this.currentRowId = row.id;
       this.form.name = row.name;
       this.dialogFormVisible = true;
@@ -155,15 +157,15 @@ export default {
     async handleDeleteTag(row) {
       const self = this;
       try {
-        await self.$confirm(`确认要删除标签${row.name}吗?`, "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        await self.$confirm(`确认要删除标签${row.name}吗?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         });
         try {
           let res = await deleteTag(row.id);
           self.$message({
-            type: "success",
+            type: 'success',
             message: res.data.message
           });
           // 删除最后一页最后一条记录，如果不是第一页，则当前页码-1
@@ -175,20 +177,17 @@ export default {
           self.fetchDataList();
         } catch (err) {
           self.$message({
-            type: "error",
+            type: 'error',
             message: err.response.data.message
           });
         }
       } catch (err) {
         self.$message({
-          type: "info",
-          message: "已取消删除"
+          type: 'info',
+          message: '已取消删除'
         });
       }
     }
-  },
-  activated() {
-    this.fetchDataList();
   }
 };
 </script>

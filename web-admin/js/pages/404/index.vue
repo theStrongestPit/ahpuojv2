@@ -2,12 +2,11 @@
 .admin-content
   .content__main
     h1 对不起，你要访问的页面不存在，即将跳转到主页
-    img(:src="imgUrl('static/images/404.jpg')")
+    img(src="@/web-common/assets/images/404.jpg")
 </template>
 
 <script>
 export default {
-  name: "",
   data() {
     return {};
   },

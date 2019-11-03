@@ -8,7 +8,7 @@
             .header 系列赛信息
           li 模式：
               template(v-if="series")          
-                span.text-button(:class="[series.team_mode == 0 ? 'text-button--success':'text-button--primary']")  {{ series.team_mode == 0?"个人系列赛":"团体系列赛" }}
+                oj-tag(:type="series.team_mode == 0 ? 'success':'primary'")  {{ series.team_mode == 0?"个人系列赛":"团体系列赛" }}
 
       .main
         h1.content__panel__title {{series?series.name:''}}
@@ -20,9 +20,9 @@
           el-table.dataTable(v-if="series",:data="series.contestinfos", style="width: 100%")
             el-table-column(width="90")
               template(slot-scope="scope")
-                span(v-if="scope.row.status==1", class="text-button text-button--success") 未开始
-                span(v-if="scope.row.status==2",class="text-button text-button--primary") 进行中
-                span(v-if="scope.row.status==3",class="text-button text-button--danger") 已结束
+                oj-tag(v-if="scope.row.status==1", type="success") 未开始
+                oj-tag(v-if="scope.row.status==2",type="primary") 进行中
+                oj-tag(v-if="scope.row.status==3",type="danger") 已结束
             el-table-column(label="名称", min-width="180")
               template(slot-scope="scope")
                 router-link(:to="{name:'contest',params:{id:scope.row.id}}") {{scope.row.name}}
@@ -44,19 +44,19 @@
 </template>
 
 <script>
-import { getSeries } from "@/web-user/js/api/nologin.js";
-import CodeMirror from "@/web-common/components/codemirror.vue";
-import { getLanguageList } from "@/web-user/js/api/nologin.js";
-import { EventBus } from "@/web-common/eventbus";
-import { submitJudgeCode } from "@/web-user/js/api/user.js";
+import OjTag from '@/web-common/components/ojtag';
+import {getSeries} from '@/web-user/js/api/nologin.js';
+import {getLanguageList} from '@/web-user/js/api/nologin.js';
+import {EventBus} from '@/web-common/eventbus';
+import {submitJudgeCode} from '@/web-user/js/api/user.js';
 export default {
   components: {
-    CodeMirror
+    OjTag
   },
   data() {
     return {
       seeable: false,
-      reason: "",
+      reason: '',
       series: null,
       userRankList: [],
       langList: []
@@ -67,7 +67,7 @@ export default {
   },
   methods: {
     async init() {
-      console.log("initing");
+      console.log('initing');
       const self = this;
       let res = await getLanguageList();
       this.langList = res.data.languages;
@@ -80,15 +80,12 @@ export default {
         self.userRankList = data.userranklist;
       } catch (err) {
         console.log(err);
-        self.$router.replace({ name: "404Page" });
+        self.$router.replace({name: '404Page'});
       }
     }
   },
-  computed: {
-    userRankListWithRank() {}
-  },
   beforeRouteUpdate(to, from, next) {
-    console.log("beforeRouteUpdate!!");
+    console.log('beforeRouteUpdate!!');
     this.init();
     next();
   }

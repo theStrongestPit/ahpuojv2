@@ -4,7 +4,7 @@
       .siderbar
         ul.siderbar__item__list
           li
-            el-button(size="mini",round,@click="handleSearchByResetConf(0)",style="margin-top:10px;") 重置
+            el-button(size="mini",round,@click="handleSearchByResetConf(0)") 重置
           li
             .section__title 查找问题：
             .siderbar__searchbar__wrapper
@@ -15,21 +15,21 @@
             .section__title 按难度检索：
             ul.button-list
                 li
-                  el-button(size="mini",:class="['tag__button',level==-1?'tag__button__active':'']",@click="handleSearchByLevel(-1)",round) 全部
+                  el-button(size="mini",round,:class="[level == -1?'is-active':'']",@click="handleSearchByLevel(-1)") 全部
                 li
-                  el-button(size="mini",:class="['tag__button',level==0?'tag__button__active':'']", @click="handleSearchByLevel(0)",round) 简单
+                  el-button(size="mini",round,:class="[level == 0?'is-active':'']",@click="handleSearchByLevel(0)") 简单
                 li
-                  el-button(size="mini",:class="['tag__button',level==1?'tag__button__active':'']", @click="handleSearchByLevel(1)",round) 中等
+                  el-button(size="mini",round,:class="[level == 1?'is-active':'']",@click="handleSearchByLevel(1)") 中等
                 li 
-                  el-button(size="mini",:class="['tag__button',level==2?'tag__button__active':'']", @click="handleSearchByLevel(2)",round) 困难
+                  el-button(size="mini",round,:class="[level == 2?'is-active':'']",@click="handleSearchByLevel(2)") 困难
           li
             .section__title 按标签检索：
             ul.button-list
               li
-                el-button(size="mini",:class="['tag__button',tagId==-1?'tag__button__active':'']", @click="handleSearchByTag(-1)", round) 全部
+                el-button(size="mini",round,:class="[tagId == -1?'is-active':'']",@click="handleSearchByTag(-1)") 全部
               template(v-for="tag in tags")
                 li
-                  el-button(size="mini",:class="['tag__button',tagId==tag.id?'tag__button__active':'']", @click="handleSearchByTag(tag.id)", round) {{tag.name}}
+                  el-button(size="mini",round,:class="[tagId == tag.id?'is-active':'']",@click="handleSearchByTag(tag.id)") {{tag.name}}
       .main
         h1.content__panel__title 问题列表
         el-table(:data="tableData", style="width: 100%", class="dataTable", v-loading="loading")
@@ -41,32 +41,39 @@
           el-table-column(label="标题", min-width="160")
             template(slot-scope="scope")
               router-link(:to="{name:'problem',params:{id:scope.row.id}}") {{scope.row.title}}
-          el-table-column(label="难度", min-width="60")
+          el-table-column(label="难度", min-width="60",align="center")
             template(slot-scope="scope")
-              el-button(v-if="scope.row.level==0", size="mini",class="text-button text-button--success") 简单
-              el-button(v-if="scope.row.level==1", size="mini",class="text-button text-button--warning") 中等
-              el-button(v-if="scope.row.level==2", size="mini",class="text-button text-button--danger") 困难
-          el-table-column(label="标签", min-width="160")
+              oj-tag(v-if="scope.row.level==0",type="success") 简单
+              oj-tag(v-if="scope.row.level==1",type="warnning") 中等
+              oj-tag(v-if="scope.row.level==2",type="danger") 困难
+          el-table-column(label="标签", min-width="160",align="center")
             template(slot-scope="scope")
-              el-button(v-for="tag in scope.row.tags", :key="tag.id", size="mini",class="text-button text-button--success") {{tag.name}}
-          el-table-column(label="通过率", min-width="80")
+              oj-tag(v-for="tag in scope.row.tags", :key="tag.id") {{tag.name}}
+          el-table-column(label="通过率", min-width="80",align="center")
             template(slot-scope="scope") {{calcRate(scope.row)}}
-          el-table-column(label="通过", prop="accepted", min-width="60")
-          el-table-column(label="提交", prop="submit", min-width="60")
+          el-table-column(label="通过", prop="accepted", min-width="60",align="center")
+          el-table-column(label="提交", prop="submit", min-width="60",align="center")
         el-pagination.tal.mt20(@current-change="fetchData",:current-page.sync="currentPage",background,
         :page-size="perpage",:layout="'prev, pager, next'+(screenWidth>960?',jumper':'')",:total="total",:small="!(screenWidth>960)")
 </template>
 
 <script>
-import { getProblemList, getAllTags } from "@/web-user/js/api/nologin.js";
+import OjTag from '@/web-common/components/ojtag';
+import {getProblemList, getAllTags} from '@/web-user/js/api/nologin.js';
 export default {
-  name: "",
+  components: {OjTag},
+  props: {
+    screenWidth: {
+      type: Number,
+      default: 1920
+    }
+  },
   data() {
     return {
       loading: false,
       currentPage: 1,
       perpage: 20,
-      queryParam: "",
+      queryParam: '',
       tableData: [],
       total: 0,
       level: -1,
@@ -74,17 +81,20 @@ export default {
       tags: []
     };
   },
-  props: {
-    screenWidth: {
-      type: Number
-    }
-  },
   async mounted() {
     this.tagId = this.$store.getters.tagId;
     console.log(this.tagId);
     this.fetchData();
     let res = await getAllTags();
     this.tags = res.data.tags;
+  },
+  activated() {
+    console.log(this.$store.getters.tagId);
+    if (this.$store.getters.tagId != -1) {
+      this.tagId = this.$store.getters.tagId;
+      this.fetchData();
+    }
+    this.$store.dispatch('resetTag');
   },
   methods: {
     async fetchData() {
@@ -110,13 +120,13 @@ export default {
       } catch (err) {
         console.log(err);
       }
-      this.$store.dispatch("resetTag");
+      this.$store.dispatch('resetTag');
     },
     handleSearchByResetConf() {
       this.loading = true;
       this.level = -1;
       this.tagId = -1;
-      this.queryParam = "";
+      this.queryParam = '';
       this.fetchData();
     },
     handleSearchByParam() {
@@ -138,16 +148,8 @@ export default {
     },
     calcRate(row) {
       let rate = row.submit == 0 ? 0 : row.accepted / row.submit;
-      return Number(rate * 100).toFixed(2) + "%";
+      return Number(rate * 100).toFixed(2) + '%';
     }
-  },
-  activated() {
-    console.log(this.$store.getters.tagId);
-    if (this.$store.getters.tagId != -1) {
-      this.tagId = this.$store.getters.tagId;
-      this.fetchData();
-    }
-    this.$store.dispatch("resetTag");
   }
 };
 </script>

@@ -20,9 +20,8 @@
 </template>
 
 <script>
-import { rejudgeSolution, rejudgeProblem } from "@/web-admin/js/api/problem.js";
+import {rejudgeSolution, rejudgeProblem} from '@/web-admin/js/api/problem.js';
 export default {
-  name: "importproblem",
   data() {
     return {
       rejudgeSolutionForm: {
@@ -36,8 +35,8 @@ export default {
         id: [
           {
             required: true,
-            message: "请输入提交ID名称",
-            trigger: "blur"
+            message: '请输入提交ID名称',
+            trigger: 'blur'
           }
         ]
       },
@@ -45,8 +44,8 @@ export default {
         id: [
           {
             required: true,
-            message: "请输入提交ID名称",
-            trigger: "blur"
+            message: '请输入提交ID名称',
+            trigger: 'blur'
           }
         ]
       }
@@ -55,7 +54,7 @@ export default {
   methods: {
     submitRejudgeSolution() {
       const self = this;
-      self.$refs["rejudgeSolutionForm"].validate(async valid => {
+      self.$refs['rejudgeSolutionForm'].validate(async valid => {
         if (valid) {
           try {
             console.log(self.rejudgeSolutionForm);
@@ -63,27 +62,27 @@ export default {
             console.log(res);
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
 
             let routerResolve = self.$router.resolve({
-              name: "solution",
+              name: 'solution',
               params: {
                 id: self.rejudgeSolutionForm.id
               }
             });
-            window.open(routerResolve.href, "_blank");
+            window.open(routerResolve.href, '_blank');
           } catch (err) {
             console.log(err);
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
         } else {
           self.$message({
-            message: "表单必填项不能为空",
-            type: "error"
+            message: '表单必填项不能为空',
+            type: 'error'
           });
           return false;
         }
@@ -91,7 +90,7 @@ export default {
     },
     submitRejudgeProblem() {
       const self = this;
-      self.$refs["rejudgeProblemForm"].validate(async valid => {
+      self.$refs['rejudgeProblemForm'].validate(async valid => {
         if (valid) {
           try {
             console.log(self.rejudgeProblemForm);
@@ -99,20 +98,20 @@ export default {
             console.log(res);
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
-            window.open("/status", "_blank");
+            window.open('/status', '_blank');
           } catch (err) {
             console.log(err);
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
         } else {
           self.$message({
-            message: "表单必填项不能为空",
-            type: "error"
+            message: '表单必填项不能为空',
+            type: 'error'
           });
           return false;
         }

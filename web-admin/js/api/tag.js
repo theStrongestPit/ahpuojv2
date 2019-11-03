@@ -1,17 +1,21 @@
-import request from "@/web-common/axios";
+import request from '@/web-common/axios'
 
 export function createTag(data) {
-    return request("POST", "admin/tag", data)
+  return request('POST', 'admin/tag', data)
 }
 export function editTag(id, data) {
-    return request("PUT", `admin/tag/${id}`, data)
+  return request('PUT', `admin/tag/${id}`, data)
 }
 export function getTagList(page, perpage, queryParam) {
-    return request("GET", "admin/tags", { "page": page, "perpage": perpage, "param": queryParam })
+  return request('GET', 'admin/tags', {
+    page: page,
+    perpage: perpage,
+    param: queryParam
+  })
 }
 export function getAllTags() {
-    return request("GET", "admin/alltags")
+  return request('GET', 'admin/alltags')
 }
 export function deleteTag(id) {
-    return request("DELETE", `admin/tag/${id}`)
+  return request('DELETE', `admin/tag/${id}`)
 }

@@ -39,13 +39,13 @@
 </template>
 
 <script>
-import TinymceEditor from "@/web-common/components/tinymce_editor.vue";
+import TinymceEditor from '@/web-common/components/tinymce_editor.vue';
 import {
   createProblem,
   editProblem,
   getProblem
-} from "@/web-admin/js/api/problem.js";
-import { getAllTags } from "@/web-admin/js/api/tag.js";
+} from '@/web-admin/js/api/problem.js';
+import {getAllTags} from '@/web-admin/js/api/tag.js';
 export default {
   components: {
     TinymceEditor
@@ -54,15 +54,15 @@ export default {
     return {
       tags: [],
       form: {
-        title: "",
+        title: '',
         time_limit: 1,
         memory_limit: 128,
-        description: "",
-        input: "",
-        output: "",
-        sample_input: "",
-        sample_output: "",
-        hint: "",
+        description: '',
+        input: '',
+        output: '',
+        sample_input: '',
+        sample_output: '',
+        hint: '',
         spj: 0,
         level: 1,
         tags: []
@@ -71,43 +71,50 @@ export default {
         title: [
           {
             required: true,
-            message: "请输入问题名称",
-            trigger: "blur"
+            message: '请输入问题名称',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "超出长度限制",
-            trigger: "blur"
+            message: '超出长度限制',
+            trigger: 'blur'
           }
         ],
         time_limit: [
           {
             required: true,
-            message: "请输入时间限制",
-            trigger: "blur"
+            message: '请输入时间限制',
+            trigger: 'blur'
           },
           {
-            type: "integer",
+            type: 'integer',
             min: 1,
-            message: "清输入大于零的整数",
-            trigger: "blur"
+            message: '清输入大于零的整数',
+            trigger: 'blur'
           }
         ],
         memory_limit: [
           {
             required: true,
-            message: "请输入时间限制",
-            trigger: "blur"
+            message: '请输入时间限制',
+            trigger: 'blur'
           },
           {
-            type: "integer",
+            type: 'integer',
             min: 1,
-            message: "清输入大于零的整数",
-            trigger: "blur"
+            message: '清输入大于零的整数',
+            trigger: 'blur'
           }
         ]
       }
     };
+  },
+  watch: {
+    $route(to, from) {
+      if (to.name == 'adminAddproblem' || to.name == 'adminEditProblem') {
+        this.init();
+      }
+    }
   },
   async mounted() {
     this.init();
@@ -117,7 +124,7 @@ export default {
       const self = this;
       let res = await getAllTags();
       self.tags = res.data.tags;
-      if (self.$route.name == "adminEditProblem") {
+      if (self.$route.name == 'adminEditProblem') {
         try {
           let id = self.$route.params.id;
           let res = await getProblem(id);
@@ -129,19 +136,19 @@ export default {
           });
         } catch (err) {
           console.log(err);
-          self.$router.replace({ name: "admin404Page" });
+          self.$router.replace({name: 'admin404Page'});
         }
       } else {
         Object.assign(self.form, {
-          title: "",
+          title: '',
           time_limit: 1,
           memory_limit: 128,
-          description: "",
-          input: "",
-          output: "",
-          sample_input: "",
-          sample_output: "",
-          hint: "",
+          description: '',
+          input: '',
+          output: '',
+          sample_input: '',
+          sample_output: '',
+          hint: '',
           spj: 0,
           tags: []
         });
@@ -149,12 +156,12 @@ export default {
     },
     async submit() {
       const self = this;
-      self.$refs["form"].validate(async valid => {
+      self.$refs['form'].validate(async valid => {
         if (valid) {
           try {
             console.log(self.form);
             let res;
-            if (self.$route.name == "adminAddproblem") {
+            if (self.$route.name == 'adminAddproblem') {
               res = await createProblem(self.form);
             } else {
               let id = self.$route.params.id;
@@ -162,30 +169,23 @@ export default {
             }
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
-            self.$router.push({ name: "adminProblemList" });
+            self.$router.push({name: 'adminProblemList'});
           } catch (err) {
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
         } else {
           self.$message({
-            message: "表单必填项不能为空",
-            type: "error"
+            message: '表单必填项不能为空',
+            type: 'error'
           });
           return false;
         }
       });
-    }
-  },
-  watch: {
-    $route(to, from) {
-      if (to.name == "adminAddproblem" || to.name == "adminEditProblem") {
-        this.init();
-      }
     }
   }
 };

@@ -13,8 +13,8 @@
       el-table-column(label="标题", prop="title")
       el-table-column(label="状态", width="180")
         template(slot-scope="scope")
-          span(class="text-button",:class="[scope.row.defunct == 0 ? 'text-button--success':'text-button--danger']") {{scope.row.defunct == 0?'显示':'隐藏'}}
-          span(v-if="scope.row.top > 0", class="text-button text-button--success") 置顶
+          oj-tag(:type="scope.row.defunct == 0 ? 'success':'danger'") {{scope.row.defunct == 0?'显示':'隐藏'}}
+          oj-tag(v-if="scope.row.top > 0", type="success") 置顶
       el-table-column(label="操作", width="300")
         template(slot-scope="scope")
           el-button(size="mini", type="primary", @click="$router.push({name:'adminEditNew',params:{id:scope.row.id}})") 编辑
@@ -28,15 +28,19 @@
 </template>
 
 <script>
+import OjTag from '@/web-common/components/ojtag';
 import {
   getNewList,
   editNew,
   deleteNew,
   toggleNewStatus,
   toggleNewTopStatus
-} from "@/web-admin/js/api/new.js";
+} from '@/web-admin/js/api/new.js';
 
 export default {
+  components: {
+    OjTag
+  },
   data() {
     return {
       loading: true,
@@ -44,29 +48,31 @@ export default {
       currentRowId: 0,
       perpage: 10,
       total: 0,
-      queryParam: "",
-      submitMode: "",
+      queryParam: '',
+      submitMode: '',
       form: {
-        title: ""
+        title: ''
       },
       rules: {
         title: [
           {
             required: true,
-            message: "请输入新闻名称",
-            trigger: "blur"
+            message: '请输入新闻名称',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "超出长度限制",
-            trigger: "blur"
+            message: '超出长度限制',
+            trigger: 'blur'
           }
         ]
       },
       tableData: []
     };
   },
-  mounted() {},
+  activated() {
+    this.fetchDataList();
+  },
   methods: {
     async fetchDataList() {
       const self = this;
@@ -99,15 +105,15 @@ export default {
     async handleDeleteNew(row) {
       const self = this;
       try {
-        await self.$confirm(`确认要删除新闻${row.title}吗?`, "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        await self.$confirm(`确认要删除新闻${row.title}吗?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         });
         try {
           let res = await deleteNew(row.id);
           self.$message({
-            type: "success",
+            type: 'success',
             message: res.data.message
           });
           // 删除最后一页最后一条记录，如果不是第一页，则当前页码-1
@@ -119,80 +125,77 @@ export default {
           self.fetchDataList();
         } catch (err) {
           self.$message({
-            type: "error",
+            type: 'error',
             message: err.response.data.message
           });
         }
       } catch (err) {
         self.$message({
-          type: "info",
-          message: "已取消删除"
+          type: 'info',
+          message: '已取消删除'
         });
       }
     },
     async handleToggleNewStatus(row) {
       const self = this;
-      let msg = `确认要${row.defunct == 0 ? "隐藏" : "显示"}新闻${
+      let msg = `确认要${row.defunct == 0 ? '隐藏' : '显示'}新闻${
         row.title
       }吗?`;
       try {
-        await self.$confirm(msg, "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        await self.$confirm(msg, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         });
         try {
           let res = await toggleNewStatus(row.id);
           self.$message({
-            type: "success",
+            type: 'success',
             message: res.data.message
           });
           row.defunct = !row.defunct;
         } catch (err) {
           self.$message({
-            type: "error",
+            type: 'error',
             message: err.response.data.message
           });
         }
       } catch (err) {
         self.$message({
-          type: "info",
-          message: "已取消操作"
+          type: 'info',
+          message: '已取消操作'
         });
       }
     },
     async handleToggleNewTopStatus(row) {
       const self = this;
-      let msg = `确认要${row.top == 0 ? "置顶" : "取置"}新闻${row.title}吗?`;
+      let msg = `确认要${row.top == 0 ? '置顶' : '取置'}新闻${row.title}吗?`;
       try {
-        await self.$confirm(msg, "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        await self.$confirm(msg, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         });
         try {
           let res = await toggleNewTopStatus(row.id);
           self.$message({
-            type: "success",
+            type: 'success',
             message: res.data.message
           });
           self.fetchDataList();
         } catch (err) {
           self.$message({
-            type: "error",
+            type: 'error',
             message: err.response.data.message
           });
         }
       } catch (err) {
         self.$message({
-          type: "info",
-          message: "已取消操作"
+          type: 'info',
+          message: '已取消操作'
         });
       }
     }
-  },
-  activated() {
-    this.fetchDataList();
   }
 };
 </script>

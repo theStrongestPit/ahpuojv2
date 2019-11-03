@@ -7,9 +7,16 @@
   .content__main
     .content__card__wrapper
       el-card
-        span 问题名称:{{problem.title}}
+        span 问题名称:{{problem?problem.title:''}}
     .content__button__wrapper
       el-button(type="success" @click="handleAddData") 添加数据
+      el-upload.datafile__uploader(ref="upload", :action="`/api/admin/problem/${$route.params.id}/datafile`",
+      :headers="{Authorization:$store.getters.token}", :filelist = "filelist",
+      accept=".in,.out", :auto-upload="true", :on-success="handleUploadSuccess", :on-error="handleUploadError", :limit="1")
+        el-button(slot="trigger", type="primary") 上传数据文件
+       
+      el-alert(title="上传文件大小限制为 80 M，上传数据文件前请先命名数据文件为 xxx.in 或 xxx.out 不支持其他扩展名文件的上传，windows不显示扩展名请先设置文件夹选项" ,type="info", :closable="false")
+
     el-table(:data="tableData", style="width: 100%;margin-bottom:30px;")
       el-table-column(label="文件名",prop="filename", width="180")
       el-table-column(label="文件大小(字节)",prop="size",width="180")
@@ -48,6 +55,7 @@ export default {
       dialogFormVisible: false,
       dialogType: "",
       currentRow: null,
+      filelist: [],
       addDataForm: {
         filename: ""
       },
@@ -111,7 +119,6 @@ export default {
           duration: 6000
         });
       }
-      console.log("123", this.$refs);
       this.$refs.addDataForm.clearValidate();
       this.$refs.editDataForm.clearValidate();
     },
@@ -157,7 +164,6 @@ export default {
             }
             self.fetchDataList();
           } catch (err) {
-            console.log(err);
             self.$message({
               message: err.response.data.message,
               type: "error"
@@ -176,6 +182,21 @@ export default {
       this.dialogFormTitle = "添加数据";
       this.dialogType = "addData";
       this.dialogFormVisible = true;
+    },
+    handleUploadSuccess(res, file, filelist) {
+      this.filelist = filelist.shift();
+      this.$message({
+        message: res.message,
+        type: "success"
+      });
+      this.fetchDataList();
+    },
+    handleUploadError(err, file, filelist) {
+      this.filelist = filelist.shift();
+      this.$message({
+        message: err.response.message ? err.response.message : err,
+        type: "error"
+      });
     },
     async handleEditData(row) {
       this.dialogFormTitle = "编辑数据文件" + row.filename;
@@ -218,4 +239,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.datafile__uploader {
+  margin-left: 0.2rem;
+  display: inline-block;
+}
 </style>

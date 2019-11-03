@@ -6,7 +6,7 @@
         .carousel__wrapper
           el-carousel(trigger="click",height="400px", indicator-position="outside")
             el-carousel-item
-              img(:src="imgUrl('/static/images/acm.jpg')")
+              img(src="@/web-common/assets/images/acm.jpg")
         template(v-for="item in newList")
           .new__box
             .new__title {{item.title}}
@@ -18,9 +18,14 @@
 </template>
 
 <script>
-import { getNewList } from "@/web-user/js/api/nologin.js";
+import {getNewList} from '@/web-user/js/api/nologin.js';
 export default {
-  name: "",
+  props: {
+    screenWidth: {
+      type: Number,
+      default: 1920
+    }
+  },
   data() {
     return {
       currentPage: 1,
@@ -29,11 +34,7 @@ export default {
       total: 0
     };
   },
-  props: {
-    screenWidth: {
-      type: Number
-    }
-  },
+
   mounted() {
     this.fetchData();
   },
@@ -71,14 +72,14 @@ export default {
 .new__box {
   position: relative;
   padding: 0.3rem 0.5rem;
-  border-top: 1px solid $c13;
+  border-top: 1px solid $--color-level13;
   &:last-child {
-    border-bottom: 1px solid $c13;
+    border-bottom: 1px solid $--color-level13;
   }
   .new__title {
     text-align: left;
     font-size: 0.3rem;
-    color: $ctitle;
+    color: $--title-color;
   }
   .new__content {
     min-height: 200px;

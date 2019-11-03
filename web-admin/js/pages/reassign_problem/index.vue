@@ -16,9 +16,8 @@
 </template>
 
 <script>
-import { reassignProblem } from "@/web-admin/js/api/problem.js";
+import {reassignProblem} from '@/web-admin/js/api/problem.js';
 export default {
-  name: "importproblem",
   data() {
     return {
       form: {
@@ -30,15 +29,15 @@ export default {
         oldId: [
           {
             required: true,
-            message: "原ID不能为空",
-            trigger: "blur"
+            message: '原ID不能为空',
+            trigger: 'blur'
           }
         ],
         newId: [
           {
             required: true,
-            message: "新ID不能为空",
-            trigger: "blur"
+            message: '新ID不能为空',
+            trigger: 'blur'
           }
         ]
       }
@@ -47,25 +46,25 @@ export default {
   methods: {
     submit() {
       const self = this;
-      self.$refs["form"].validate(async valid => {
+      self.$refs['form'].validate(async valid => {
         if (valid) {
           try {
             let res = await reassignProblem(self.form.oldId, self.form.newId);
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
           } catch (err) {
             console.log(err);
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
         } else {
           self.$message({
-            message: "表单必填项不能为空",
-            type: "error"
+            message: '表单必填项不能为空',
+            type: 'error'
           });
           return false;
         }

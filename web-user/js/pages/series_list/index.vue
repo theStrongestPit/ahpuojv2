@@ -17,33 +17,40 @@
               router-link(:to="{name:'series',params:{id:scope.row.id}}") {{scope.row.name}}
           el-table-column(label="模式", min-width="150")
             template(slot-scope="scope")
-              span(:class="['text-button', scope.row.team_mode == 0 ? 'text-button--success':'text-button--primary']") {{ scope.row.team_mode == 0?"个人系列赛":"团体系列赛" }}
+              oj-tag(:type="scope.row.team_mode == 0 ? 'success':'primary'") {{ scope.row.team_mode == 0?"个人系列赛":"团体系列赛" }}
         el-pagination.tal.mt20(@current-change="fetchData",:current-page.sync="currentPage",background,
         :page-size="perpage",:layout="'prev, pager, next'+(screenWidth>960?',jumper':'')",:total="total",:small="!(screenWidth>960)")
 </template>
 
 <script>
-import { getSeriesList } from "@/web-user/js/api/nologin.js";
+import OjTag from '@/web-common/components/ojtag';
+import {getSeriesList} from '@/web-user/js/api/nologin.js';
 export default {
-  name: "",
+  components: {
+    OjTag
+  },
+  props: {
+    screenWidth: {
+      type: Number,
+      default: 1920
+    }
+  },
   data() {
     return {
       currentPage: 1,
       perpage: 10,
-      queryParam: "",
+      queryParam: '',
       tableData: [],
       total: 0,
       tags: []
     };
   },
-  props: {
-    screenWidth: {
-      type: Number
-    }
+  activated() {
+    this.fetchData();
   },
   methods: {
     async fetchData() {
-      console.log("??");
+      console.log('??');
       const self = this;
       window.pageYOffset = 0;
       document.documentElement.scrollTop = 0;
@@ -68,14 +75,11 @@ export default {
       this.fetchData();
     },
     spliteDate(dateTimeString) {
-      return new String(dateTimeString).split(" ")[0];
+      return new String(dateTimeString).split(' ')[0];
     },
     spliteTime(dateTimeString) {
-      return new String(dateTimeString).split(" ")[1];
+      return new String(dateTimeString).split(' ')[1];
     }
-  },
-  activated() {
-    this.fetchData();
   }
 };
 </script>

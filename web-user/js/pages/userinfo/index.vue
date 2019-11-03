@@ -43,35 +43,37 @@
 </template>
 
 <script>
-import { getUserInfo } from "@/web-user/js/api/user.js";
-import LineChart from "@/web-common/components/linechart.vue";
+import {getUserInfo} from '@/web-user/js/api/user.js';
+import LineChart from '@/web-common/components/linechart.vue';
 export default {
-  name: "",
+  components: {
+    LineChart
+  },
   data() {
     return {
       user: null,
       chartOption: {
-        color: ["#ffdf25", "#36a9ce"],
+        color: ['#ffdf25', '#36a9ce'],
         // title: {
         //   text: "123"
         // },
         tooltip: {},
         legend: {
-          data: ["累计通过", "累计提交"]
+          data: ['累计通过', '累计提交']
         },
         xAxis: {
-          type: "time"
+          type: 'time'
         },
         yAxis: {},
         series: [
           {
-            name: "累计通过",
-            type: "line",
+            name: '累计通过',
+            type: 'line',
             data: []
           },
           {
-            name: "累计提交",
-            type: "line",
+            name: '累计提交',
+            type: 'line',
             data: []
           }
         ]
@@ -79,9 +81,7 @@ export default {
       renderFlag: false
     };
   },
-  components: {
-    LineChart
-  },
+
   mounted() {
     this.init();
   },
@@ -96,33 +96,40 @@ export default {
         self.renderFlag = true;
         self.chartOption.series[0].data = self.user.recent_solved_statistic;
         self.chartOption.series[1].data = self.user.recent_submit_statistic;
+        console.log(self);
       } catch (err) {
         console.log(err);
       }
     },
     jumpToSolved() {
-      this.$store.dispatch("setSolutionFilter", {
+      this.$store.dispatch('setSolutionFilter', {
         result: 4,
         nick: this.user.nick
       });
       this.$router.push({
-        name: "status",
+        name: 'status',
         params: {
           id: this.$route.params.id
         }
       });
     },
     jumpToSubmit() {
-      this.$store.dispatch("setSolutionFilter", {
+      this.$store.dispatch('setSolutionFilter', {
         nick: this.user.nick
       });
       this.$router.push({
-        name: "status",
+        name: 'status',
         params: {
           id: this.$route.params.id
         }
       });
     }
+  },
+  beforeRouteUpdate(to, from, next) {
+    console.log('beforeRouteUpdate!!');
+    // 必须在下一次生命周期调用，因为当前路由参数还未改变，获取的路由参数还是之前的路由参数
+    this.$nextTick(() => this.init());
+    next();
   }
 };
 </script>
@@ -133,7 +140,7 @@ export default {
     height: 2rem;
     width: 2rem;
     border-radius: 1rem;
-    border: 0.01rem solid $c14;
+    border: 0.01rem solid $--color-level14;
   }
 }
 ul.infolist {

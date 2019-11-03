@@ -51,7 +51,7 @@ h3 {
     .one-main {
       padding: 0.2rem;
       border-radius: 10px;
-      background: $c15;
+      background: $--color-level15;
       min-height: 600px;
     }
 
@@ -61,19 +61,19 @@ h3 {
     }
 
     h1.content__panel__title {
-      color: $ctitle;
+      color: $--title-color;
       text-align: left;
       font-size: .26rem;
       line-height: .26rem;
       padding: .1rem .1rem .1rem 0;
-      border-bottom: 1px solid $c13;
+      border-bottom: 1px solid $--color-level13;
     }
 
     .main {
       padding: 0.2rem;
       text-align: left;
       border-radius: 10px;
-      background: $c15;
+      background: $--color-level15;
       margin-right: 250px;
       min-height: 600px;
 
@@ -91,8 +91,8 @@ h3 {
 
     .main__section {
       text-align: left;
-      color: $c4;
-      border-top: 1px solid $c14;
+      color: $--color-level4;
+      border-top: 1px solid $--color-level14;
       padding: 0.1rem 0 0.2rem 0;
       font-size: .16rem;
 
@@ -101,10 +101,10 @@ h3 {
         cursor: pointer;
         margin-left: 5px;
         display: inline-block;
-        color: $c15;
+        color: $--color-level15;
         line-height: 20px;
         font-size: .14rem;
-        background: $pdgreen;
+        background: $--color-green-deep;
       }
     }
 
@@ -115,7 +115,7 @@ h3 {
       text-align: left;
       min-height: 600px;
       width: 240px;
-      background: $c15;
+      background: $--color-level15;
       box-sizing: border-box;
       padding: 0.1rem;
 
@@ -132,26 +132,21 @@ h3 {
           padding: .1rem 0 .1rem 0;
           border-bottom: 0px;
           background-color: transparent;
-          color: $c3;
+          color: $--color-level3;
         }
 
         .section__title {
           font-size: .18rem;
           padding: 5px 0;
-          color: $c3;
+          color: $--color-level3;
           margin-bottom: 10px;
         }
 
         &>li {
           &:not(:last-child) {
-            border-bottom: 1px solid $c13;
+            border-bottom: 1px solid $--color-level13;
           }
-
           padding: 0.1rem 0;
-
-          &:first-child {
-            padding-top: 0;
-          }
         }
       }
 
@@ -179,7 +174,7 @@ h3 {
 }
 
 #nprogress .bar {
-  background: $pblue !important;
+  background: $--color-blue !important;
 }
 
 .auth__dialog__wrapper {
@@ -198,7 +193,7 @@ h3 {
   margin-top: 10px;
   min-height: 100px;
   text-align: left;
-  background: $c15;
+  background: $--color-level15;
 }
 
 .el-table {

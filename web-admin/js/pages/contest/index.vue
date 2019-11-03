@@ -28,26 +28,26 @@
 </template>
 
 <script>
-import TinymceEditor from "@/web-common/components/tinymce_editor.vue";
+import TinymceEditor from '@/web-common/components/tinymce_editor.vue';
 import {
   createContest,
   editContest,
   getContest
-} from "@/web-admin/js/api/contest.js";
-import { getLanguageList } from "@/web-user/js/api/nologin.js";
+} from '@/web-admin/js/api/contest.js';
+import {getLanguageList} from '@/web-user/js/api/nologin.js';
 export default {
   components: {
     TinymceEditor
   },
   data() {
     let validateStartTime = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入开始时间"));
-      } else if (this.form.end_time != "") {
+      if (value === '') {
+        callback(new Error('请输入开始时间'));
+      } else if (this.form.end_time != '') {
         let start_time = new Date(this.form.start_time);
         let end_time = new Date(this.form.end_time);
         if (start_time.getTime() < end_time.getTime()) {
-          this.$refs.form.validateField("end_time");
+          this.$refs.form.validateField('end_time');
           callback();
         } else {
           callback();
@@ -57,15 +57,15 @@ export default {
       }
     };
     let validateEndTime = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入结束时间"));
-      } else if (this.form.start_time != "") {
+      if (value === '') {
+        callback(new Error('请输入结束时间'));
+      } else if (this.form.start_time != '') {
         let start_time = new Date(this.form.start_time);
         let end_time = new Date(this.form.end_time);
         if (start_time.getTime() < end_time.getTime()) {
           callback();
         } else {
-          callback(new Error("结束必须大于开始时间"));
+          callback(new Error('结束必须大于开始时间'));
         }
       } else {
         callback();
@@ -75,11 +75,11 @@ export default {
       langList: [],
       selectedLangList: [],
       form: {
-        name: "",
-        start_time: "",
-        end_time: "",
-        problems: "",
-        description: "",
+        name: '',
+        start_time: '',
+        end_time: '',
+        problems: '',
+        description: '',
         langmask: 0,
         private: 0,
         team_mode: 0
@@ -88,29 +88,54 @@ export default {
         name: [
           {
             required: true,
-            message: "请输入问题名称",
-            trigger: "blur"
+            message: '请输入问题名称',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "超出长度限制",
-            trigger: "blur"
+            message: '超出长度限制',
+            trigger: 'blur'
           }
         ],
         start_time: [
           {
             validator: validateStartTime,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         end_time: [
           {
             validator: validateEndTime,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ]
       }
     };
+  },
+  computed: {
+    private() {
+      return this.form.private;
+    },
+    teamMode() {
+      return this.form.team_mode;
+    }
+  },
+  watch: {
+    $route(to, from) {
+      if (to.name == 'adminAddContest' || to.name == 'adminEditContest') {
+        this.init();
+      }
+    },
+    private(to, from) {
+      if (to == 0) {
+        this.form.team_mode = 0;
+      }
+    },
+    teamMode(to, from) {
+      if (to == 1) {
+        this.form.private = 1;
+      }
+    }
   },
   async mounted() {
     let res = await getLanguageList();
@@ -121,15 +146,15 @@ export default {
     async init() {
       const self = this;
 
-      if (self.$route.name == "adminEditContest") {
+      if (self.$route.name == 'adminEditContest') {
         try {
           let id = self.$route.params.id;
           let res = await getContest(id);
           self.form = res.data.contest;
           this.$notify({
-            title: "提示",
+            title: '提示',
             message:
-              "更改公开度与团队模式后私有比赛的参赛人员需要重新进行设置！",
+              '更改公开度与团队模式后私有比赛的参赛人员需要重新进行设置！',
             duration: 6000
           });
 
@@ -141,15 +166,15 @@ export default {
           }
         } catch (err) {
           console.log(err);
-          self.$router.replace({ name: "admin404Page" });
+          self.$router.replace({name: 'admin404Page'});
         }
       } else {
         Object.assign(self.form, {
-          name: "",
-          start_time: "",
-          end_time: "",
-          problems: "",
-          description: "",
+          name: '',
+          start_time: '',
+          end_time: '',
+          problems: '',
+          description: '',
           langmask: 0,
           private: 0,
           team_mode: 0
@@ -165,11 +190,11 @@ export default {
     },
     async submit() {
       const self = this;
-      self.$refs["form"].validate(async valid => {
+      self.$refs['form'].validate(async valid => {
         if (valid) {
           try {
             let res;
-            if (self.$route.name == "adminAddContest") {
+            if (self.$route.name == 'adminAddContest') {
               res = await createContest(self.form);
             } else {
               let id = self.$route.params.id;
@@ -177,19 +202,19 @@ export default {
             }
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
-            self.$router.push({ name: "adminContestList" });
+            self.$router.push({name: 'adminContestList'});
           } catch (err) {
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
         } else {
           self.$message({
-            message: "表单必填项不能为空",
-            type: "error"
+            message: '表单必填项不能为空',
+            type: 'error'
           });
           return false;
         }
@@ -209,35 +234,10 @@ export default {
     notifyModeChange() {
       if (this.form.team_mode == 1) {
         this.$notify({
-          title: "提示",
-          message: "团队模式只能为私有",
+          title: '提示',
+          message: '团队模式只能为私有',
           duration: 6000
         });
-      }
-    }
-  },
-  computed: {
-    private() {
-      return this.form.private;
-    },
-    teamMode() {
-      return this.form.team_mode;
-    }
-  },
-  watch: {
-    $route(to, from) {
-      if (to.name == "adminAddContest" || to.name == "adminEditContest") {
-        this.init();
-      }
-    },
-    private(to, from) {
-      if (to == 0) {
-        this.form.team_mode = 0;
-      }
-    },
-    teamMode(to, from) {
-      if (to == 1) {
-        this.form.private = 1;
       }
     }
   }

@@ -19,30 +19,29 @@
 </template>
 
 <script>
-import { getNewList } from "@/web-user/js/api/nologin.js";
-import { sendFindPassEmail } from "@/web-user/js/api/auth.js";
+import {getNewList} from '@/web-user/js/api/nologin.js';
+import {sendFindPassEmail} from '@/web-user/js/api/auth.js';
 import {
   verifyResetPassToken,
   resetPassByToken
-} from "@/web-user/js/api/auth.js";
+} from '@/web-user/js/api/auth.js';
 export default {
-  name: "",
   data() {
     var validatePassword = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入密码"));
+      if (value === '') {
+        callback(new Error('请输入密码'));
       } else {
-        if (this.form.confirmpassword !== "") {
-          this.$refs.form.validateField("confirmpassword");
+        if (this.form.confirmpassword !== '') {
+          this.$refs.form.validateField('confirmpassword');
         }
         callback();
       }
     };
     var validateConfirmPassword = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请再次输入密码"));
+      if (value === '') {
+        callback(new Error('请再次输入密码'));
       } else if (value !== this.form.password) {
-        callback(new Error("两次输入密码不一致!"));
+        callback(new Error('两次输入密码不一致!'));
       } else {
         callback();
       }
@@ -51,41 +50,41 @@ export default {
       verifyOK: false,
       active: 1,
       form: {
-        token: "",
-        password: "",
-        confirmpassword: ""
+        token: '',
+        password: '',
+        confirmpassword: ''
       },
       formRules: {
         password: [
           {
             validator: validatePassword,
-            trigger: "blur"
+            trigger: 'blur'
           },
           {
             min: 6,
-            message: "密码不能少于6个字符",
-            trigger: "blur"
+            message: '密码不能少于6个字符',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "密码不能超过20个字符",
-            trigger: "blur"
+            message: '密码不能超过20个字符',
+            trigger: 'blur'
           }
         ],
         confirmpassword: [
           {
             validator: validateConfirmPassword,
-            trigger: "blur"
+            trigger: 'blur'
           },
           {
             min: 6,
-            message: "密码不能少于6个字符",
-            trigger: "blur"
+            message: '密码不能少于6个字符',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "密码不能超过20个字符",
-            trigger: "blur"
+            message: '密码不能超过20个字符',
+            trigger: 'blur'
           }
         ]
       }
@@ -100,26 +99,26 @@ export default {
     } catch (err) {
       this.$message({
         message: err.response.data.message,
-        type: "error"
+        type: 'error'
       });
     }
   },
   methods: {
     submitResetPass() {
       const self = this;
-      self.$refs["form"].validate(async valid => {
+      self.$refs['form'].validate(async valid => {
         if (valid) {
           try {
             let res = await resetPassByToken(self.form);
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
           } catch (err) {
             console.log(err);
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
         } else {
@@ -133,7 +132,7 @@ export default {
 
 <style lang="scss" scoped>
 .wrapper {
-  background: $c15;
+  background: $--color-level15;
   height: 600px;
   .steps-wrapper {
     padding-top: 30px;

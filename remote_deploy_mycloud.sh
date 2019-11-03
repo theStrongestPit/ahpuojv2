@@ -10,7 +10,7 @@
 # scp -r core ubuntu@www.jiezi19971225.cn:/home/ubuntu/docker-deploy/
 # scp -r docker-deploy root@172.16.0.3:/root/ahpuojv2-docker
 
-scp dist/index.html root@172.16.0.3:/root/ahpuojv2docker/web/
+scp dist/* root@172.16.0.3:/root/ahpuojv2docker/web/
 scp dist/admin_index.html root@172.16.0.3:/root/ahpuojv2docker/web/
 scp -r dist root@172.16.0.3:/root/ahpuojv2docker/web/
 # scp -r static root@172.16.0.3:/root/ahpuojv2docker/web/

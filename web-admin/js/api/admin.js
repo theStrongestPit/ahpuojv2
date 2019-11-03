@@ -1,5 +1,5 @@
-import request from "@/web-common/axios";
+import request from '@/web-common/axios';
 
 export function getSubmitStatistic() {
-    return request("GET", "admin/submitstatistic")
+  return request('GET', 'admin/submitstatistic');
 }

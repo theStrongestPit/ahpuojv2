@@ -23,15 +23,15 @@
               span(v-if="problem") {{`内存限制：${problem.memory_limit}MB`}}
             div(v-if="$route.name == 'problem'") 难度：
               template(v-if="problem")
-                span.text-button.text-button--success(v-if="problem.level==0")  简单
-                span.text-button.text-button--warning(v-if="problem.level==1", size="mini") 中等
-                span.text-button.text-button--danger(v-if="problem.level==2", size="mini") 困难
+                oj-tag(v-if="problem.level==0", type="success") 简单
+                oj-tag(v-if="problem.level==1", type="warnning") 中等
+                oj-tag(v-if="problem.level==2", type="danger") 困难
             li(v-if="$route.name == 'problem'") 
               .mb10 题目标签：
               ul(class="button-list",v-if="problem")
                 template(v-for="tag in problem.tags")
                   li
-                    el-button(size="mini",type="success",class="tag-button",@click="handleSearchTag(tag.id)") {{tag.name}}
+                    el-button(size="mini",round,@click="handleSearchTag(tag.id)") {{tag.name}}
         
         .button__wrapper
           el-button(size="small",type="primary",@click="handleChangeView") {{ problemView?'提交':'返回'}}
@@ -53,11 +53,11 @@
             .main__section
               h3 样例输入
                 span(@click="handleCopyInput",ref="copyInputBtn",data-clipboard-action="copy",data-clipboard-target="#input_content",class="copyBtn") 复制
-              div(v-if="problem",id="input_content",style="white-space: pre-line;")  {{problem.sample_input}}
+              div(v-if="problem",id="input_content",style="white-space: pre-wrap;")  {{problem.sample_input}}
             .main__section
               h3 样例输出
                 span(@click="handleCopyOutput",ref="copyOutputBtn",data-clipboard-action="copy",data-clipboard-target="#output_content",class="copyBtn")  复制
-              div(v-if="problem",id="output_content",style="white-space: pre-line;") {{problem.sample_output}}
+              div(v-if="problem",id="output_content",style="white-space: pre-wrap;") {{problem.sample_output}}
             .main__section
               h3 提示
               div(v-if="problem",v-html="problem.hint")        
@@ -80,13 +80,13 @@
                     el-input(type="textarea",resize="none",:rows="5",v-model="outputText",disabled,cursor="text")
               el-form-item
                 el-button(type="success",@click="submitToTestRun",:disabled="testrunDisabled") {{testrunButtonText}}
-                el-button(type="primary",@click="submitToJudge") 提交
+                el-button(type="primary",:disabled="submitButtonDisabled",:loading="submitButtonInLoading",@click="submitToJudge") 提交
     el-dialog.tal(title="快捷键指南",:visible.sync="dialogVisible",width="800px",:close-on-click-modal="false")
       p 编辑器使用sublime风格的快捷键，部分快捷键可能与系统快捷键有冲突
       p "Shift-Tab": "减少缩进",
       p "Shift-Ctrl-K": "删除当前行",
-      p "Alt-Q": "wrapLines",
-      p "Ctrl-T": "transposeChars",
+      p "Alt-Q": "换行",
+      p "Ctrl-T": "交换光标前后的字符",
       p "Alt-Left": "向左单位性地移动光标",
       p "Alt-Right": "向右单位性地移动光标",
       p "Ctrl-Up": "向上移动卷轴",
@@ -124,32 +124,39 @@
       p "F3": "寻找下一个匹配项",
       p "Shift-F3": "向上寻找下一个匹配项",
       span(slot="footer" class="dialog-footer")
-        el-button(type="primary",@click="dialogVisible = false") 确 定
+        el-button(ref="submitBtn",type="primary",@click="dialogVisible = false") 确 定
 </template>
 
 <script>
-import clipboard from "clipboard";
-import { testRunInterval } from "@/web-common/const";
-import { getProblem, getContestProblem } from "@/web-user/js/api/nologin.js";
-import CodeMirror from "@/web-common/components/codemirror.vue";
-import { getLanguageList } from "@/web-user/js/api/nologin.js";
-import { EventBus } from "@/web-common/eventbus";
+import CodeMirror from '@/web-common/components/codemirror.vue';
+import OjTag from '@/web-common/components/ojtag';
+import clipboard from 'clipboard';
+import {testRunInterval} from '@/web-common/const';
+import {getProblem, getContestProblem} from '@/web-user/js/api/nologin.js';
+import {getLanguageList} from '@/web-user/js/api/nologin.js';
+import {EventBus} from '@/web-common/eventbus';
 import {
   submitJudgeCode,
   submitTestRunCode,
   getLatestSource,
   getLatestContestSource
-} from "@/web-user/js/api/user.js";
-import { setInterval, clearInterval } from "timers";
+} from '@/web-user/js/api/user.js';
+import {throttle, debounce} from 'throttle-debounce';
+import {setInterval, clearInterval} from 'timers';
 export default {
   components: {
-    CodeMirror
+    CodeMirror,
+    OjTag
   },
   data() {
     return {
       testrunDisabled: false,
-      testrunButtonText: "测试运行",
-      outputText: "",
+      testrunButtonText: '测试运行',
+
+      submitButtonInLoading: false,
+      submitButtonDisabled: false,
+
+      outputText: '',
       dialogVisible: false,
       problemView: true,
       problem: null,
@@ -162,15 +169,27 @@ export default {
         problem_id: 0,
         contest_id: 0,
         num: 0,
-        source: ""
+        source: ''
       },
       testRunForm: {
         language: 0,
         problem_id: 0,
-        source: "",
-        input_text: ""
+        source: '',
+        input_text: ''
       }
     };
+  },
+  computed: {
+    problemTitle() {
+      if (this.$route.name == 'problem' && this.problem != null) {
+        return `P${this.problem.id}  ${this.problem.title}`;
+      } else if (this.$route.name == 'contestProblem' && this.problem != null) {
+        let num = Number.parseInt(this.$route.params.num);
+        let engNum = this.engNum(num);
+        return `C${this.$route.params.id}  ${engNum} ${this.problem.title}`;
+      }
+      return '';
+    }
   },
   mounted() {
     this.init();
@@ -184,13 +203,13 @@ export default {
       try {
         let res;
         // 如果是普通题目路由
-        if (self.$route.name == "problem") {
+        if (self.$route.name == 'problem') {
           res = await getProblem(id);
           let data = res.data;
           self.problem = data.problem;
           self.form.problem_id = self.problem.id;
           self.testRunForm.input_text = data.problem.sample_input;
-          self.outputText = "结果应为\n" + data.problem.sample_output;
+          self.outputText = '结果应为\n' + data.problem.sample_output;
         } else {
           // 如果是比赛题目路由
           let num = parseInt(self.$route.params.num);
@@ -208,60 +227,60 @@ export default {
         this.copyOutputBtn = new clipboard(this.$refs.copyOutputBtn);
       } catch (err) {
         console.log(err);
-        self.$router.replace({ name: "404Page" });
+        self.$router.replace({name: '404Page'});
       }
     },
     handleCopyInput() {
       const self = this;
       let clipboard = self.copyInputBtn;
-      clipboard.on("success", () => {
+      clipboard.on('success', () => {
         self.$message({
-          message: "复制成功",
-          type: "success"
+          message: '复制成功',
+          type: 'success'
         });
       });
-      clipboard.on("error", () => {
+      clipboard.on('error', () => {
         self.$message({
-          message: "复制失败，请手动复制",
-          type: "error"
+          message: '复制失败，请手动复制',
+          type: 'error'
         });
       });
     },
     handleCopyOutput() {
       const self = this;
       let clipboard = self.copyOutputBtn;
-      clipboard.on("success", () => {
+      clipboard.on('success', () => {
         self.$message({
-          message: "复制成功",
-          type: "success"
+          message: '复制成功',
+          type: 'success'
         });
       });
-      clipboard.on("error", () => {
+      clipboard.on('error', () => {
         self.$message({
-          message: "复制失败，请手动复制",
-          type: "error"
+          message: '复制失败，请手动复制',
+          type: 'error'
         });
       });
     },
     handleSearchTag(tagId) {
-      this.$store.dispatch("setTag", tagId);
-      this.$router.push({ name: "problemSet" });
+      this.$store.dispatch('setTag', tagId);
+      this.$router.push({name: 'problemSet'});
     },
     async handleChangeView() {
       if (this.problemView == true) {
         // 切换到提交视图，需要检查是否登录
         if (this.$store.getters.username.length === 0) {
-          EventBus.$emit("goLogin");
+          EventBus.$emit('goLogin');
           this.$message({
-            message: "请登录后提交评测",
-            type: "info"
+            message: '请登录后提交评测',
+            type: 'info'
           });
         } else {
           // 拉取最近一次提交的代码
           let id = parseInt(this.$route.params.id);
           if (!this.isFetchedLatestSource) {
             let res;
-            if (this.$route.name == "problem") {
+            if (this.$route.name == 'problem') {
               res = await getLatestSource(id);
             } else {
               let num = parseInt(this.$route.params.num);
@@ -281,14 +300,14 @@ export default {
       const self = this;
       if (self.form.source.length == 0) {
         self.$message({
-          message: "代码不能为空",
-          type: "error"
+          message: '代码不能为空',
+          type: 'error'
         });
         return;
       }
       self.testRunForm.source = self.form.source;
       self.testRunForm.language = self.form.language;
-      self.outputText = "正在评测中，耐心请等待.......";
+      self.outputText = '正在评测中，耐心请等待.......';
 
       // 短暂时间内无法重复提交评测
       let countDown = testRunInterval;
@@ -309,23 +328,25 @@ export default {
         let res = await submitTestRunCode(self.testRunForm);
         self.$message({
           message: res.data.message,
-          type: "success"
+          type: 'success'
         });
         self.outputText = res.data.custom_output;
       } catch (err) {
         self.$message({
           message: err.response.data.message,
-          type: "error"
+          type: 'error'
         });
         console.log(err);
       }
     },
-    async submitToJudge() {
+    submitToJudge: debounce(500, async function() {
       const self = this;
+      self.submitButtonDisabled = true;
+      self.submitButtonInLoading = true;
       if (self.form.source.length == 0) {
         self.$message({
-          message: "代码不能为空",
-          type: "error"
+          message: '代码不能为空',
+          type: 'error'
         });
         return;
       }
@@ -333,59 +354,51 @@ export default {
         let res = await submitJudgeCode(self.form);
         self.$message({
           message: res.data.message,
-          type: "success"
+          type: 'success'
         });
         self.$router.push({
-          name: "solution",
-          params: { id: res.data.solution.id }
+          name: 'solution',
+          params: {id: res.data.solution.id}
         });
       } catch (err) {
         self.$message({
           message: err.response.data.message,
-          type: "error"
+          type: 'error'
         });
         console.log(err);
+      } finally {
+        self.submitButtonDisabled = false;
+        self.submitButtonInLoading = false;
       }
-    },
+    }),
     jumpToIssues() {
       let routerResolve = this.$router.resolve({
-        name: "problemIssueList",
+        name: 'problemIssueList',
         params: {
           id: this.problem.id
         }
       });
-      window.open(routerResolve.href, "_blank");
+      window.open(routerResolve.href, '_blank');
     },
     jumpToSolutions() {
-      if (this.$route.name == "problem") {
-        this.$store.dispatch("setSolutionFilter", {
+      if (this.$route.name == 'problem') {
+        this.$store.dispatch('setSolutionFilter', {
           queryParam: this.problem.id
         });
         this.$router.push({
-          name: "status"
+          name: 'status'
         });
       } else {
         let num = Number.parseInt(this.$route.params.num);
-        this.$store.dispatch("setSolutionFilter", {
+        this.$store.dispatch('setSolutionFilter', {
           queryParam: this.engNum(num)
         });
         this.$router.push({
-          name: "contestStatus",
+          name: 'contestStatus',
           params: {
             id: this.$route.params.id
           }
         });
-      }
-    }
-  },
-  computed: {
-    problemTitle() {
-      if (this.$route.name == "problem" && this.problem != null) {
-        return `P${this.problem.id}  ${this.problem.title}`;
-      } else if (this.$route.name == "contestProblem" && this.problem != null) {
-        let num = Number.parseInt(this.$route.params.num);
-        let engNum = this.engNum(num);
-        return `C${this.$route.params.id}  ${engNum} ${this.problem.title}`;
       }
     }
   }

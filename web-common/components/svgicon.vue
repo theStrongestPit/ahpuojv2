@@ -5,17 +5,15 @@
 
 <script>
 export default {
-  name: "svg-icon",
-  data() {
-    return {};
-  },
+  name: 'SvgIcon',
   props: {
     name: {
       type: String,
       required: true
     },
     className: {
-      type: String
+      type: String,
+      default: ''
     }
   },
   computed: {
@@ -24,9 +22,9 @@ export default {
     },
     iconClass() {
       if (this.className) {
-        return "icon " + this.className;
+        return 'icon ' + this.className;
       } else {
-        return "icon";
+        return 'icon';
       }
     }
   }

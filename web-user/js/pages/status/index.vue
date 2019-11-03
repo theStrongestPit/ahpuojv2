@@ -4,8 +4,8 @@
       .siderbar
         ul.siderbar__item__list
           li
-            el-button(size="mini",round,@click="handleSearchByResetConf()",style="margin-top:10px;") 重置
-            el-button(size="mini",round,@click="handleSearchMine(0)",style="margin-top:10px;",:disabled="$store.getters.username.length===0") 我的记录
+           el-button(size="mini",round,@click="handleSearchByResetConf()") 重置
+           el-button(size="mini",round,@click="handleSearchMine(0)",:disabled="$store.getters.username.length===0") 我的记录
           li
             .section__title 按问题检索：
             .siderbar__searchbar__wrapper
@@ -20,18 +20,18 @@
             .section__title 按语言检索：
             ul.button-list
               li
-                el-button(size="mini",:class="['tag__button',language==-1?'tag__button__active':'']", @click="handleSearchByLanguage(-1)", round) 全部
+                el-button(size="mini",round,:class="[language == -1?'is-active':'']", @click="handleSearchByLanguage(-1)",) 全部
               template(v-for="item,index in langList")
                 li(v-if="item.available")
-                  el-button(size="mini",:class="['tag__button',language==index?'tag__button__active':'']",@click="handleSearchByLanguage(index)",round) {{item.name}}
+                  el-button(size="mini",round,:class="[language == index?'is-active':'']",@click="handleSearchByLanguage(index)") {{item.name}}
           li
             .section__title 按结果检索：
             ul.button-list
               li
-                el-button(size="mini",:class="['tag__button',result==-1?'tag__button__active':'']", @click="handleSearchByResult(-1)", round) 全部
+                el-button(size="mini",round,:class="[result==-1?'is-active':'']", @click="handleSearchByResult(-1)") 全部
               template(v-for="item in searchableResultList")
                 li
-                  el-button(size="mini",:class="['tag__button',result==item.code?'tag__button__active':'']", @click="handleSearchByResult(item.code)", round) {{item.name}}
+                  el-button(size="mini",round,:class="[result==item.code?'is-active':'']", @click="handleSearchByResult(item.code)") {{item.name}}
       .main
         h1.content__panel__title 评测记录
         el-table(:data="tableData", style="width: 100%", class="dataTable", v-loading="loading")
@@ -72,19 +72,25 @@
 </template>
 
 <script>
-import { getSolutionList, getLanguageList } from "@/web-user/js/api/nologin.js";
-import { resultList } from "@/web-common/const";
+import {getSolutionList, getLanguageList} from '@/web-user/js/api/nologin.js';
+import {resultList} from '@/web-common/const';
 export default {
+  props: {
+    screenWidth: {
+      type: Number,
+      default: 1920
+    }
+  },
   data() {
     return {
       loading: false,
       currentPage: 1,
       perpage: 20,
       tableData: [],
-      queryParam: "",
+      queryParam: '',
       contestId: 0,
       contestPnum: -1,
-      nick: "",
+      nick: '',
       language: -1,
       result: -1,
       total: 0,
@@ -93,9 +99,21 @@ export default {
       timer: 0
     };
   },
-  props: {
-    screenWidth: {
-      type: Number
+  computed: {
+    searchableResultList() {
+      return this.resultList.filter((val, index, arr) => {
+        return val.code >= 4 && val.code <= 11;
+      });
+    }
+  },
+  watch: {
+    $route(to, from) {
+      if (
+        (from.name == 'contestStatus' && to.name == 'status') ||
+        (to.name == 'contestStatus' && from.name == 'status')
+      ) {
+        this.$router.replace({name: 'refresh'});
+      }
     }
   },
   async mounted() {
@@ -103,6 +121,45 @@ export default {
     this.resultList = resultList;
     this.langList = res.data.languages;
   },
+  beforeDestroy() {
+    // 关闭定时器
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  },
+  activated() {
+    if (this.$route.name == 'contestStatus') {
+      this.contestId = this.$route.params.id;
+    } else {
+      this.contestId = 0;
+    }
+    // 如果bus中记录了搜索条件 获得bus中的搜索条件
+    if ('' + this.$store.getters.solutionQueryParam) {
+      this.queryParam = '' + this.$store.getters.solutionQueryParam;
+    }
+    if ('' + this.$store.getters.solutionUserNick) {
+      this.nick = '' + this.$store.getters.solutionUserNick;
+    }
+    if (this.$store.getters.solutionLanguage != -1) {
+      this.language = this.$store.getters.solutionLanguage;
+    }
+    if (this.$store.getters.solutionResult != -1) {
+      this.result = this.$store.getters.solutionResult;
+    }
+    this.$store.dispatch('resetSolutionFilter');
+    // 5s请求一次数据
+    this.fetchData();
+    this.timer = setInterval(() => {
+      this.fetchData();
+    }, 5000);
+  },
+  deactivated() {
+    // 关闭定时器
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  },
+
   methods: {
     async fetchData() {
       const self = this;
@@ -128,8 +185,8 @@ export default {
     },
     handleSearchByResetConf() {
       this.loading = true;
-      this.queryParam = "";
-      this.nick = "";
+      this.queryParam = '';
+      this.nick = '';
       this.language = -1;
       this.result = -1;
       this.fetchData();
@@ -175,72 +232,17 @@ export default {
     },
     calcRate(row) {
       let rate = row.submit == 0 ? 0 : row.solved / row.submit;
-      return Number(rate * 100).toFixed(2) + "%";
+      return Number(rate * 100).toFixed(2) + '%';
     },
     calcRerultType(result) {
       if (result == 4) {
-        return "success";
+        return 'success';
       } else {
-        return "danger";
+        return 'danger';
       }
     },
     calcCodeLength(codeLength) {
-      return Number(codeLength / 1000).toFixed(2) + "KB";
-    }
-  },
-  computed: {
-    searchableResultList() {
-      return this.resultList.filter((val, index, arr) => {
-        return val.code >= 4 && val.code <= 11;
-      });
-    }
-  },
-  activated() {
-    if (this.$route.name == "contestStatus") {
-      this.contestId = this.$route.params.id;
-    } else {
-      this.contestId = 0;
-    }
-    // 如果bus中记录了搜索条件 获得bus中的搜索条件
-    if ("" + this.$store.getters.solutionQueryParam) {
-      this.queryParam = "" + this.$store.getters.solutionQueryParam;
-    }
-    if ("" + this.$store.getters.solutionUserNick) {
-      this.nick = "" + this.$store.getters.solutionUserNick;
-    }
-    if (this.$store.getters.solutionLanguage != -1) {
-      this.language = this.$store.getters.solutionLanguage;
-    }
-    if (this.$store.getters.solutionResult != -1) {
-      this.result = this.$store.getters.solutionResult;
-    }
-    this.$store.dispatch("resetSolutionFilter");
-    // 5s请求一次数据
-    this.fetchData();
-    this.timer = setInterval(() => {
-      this.fetchData();
-    }, 5000);
-  },
-  deactivated() {
-    // 关闭定时器
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-  },
-  beforeDestroy() {
-    // 关闭定时器
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-  },
-  watch: {
-    $route(to, from) {
-      if (
-        (from.name == "contestStatus" && to.name == "status") ||
-        (to.name == "contestStatus" && from.name == "status")
-      ) {
-        this.$router.replace({ name: "refresh" });
-      }
+      return Number(codeLength / 1000).toFixed(2) + 'KB';
     }
   }
 };

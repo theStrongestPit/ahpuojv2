@@ -20,12 +20,18 @@
 </template>
 
 <script>
-import TinymceEditor from "@/web-common/components/tinymce_editor.vue";
-import { EventBus } from "@/web-common/eventbus";
-import { getMyReplys } from "@/web-user/js/api/user.js";
+import TinymceEditor from '@/web-common/components/tinymce_editor.vue';
+import {EventBus} from '@/web-common/eventbus';
+import {getMyReplys} from '@/web-user/js/api/user.js';
 export default {
   components: {
     TinymceEditor
+  },
+  props: {
+    screenWidth: {
+      type: Number,
+      default: 1920
+    }
   },
   data() {
     return {
@@ -35,11 +41,6 @@ export default {
       replys: [],
       total: 0
     };
-  },
-  props: {
-    screenWidth: {
-      type: Number
-    }
   },
   mounted() {
     this.fetchData();
@@ -63,7 +64,7 @@ export default {
       }
     },
     calcContent(content) {
-      return content.length <= 100 ? content : content.substr(0, 100) + "...";
+      return content.length <= 100 ? content : content.substr(0, 100) + '...';
     }
   }
 };
@@ -71,15 +72,15 @@ export default {
 
 <style lang="scss" scoped>
 .reply__box {
-  background: $c15;
+  background: $--color-level15;
   position: relative;
   margin-top: 0.2rem;
   padding: 0 0.1rem 0.1rem 0.1rem;
-  border-bottom: 1px solid $c13;
+  border-bottom: 1px solid $--color-level13;
   text-align: left;
   .reply__content {
     border-radius: 5px;
-    background: $c14;
+    background: $--color-level14;
     padding: 0.1rem;
     position: relative;
     box-sizing: border-box;

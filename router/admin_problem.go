@@ -17,6 +17,7 @@ func ApiAdminProblemRouter(g *gin.RouterGroup) {
 	g.GET("/problem/:id/datas", controller.IndexProblemData)
 	g.GET("/problem/:id/data/:filename", controller.GetProblemData)
 	g.POST("/problem/:id/data", controller.AddProblemData)
+	g.POST("/problem/:id/datafile", controller.AddProblemDataFile)
 	g.PUT("/problem/:id/data/:filename", controller.EditProblemData)
 	g.DELETE("/problem/:id/data/:filename", controller.DeleteProblemData)
 

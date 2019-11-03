@@ -16,7 +16,6 @@
 
 <script>
 export default {
-  name: "importproblem",
   data() {
     return {};
   },
@@ -27,20 +26,20 @@ export default {
     handleUploadSuccess(response, file, fileList) {
       console.log(response);
       this.$notify({
-        title: "成功",
+        title: '成功',
         message: response.message,
-        type: "success"
+        type: 'success'
       });
-      let message = "";
+      let message = '';
       for (let index in response.info) {
-        message += response.info[index] + "</br>";
+        message += response.info[index] + '</br>';
       }
       this.$alert(message, {
         dangerouslyUseHTMLString: true
       });
     },
     handleUploadError(err, file, fileList) {
-      console.log("error", response);
+      console.log('error', response);
     }
   }
 };

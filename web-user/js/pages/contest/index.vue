@@ -8,13 +8,13 @@
             .header 竞赛信息
           li  状态：
               template(v-if="contest")
-                span.text-button.text-button--success(v-if="contest.status==1") 未开始
-                span.text-button.text-button--primary(v-if="contest.status==2") 进行中
-                span.text-button.text-button--danger(v-if="contest.status==3") 已结束
+                oj-tag(v-if="contest.status==1",type="success") 未开始
+                oj-tag(v-if="contest.status==2",type="primary") 进行中
+                oj-tag(v-if="contest.status==3",type="danger") 已结束
           li 模式：
               template(v-if="contest")          
-                span.text-button(:class="[contest.private == 1 ? 'text-button--danger':'text-button--success']")  {{ contest.private == 1?"私有赛":"公开赛" }}
-                span.text-button(:class="[contest.team_mode == 0 ? 'text-button--success':'text-button--primary']")  {{ contest.team_mode == 0?"个人赛":"团体赛" }}
+                oj-tag(:type="contest.private == 1 ? 'danger':'success'")  {{ contest.private == 1?"私有赛":"公开赛" }}
+                oj-tag(:type="contest.team_mode == 0 ? 'success':'primary'")  {{ contest.team_mode == 0?"个人赛":"团体赛" }}
           li 
             div 开始时间：
             p(v-if="contest") {{contest.start_time}}
@@ -48,75 +48,22 @@
 </template>
 
 <script>
-import { getContest } from "@/web-user/js/api/nologin.js";
-import CodeMirror from "@/web-common/components/codemirror.vue";
-import { getLanguageList } from "@/web-user/js/api/nologin.js";
-import { EventBus } from "@/web-common/eventbus";
-import { submitJudgeCode } from "@/web-user/js/api/user.js";
+import OjTag from '@/web-common/components/ojtag';
+import {getContest} from '@/web-user/js/api/nologin.js';
+import {getLanguageList} from '@/web-user/js/api/nologin.js';
+import {EventBus} from '@/web-common/eventbus';
+import {submitJudgeCode} from '@/web-user/js/api/user.js';
 export default {
   components: {
-    CodeMirror
+    OjTag
   },
   data() {
     return {
       seeable: false,
-      reason: "",
+      reason: '',
       contest: null,
       langList: []
     };
-  },
-  mounted() {
-    this.init();
-  },
-  methods: {
-    async init() {
-      console.log("initing");
-      const self = this;
-      let res = await getLanguageList();
-      this.langList = res.data.languages;
-      let id = self.$route.params.id;
-      try {
-        let res = await getContest(id);
-        console.log(res);
-        let data = res.data;
-        self.contest = data.contest;
-        self.seeable = data.seeable;
-        self.reason = data.reason;
-      } catch (err) {
-        console.log(err);
-        self.$router.replace({ name: "404Page" });
-      }
-    },
-    jumpToStatus() {
-      const self = this;
-      let routerResolve = self.$router.resolve({
-        name: "contestStatus",
-        params: {
-          id: self.contest.id
-        }
-      });
-      window.open(routerResolve.href, "_blank");
-    },
-    jumpToRank() {
-      const self = this;
-      let routerResolve = self.$router.resolve({
-        name: "contestRank",
-        params: {
-          id: self.contest.id
-        }
-      });
-      window.open(routerResolve.href, "_blank");
-    },
-    jumpToTeamRank() {
-      const self = this;
-      let routerResolve = self.$router.resolve({
-        name: "contestTeamRank",
-        params: {
-          id: self.contest.id
-        }
-      });
-      window.open(routerResolve.href, "_blank");
-    }
   },
   computed: {
     contestStatus() {
@@ -147,16 +94,70 @@ export default {
       left = left % (60 * 1000);
       let seconds = Math.round(left / 1000);
 
-      let res = "";
-      res += days ? `${days}天` : "";
-      res += hours ? `${hours}小时` : "";
-      res += minutes ? `${minutes}分钟` : "";
-      res += seconds ? `${seconds}秒` : "";
+      let res = '';
+      res += days ? `${days}天` : '';
+      res += hours ? `${hours}小时` : '';
+      res += minutes ? `${minutes}分钟` : '';
+      res += seconds ? `${seconds}秒` : '';
       return res;
     }
   },
+  mounted() {
+    this.init();
+  },
+  methods: {
+    async init() {
+      console.log('initing');
+      const self = this;
+      let res = await getLanguageList();
+      this.langList = res.data.languages;
+      let id = self.$route.params.id;
+      try {
+        let res = await getContest(id);
+        console.log(res);
+        let data = res.data;
+        self.contest = data.contest;
+        self.seeable = data.seeable;
+        self.reason = data.reason;
+      } catch (err) {
+        console.log(err);
+        self.$router.replace({name: '404Page'});
+      }
+    },
+    jumpToStatus() {
+      const self = this;
+      let routerResolve = self.$router.resolve({
+        name: 'contestStatus',
+        params: {
+          id: self.contest.id
+        }
+      });
+      window.open(routerResolve.href, '_blank');
+    },
+    jumpToRank() {
+      const self = this;
+      let routerResolve = self.$router.resolve({
+        name: 'contestRank',
+        params: {
+          id: self.contest.id
+        }
+      });
+      window.open(routerResolve.href, '_blank');
+    },
+    jumpToTeamRank() {
+      const self = this;
+      let routerResolve = self.$router.resolve({
+        name: 'contestTeamRank',
+        params: {
+          id: self.contest.id
+        }
+      });
+      window.open(routerResolve.href, '_blank');
+    }
+  },
+
   beforeRouteUpdate(to, from, next) {
-    console.log("beforeRouteUpdate!!");
+    console.log('beforeRouteUpdate!!');
     this.init();
     next();
   }

@@ -15,9 +15,9 @@
           a(:href="`/contest/${scope.row.id}`" target="_blank") {{scope.row.name}}
       el-table-column(label="状态", width="240")
         template(slot-scope="scope")
-          span(class="text-button",:class="[scope.row.defunct == 0 ? 'text-button--success':'text-button--danger']") {{scope.row.defunct == 0?'启用':'保留'}}
-          span(class="text-button",:class="[scope.row.private == 0 ? 'text-button--success':'text-button--danger']") {{scope.row.private == 0?'公开':'私有'}}
-          span(class="text-button",:class="[scope.row.team_mode == 0 ? 'text-button--success':'text-button--primary']") {{scope.row.team_mode == 0?'个人':'团队'}}
+          oj-tag(:type="scope.row.defunct == 0 ? 'success':'danger'") {{scope.row.defunct == 0?'启用':'保留'}}
+          oj-tag(:type="scope.row.private == 0 ? 'success':'danger'") {{scope.row.private == 0?'公开':'私有'}}
+          oj-tag(:type="scope.row.team_mode == 0 ? 'success':'primary'") {{scope.row.team_mode == 0?'个人':'团队'}}
       el-table-column(label="操作", width="300")
         template(slot-scope="scope")
           el-button(size="mini", type="primary", @click="$router.push({name:'adminEditContest',params:{id:scope.row.id}})") 编辑
@@ -29,14 +29,18 @@
 </template>
 
 <script>
+import OjTag from '@/web-common/components/ojtag';
 import {
   getContestList,
   editContest,
   deleteContest,
   toggleContestStatus
-} from "@/web-admin/js/api/contest.js";
+} from '@/web-admin/js/api/contest.js';
 
 export default {
+  components: {
+    OjTag
+  },
   data() {
     return {
       loading: true,
@@ -44,11 +48,11 @@ export default {
       currentRowId: 0,
       perpage: 10,
       total: 0,
-      queryParam: "",
+      queryParam: '',
       tableData: []
     };
   },
-  mounted() {
+  activated() {
     this.fetchDataList();
   },
   methods: {
@@ -82,45 +86,45 @@ export default {
     },
     async handleToggleContestStatus(row) {
       const self = this;
-      let msg = `确认要${row.defunct == 0 ? "保留" : "启用"}竞赛${row.name}吗?`;
+      let msg = `确认要${row.defunct == 0 ? '保留' : '启用'}竞赛${row.name}吗?`;
       try {
-        await self.$confirm(msg, "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        await self.$confirm(msg, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         });
         try {
           let res = await toggleContestStatus(row.id);
           self.$message({
-            type: "success",
+            type: 'success',
             message: res.data.message
           });
           row.defunct = !row.defunct;
         } catch (err) {
           self.$message({
-            type: "error",
+            type: 'error',
             message: err.response.data.message
           });
         }
       } catch (err) {
         self.$message({
-          type: "info",
-          message: "已取消操作"
+          type: 'info',
+          message: '已取消操作'
         });
       }
     },
     async handleDeleteContest(row) {
       const self = this;
       try {
-        await self.$confirm(`确认要删除竞赛${row.name}吗?`, "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        await self.$confirm(`确认要删除竞赛${row.name}吗?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         });
         try {
           let res = await deleteContest(row.id);
           self.$message({
-            type: "success",
+            type: 'success',
             message: res.data.message
           });
           // 删除最后一页最后一条记录，如果不是第一页，则当前页码-1
@@ -132,20 +136,17 @@ export default {
           self.fetchDataList();
         } catch (err) {
           self.$message({
-            type: "error",
+            type: 'error',
             message: err.response.data.message
           });
         }
       } catch (err) {
         self.$message({
-          type: "info",
-          message: "已取消删除"
+          type: 'info',
+          message: '已取消删除'
         });
       }
     }
-  },
-  activated() {
-    this.fetchDataList();
   }
 };
 </script>

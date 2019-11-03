@@ -10,25 +10,16 @@
 </template>
 
 <script>
-import TopBar from "@/web-user/js/common/topbar.vue";
+import TopBar from '@/web-user/js/common/topbar.vue';
 
 export default {
-  name: "app",
+  name: 'Layout',
   components: {
     TopBar
   },
   data() {
     return {
       screenWidth: document.body.clientWidth
-    };
-  },
-  mounted() {
-    const self = this;
-    window.onresize = () => {
-      return (() => {
-        window.screenWidth = document.body.clientWidth;
-        self.screenWidth = window.screenWidth;
-      })();
     };
   },
   watch: {
@@ -46,6 +37,15 @@ export default {
         }, 400);
       }
     }
+  },
+  mounted() {
+    const self = this;
+    window.onresize = () => {
+      return (() => {
+        window.screenWidth = document.body.clientWidth;
+        self.screenWidth = window.screenWidth;
+      })();
+    };
   }
 };
 </script>
@@ -60,7 +60,7 @@ export default {
   opacity: 0;
 }
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

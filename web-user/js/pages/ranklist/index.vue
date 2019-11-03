@@ -26,10 +26,15 @@
 </template>
 
 <script>
-import { getRankList } from "@/web-user/js/api/nologin.js";
-import { setTimeout } from "timers";
+import {getRankList} from '@/web-user/js/api/nologin.js';
+import {setTimeout} from 'timers';
 export default {
-  name: "",
+  props: {
+    screenWidth: {
+      type: Number,
+      default: 1920
+    }
+  },
   data() {
     return {
       loading: false,
@@ -39,11 +44,6 @@ export default {
       tableData: [],
       total: 0
     };
-  },
-  props: {
-    screenWidth: {
-      type: Number
-    }
   },
   mounted() {
     this.fetchData();
@@ -70,7 +70,7 @@ export default {
     },
     calcRate(row) {
       let rate = row.submit == 0 ? 0 : row.solved / row.submit;
-      return Number(rate * 100).toFixed(2) + "%";
+      return Number(rate * 100).toFixed(2) + '%';
     }
   }
 };

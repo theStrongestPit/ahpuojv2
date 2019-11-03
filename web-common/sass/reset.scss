@@ -568,7 +568,6 @@ video {
 }
 
 // triangle 三角箭头
-// 可采用空元素或伪元素生成，具体定位这里不涉及
 %triangle-basic {
     position: absolute;
     content: "";

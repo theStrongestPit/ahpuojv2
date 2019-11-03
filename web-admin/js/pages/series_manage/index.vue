@@ -19,8 +19,8 @@
       el-table-column(label="名称", prop="name", width="180")
       el-table-column(label="模式", min-width="150")
         template(slot-scope="scope")
-          span(:class="['text-button', scope.row.private == 1 ? 'text-button--danger':'text-button--success']") {{ scope.row.private == 1?"私有赛":"公开赛" }}
-          span(:class="['text-button', scope.row.team_mode == 0 ? 'text-button--success':'text-button--primary']") {{ scope.row.team_mode == 0?"个人赛":"团体赛" }}
+          oj-tag(:type="scope.row.private == 1 ? 'danger':'success'") {{ scope.row.private == 1?"私有赛":"公开赛" }}
+          oj-tag(:type="scope.row.team_mode == 0 ? 'success':'primary'") {{ scope.row.team_mode == 0?"个人赛":"团体赛" }}
       el-table-column(label="操作", width="180")
         template(slot-scope="scope")
           el-button(size="mini", type="danger", @click="handleDeleteSeriesContest(scope.row)") 删除
@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import OjTag from "@/web-common/components/ojtag";
 import {
   getSeriesContestList,
   getSeries,
@@ -45,6 +46,9 @@ import {
 
 import { getAllContests } from "@/web-admin/js/api/contest.js";
 export default {
+  components: {
+    OjTag
+  },
   data() {
     return {
       loading: true,

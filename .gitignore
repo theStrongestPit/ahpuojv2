@@ -2,3 +2,14 @@
 /upload
 /dist
 /.vscode
+/config/config.ini
+package-lock.json
+ahpuoj
+/docker/dev/.env
+/docker/dev/data
+/docker/prod/.env
+/docker/prod/data
+/docker/prod/web
+/docker/prod/core
+/docker/prod/ahpuojv2-deploy/assets/install/config.ini
+/migrate

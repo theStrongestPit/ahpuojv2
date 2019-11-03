@@ -15,8 +15,8 @@
       el-table-column(label="名称", prop="name", min-width="300")
       el-table-column(label="状态", width="240")
         template(slot-scope="scope")
-          span(class="text-button",:class="[scope.row.defunct == 0 ? 'text-button--success':'text-button--danger']") {{scope.row.defunct == 0?'启用':'保留'}}
-          span(class="text-button",:class="[scope.row.team_mode == 0 ? 'text-button--success':'text-button--primary']") {{scope.row.team_mode == 0?'个人':'团队'}}
+          oj-tag(:type="scope.row.defunct == 0 ? 'success':'danger'") {{scope.row.defunct == 0?'启用':'保留'}}
+          oj-tag(:type="scope.row.team_mode == 0 ? 'success':'primary'") {{scope.row.team_mode == 0?'个人':'团队'}}
       el-table-column(label="操作", width="300")
         template(slot-scope="scope")
           el-button(size="mini", type="primary", @click="$router.push({name:'adminSeriesManage',params:{id:scope.row.id}})") 管理
@@ -39,42 +39,46 @@
 </template>
 
 <script>
+import OjTag from '@/web-common/components/ojtag';
 import {
   getSeriesList,
   createSeries,
   editSeries,
   deleteSeries,
   toggleSeriesStatus
-} from "@/web-admin/js/api/series.js";
+} from '@/web-admin/js/api/series.js';
 
 export default {
+  components: {
+    OjTag
+  },
   data() {
     return {
       loading: true,
       currentPage: 1,
       currentRowId: 0,
       perpage: 10,
-      queryParam: "",
+      queryParam: '',
       total: 0,
-      dialogFormTitle: "",
+      dialogFormTitle: '',
       dialogFormVisible: false,
-      submitMode: "",
+      submitMode: '',
       form: {
-        name: "",
+        name: '',
         team_mode: 0,
-        description: ""
+        description: ''
       },
       rules: {
         name: [
           {
             required: true,
-            message: "请输入系列赛名称",
-            trigger: "blur"
+            message: '请输入系列赛名称',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "超出长度限制",
-            trigger: "blur"
+            message: '超出长度限制',
+            trigger: 'blur'
           }
         ]
       },
@@ -82,6 +86,9 @@ export default {
     };
   },
   mounted() {
+    this.fetchDataList();
+  },
+  activated() {
     this.fetchDataList();
   },
   methods: {
@@ -116,8 +123,8 @@ export default {
     },
     openDialog() {
       this.$notify({
-        title: "提示",
-        message: "系列赛中只会显示与系列赛模式相同的比赛数据！",
+        title: '提示',
+        message: '系列赛中只会显示与系列赛模式相同的比赛数据！',
         duration: 6000
       });
       this.$refs.form.clearValidate();
@@ -126,30 +133,30 @@ export default {
     closeDialog() {
       this.$refs.form.resetFields();
       this.$refs.input.blur();
-      this.form.name = "";
-      this.form.description = "";
+      this.form.name = '';
+      this.form.description = '';
       this.form.team_mode = 0;
     },
     submit() {
       const self = this;
-      self.$refs["form"].validate(async valid => {
+      self.$refs['form'].validate(async valid => {
         if (valid) {
           try {
             let res;
-            if (self.submitMode == "create") {
+            if (self.submitMode == 'create') {
               res = await createSeries(self.form);
             } else {
               res = await editSeries(self.currentRowId, self.form);
             }
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
             self.fetchDataList();
           } catch (err) {
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
           self.dialogFormVisible = false;
@@ -162,13 +169,13 @@ export default {
       this.dialogFormVisible = false;
     },
     handleCreateSeries() {
-      this.dialogFormTitle = "新建系列赛";
-      this.submitMode = "create";
+      this.dialogFormTitle = '新建系列赛';
+      this.submitMode = 'create';
       this.dialogFormVisible = true;
     },
     handleEditSeries(row) {
-      this.dialogFormTitle = "编辑系列赛";
-      this.submitMode = "edit";
+      this.dialogFormTitle = '编辑系列赛';
+      this.submitMode = 'edit';
       this.currentRowId = row.id;
       this.form.name = row.name;
       this.form.description = row.description;
@@ -177,66 +184,63 @@ export default {
     },
     async handleToggleSeriesStatus(row) {
       const self = this;
-      let msg = `确认要${row.defunct == 0 ? "保留" : "启用"}系列赛${
+      let msg = `确认要${row.defunct == 0 ? '保留' : '启用'}系列赛${
         row.name
       }吗?`;
       try {
-        await self.$confirm(msg, "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        await self.$confirm(msg, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         });
         try {
           let res = await toggleSeriesStatus(row.id);
           self.$message({
-            type: "success",
+            type: 'success',
             message: res.data.message
           });
           row.defunct = !row.defunct;
         } catch (err) {
           self.$message({
-            type: "error",
+            type: 'error',
             message: err.response.data.message
           });
         }
       } catch (err) {
         self.$message({
-          type: "info",
-          message: "已取消操作"
+          type: 'info',
+          message: '已取消操作'
         });
       }
     },
     async handleDeleteContest(row) {
       const self = this;
       try {
-        await self.$confirm(`确认要删除问题${row.name}吗?`, "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        await self.$confirm(`确认要删除问题${row.name}吗?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         });
         try {
           let res = await deleteContest(row.id);
           self.$message({
-            type: "success",
+            type: 'success',
             message: res.data.message
           });
           self.fetchContestList();
         } catch (err) {
           self.$message({
-            type: "error",
+            type: 'error',
             message: err.response.data.message
           });
         }
       } catch (err) {
         self.$message({
-          type: "info",
-          message: "已取消删除"
+          type: 'info',
+          message: '已取消删除'
         });
       }
     }
-  },
-  activated() {
-    this.fetchDataList();
   }
 };
 </script>

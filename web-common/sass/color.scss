@@ -1,130 +1,49 @@
-// 项目主色调 p前缀 l代表light d代表deep
-$porange:#FFCC99;
-$pgold:#FFFFCC;
-$pazure:#CCFFFF;
-$pdgreen:#99CCCC;
-$plgreen:#CCFFCC;
-$ppurple:#CCCCFF;
-$plblue:#99ccff;
-$pblue:#0099CC;
-$pdblue:#336699;
-$pddblue:#003366;
-$pgreen:#99CC33;
+// 项目主色调
+$--color-orange:#FFCC99 !default;
+$--color-gold:#FFFFCC !default;
+$--color-azure:#CCFFFF !default;
+$--color-green-deep:#99CCCC !default;
+$--color-green-light:#CCFFCC !default;
+$--color-purple:#CCCCFF !default;
+$--color-blue-light:#99ccff !default;
+$--color-blue:#0099CC !default;
+$--color-blue-deep:#336699 !default;
+$--color-blue-verydeep:#003366 !default;
+$--color-green:#99CC33 !default;
 
-$red: red;
-$green: green;
-$blue: blue;
-$black: black;
-$white: white;
-$yellow: yellow;
-$gold: gold;
-$purple: purple;
-$cyan: cyan;
-$orange: orange;
-$orangered: orangered;
-$pink: pink;
-$violet: violet;
-$yellowgreen: yellowgreen;
-$tomato: tomato;
-$tan: tan;
-$snow: snow;
-$gray: gray;
-$silver: silver;
-$skyblue: skyblue;
-$navy: navy;
-$brown: brown;
-$beige: beige;
-$magenta: magenta;
+$--color-primary :#409EFF !default;
+$--color-success :#85ce61 !default;
+$--color-info: #909399 !default;
+$--color-danger :#f78989 !default;
+$--color-warnning :#e6a23c !default;
 
+$--color-level0: #000000 !default;
+$--color-level1: #111111 !default;
+$--color-level2: #222222 !default;
+$--color-level3: #333333 !default;
+$--color-level4: #444444 !default;
+$--color-level5: #555555 !default;
+$--color-level6: #666666 !default;
+$--color-level7: #777777 !default;
+$--color-level8: #888888 !default;
+$--color-level9: #999999 !default;
+$--color-level10: #aaaaaa !default;
+$--color-level11: #bbbbbb !default;
+$--color-level12: #cccccc !default;
+$--color-level13: #dddddd !default;
+$--color-level14: #eeeeee !default;
+$--color-level15: #ffffff !default;
 
-$c0: #000;
-$c1: #111;
-$c2: #222;
-$c3: #333;
-$c4: #444;
-$c5: #555;
-$c6: #666;
-$c7: #777;
-$c8: #888;
-$c9: #999;
-$c10: #aaa;
-$c11: #bbb;
-$c12: #ccc;
-$c13: #ddd;
-$c14: #eee;
-$c15: #fff;
+$--title-color:#181818 !default;
 
-$c21: #212121;
-$ef: #EFEFEF;
+$--text-color: #606266 !default;
+$--text-color-hover: #409EFF;
+$--text-color-disabled: mix($--text-color,$--color-level15,50%);
 
-$ctitle:#181818;
+$--border-color-base: #dcdfe6 !default;
+$--border-color-hover: mix($--color-primary, $--color-level15, 50%);
+$--border-color-active: mix($--color-primary, $--color-level15, 90%);
 
-.red { color: $red; }
-.green { color: $green; }
-.blue { color: $blue; }
-.black { color: $black; }
-.white { color: $white; }
-.yellow { color: $yellow; }
-.gold { color: $gold; }
-.purple { color: $purple; }
-.cyan { color: $cyan; }
-.orange { color: $orange; }
-.orangered { color: $orangered; }
-.pink { color: $pink; }
-.violet { color: $violet; }
-.yellowgreen { color: $yellowgreen; }
-.tomato { color: $tomato; }
-.tan { color: $tan; }
-.snow { color: $snow; }
-.gray { color: $gray; }
-.silver { color: $silver; }
-.skyblue { color: $skyblue; }
-.navy { color: $navy; }
-.brown { color: $brown; }
-.beige { color: $beige; }
-.magenta { color: $magenta; }
-
-.c0{ color:$c0; }
-.c1{ color:$c1; }
-.c2{ color:$c2; }
-.c3{ color:$c3; }
-.c4{ color:$c4; }
-.c5{ color:$c5; }
-.c6{ color:$c6; } 
-.c7{ color:$c7; }
-.c8{ color:$c8; }
-.c9{ color:$c9; }
-.c10{ color:$c10; }
-.c11{ color:$c11; }
-.c12{ color:$c12; }
-.c13{ color:$c13; }
-.c14{ color:$c14; }
-.c15{ color:$c15; }
-
-.porange{
-    color:$porange;
-}
-.pgold{
-    color:$pgold;
-}
-.pazure{
-    color:$pazure;
-}
-.pdgreen{
-    color:$pdgreen;
-}
-.ppurple{
-    color:$ppurple;
-}
-.pblue{
-    color:$pblue;
-}
-.plblue{
-    color:$plblue;
-}
-.pdblue{
-    color:$pdblue;
-}
-.pgreen{
-    color:$pgreen;
-}
+$--background-color:mix($--color-level15, $--color-level0, 98%);
+$--background-color-hover:mix($--color-primary, $--color-level15, 10%);
+$--background-color-disabled:mix($--color-level15, $--color-level0, 96%);

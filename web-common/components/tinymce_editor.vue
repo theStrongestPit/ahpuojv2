@@ -4,22 +4,22 @@
 </template>
 
 <script>
-import tinymce from "tinymce/tinymce";
-import Editor from "@tinymce/tinymce-vue";
-import "tinymce/themes/silver/theme";
-import "tinymce/themes/mobile/theme";
-import "tinymce/plugins/image";
-import "tinymce/plugins/media";
-import "tinymce/plugins/table";
-import "tinymce/plugins/lists";
-import "tinymce/plugins/code";
-import "tinymce/plugins/wordcount";
-import "tinymce/plugins/colorpicker";
-import { server } from "@/web-common/const";
-import axios from "axios";
+import tinymce from 'tinymce/tinymce';
+import Editor from '@tinymce/tinymce-vue';
+import 'tinymce/themes/silver/theme';
+import 'tinymce/themes/mobile/theme';
+import 'tinymce/plugins/image';
+import 'tinymce/plugins/media';
+import 'tinymce/plugins/table';
+import 'tinymce/plugins/lists';
+import 'tinymce/plugins/code';
+import 'tinymce/plugins/wordcount';
+import 'tinymce/plugins/colorpicker';
+import {server} from '@/web-common/const';
+import axios from 'axios';
 
 export default {
-  name: "tinymce-editor",
+  name: 'TinymceEditor',
   components: {
     Editor
   },
@@ -27,7 +27,7 @@ export default {
     //传入一个value，使组件支持v-model绑定
     value: {
       type: String,
-      default: ""
+      default: ''
     },
     disabled: {
       type: Boolean,
@@ -35,12 +35,12 @@ export default {
     },
     plugins: {
       type: [String, Array],
-      default: "lists image table wordcount code"
+      default: 'lists image table wordcount code'
     },
     toolbar: {
       type: [String, Array],
       default:
-        "undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | image  table | removeformat"
+        'undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | image  table | removeformat'
     },
     height: {
       type: Number,
@@ -53,10 +53,10 @@ export default {
       init: {
         relative_urls: true,
         document_base_url: server,
-        language_url: "/static/tinymce/langs/zh_CN.js",
-        skin_url: "/static/tinymce/skins/ui/oxide",
-        content_css: "/static/tinymce/skins/ui/oxide/content.min.css",
-        language: "zh_CN",
+        language_url: '/static/tinymce/langs/zh_CN.js',
+        skin_url: '/static/tinymce/skins/ui/oxide',
+        content_css: '/static/tinymce/skins/ui/oxide/content.min.css',
+        language: 'zh_CN',
         height: this.height,
         resize: false,
         plugins: this.plugins,
@@ -66,25 +66,25 @@ export default {
         automatic_uploads: false,
         // 禁用移动主题
         mobile: {
-          theme: "silver"
+          theme: 'silver'
         },
         //此处为图片上传处理函数，这个直接用了base64的图片形式上传图片，
         //如需ajax上传可参考https://www.tiny.cloud/docs/configure/file-image-upload/#images_upload_handler
         images_upload_handler: (blobInfo, success, failure) => {
           let formData;
           formData = new FormData();
-          formData.append("file", blobInfo.blob(), blobInfo.filename());
+          formData.append('file', blobInfo.blob(), blobInfo.filename());
           let config = {
             //添加请求头
             headers: {
-              "Content-Type": "multipart/form-data",
+              'Content-Type': 'multipart/form-data',
               // 这个token是预先以admin用户签发的，仍有过期时间，一旦过期请重新使用token生成工具签发
               Authorization:
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NjAzNjg1NDQsInVzZXIiOiJhZG1pbiJ9.7K5BCDoodn10AH4Gwe_yDUDBSLWXnG-ogVFoGycQ7WU"
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NjAzNjg1NDQsInVzZXIiOiJhZG1pbiJ9.7K5BCDoodn10AH4Gwe_yDUDBSLWXnG-ogVFoGycQ7WU'
             }
           };
           axios
-            .post("/api/admin/image", formData, config)
+            .post('/api/admin/image', formData, config)
             .then(res => {
               success(res.data.url);
             })
@@ -97,24 +97,25 @@ export default {
       myValue: this.value
     };
   },
-  mounted() {},
-  methods: {
-    //添加相关的事件，可用的事件参照文档=> https://github.com/tinymce/tinymce-vue => All available events
-    //需要什么事件可以自己增加
-    onClick(e) {
-      this.$emit("onClick", e, tinymce);
-    },
-    //可以添加一些自己的自定义事件，如清空内容
-    clear() {
-      this.myValue = "";
-    }
-  },
+
   watch: {
     value(newValue) {
       this.myValue = newValue;
     },
     myValue(newValue) {
-      this.$emit("input", newValue);
+      this.$emit('input', newValue);
+    }
+  },
+  mounted() {},
+  methods: {
+    //添加相关的事件，可用的事件参照文档=> https://github.com/tinymce/tinymce-vue => All available events
+    //需要什么事件可以自己增加
+    onClick(e) {
+      this.$emit('onClick', e, tinymce);
+    },
+    //可以添加一些自己的自定义事件，如清空内容
+    clear() {
+      this.myValue = '';
     }
   }
 };

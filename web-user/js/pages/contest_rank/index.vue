@@ -28,11 +28,10 @@
 </template>
 
 <script>
-import { getContestRankList } from "@/web-user/js/api/nologin.js";
-import FileSaver from "file-saver";
-import XLSX from "xlsx";
+import {getContestRankList} from '@/web-user/js/api/nologin.js';
+import FileSaver from 'file-saver';
+import XLSX from 'xlsx';
 export default {
-  name: "",
   data() {
     return {
       problemColumnIOffset: 5,
@@ -40,8 +39,14 @@ export default {
       contest: null,
       timer: 0,
       seeable: false,
-      reason: ""
+      reason: ''
     };
+  },
+  beforeDestroy() {
+    // 关闭定时器
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   },
   mounted() {
     this.fetctContestRankList();
@@ -63,7 +68,7 @@ export default {
         self.reason = data.reason;
         self.contest = data.contest;
       } catch (err) {
-        self.$router.replace({ name: "404Page" });
+        self.$router.replace({name: '404Page'});
         console.log(err);
       }
     },
@@ -71,7 +76,7 @@ export default {
       this.fetchData();
     },
     calcProblemStatus(row, index) {
-      let res = "";
+      let res = '';
       if (row.ac_time[index - 1] > 0) {
         res += this.secToTimeStr(row.ac_time[index - 1]);
       }
@@ -80,7 +85,7 @@ export default {
       }
       return res;
     },
-    cellStyle({ row, column, rowIndex, columnIndex }) {
+    cellStyle({row, column, rowIndex, columnIndex}) {
       // 从题目的列开始计算 这一段算法照搬的hustoj的
       if (columnIndex >= this.problemColumnIOffset) {
         if (row.ac_time[columnIndex - this.problemColumnIOffset] > 0) {
@@ -88,54 +93,48 @@ export default {
             0x33 + row.wa_count[columnIndex - this.problemColumnIOffset] * 32;
           aa = aa > 0xaa ? 0xaa : aa;
           aa = aa.toString(16);
-          let bgColor = aa + "ff" + aa;
+          let bgColor = aa + 'ff' + aa;
           return `background:#${bgColor};`;
         } else if (row.wa_count[columnIndex - this.problemColumnIOffset] > 0) {
           let aa =
             0xaa - row.wa_count[columnIndex - this.problemColumnIOffset] * 10;
           aa = aa > 16 ? aa : 16;
           aa = aa.toString(16);
-          let bgColor = "ff" + aa + aa;
+          let bgColor = 'ff' + aa + aa;
           return `background:#${bgColor};`;
         }
       }
     },
-    rowStyle({ row, rowIndex }) {
+    rowStyle({row, rowIndex}) {
       if (row.user.username == this.$store.getters.username) {
         return `background: #f0f9eb;`;
       }
     },
     jumpToContestStatus(row) {
-      this.$store.dispatch("setSolutionFilter", { nick: row.user.nick });
+      this.$store.dispatch('setSolutionFilter', {nick: row.user.nick});
       this.$router.push({
-        name: "contestStatus",
-        params: { id: this.contest.id }
+        name: 'contestStatus',
+        params: {id: this.contest.id}
       });
     },
     exportExcel() {
       /* generate workbook object from table */
-      let wb = XLSX.utils.table_to_book(document.querySelector("#ranktable"));
+      let wb = XLSX.utils.table_to_book(document.querySelector('#ranktable'));
       /* get binary string as output */
       let wbout = XLSX.write(wb, {
-        bookType: "xlsx",
+        bookType: 'xlsx',
         bookSST: true,
-        type: "array"
+        type: 'array'
       });
       try {
         FileSaver.saveAs(
-          new Blob([wbout], { type: "application/octet-stream" }),
+          new Blob([wbout], {type: 'application/octet-stream'}),
           `${this.contest.name}个人排名.xlsx`
         );
       } catch (e) {
-        if (typeof console !== "undefined") console.log(e, wbout);
+        if (typeof console !== 'undefined') console.log(e, wbout);
       }
       return wbout;
-    }
-  },
-  beforeDestroy() {
-    // 关闭定时器
-    if (this.timer) {
-      clearInterval(this.timer);
     }
   }
 };

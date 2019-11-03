@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import TinymceEditor from "@/web-common/components/tinymce_editor.vue";
-import { createNew, editNew, getNew } from "@/web-admin/js/api/new.js";
+import TinymceEditor from '@/web-common/components/tinymce_editor.vue';
+import {createNew, editNew, getNew} from '@/web-admin/js/api/new.js';
 export default {
   components: {
     TinymceEditor
@@ -24,24 +24,31 @@ export default {
   data() {
     return {
       form: {
-        title: "",
-        content: ""
+        title: '',
+        content: ''
       },
       rules: {
         title: [
           {
             required: true,
-            message: "请输入标题",
-            trigger: "blur"
+            message: '请输入标题',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "超出长度限制",
-            trigger: "blur"
+            message: '超出长度限制',
+            trigger: 'blur'
           }
         ]
       }
     };
+  },
+  watch: {
+    $route(to, from) {
+      if (to.name == 'adminAddNew' || to.name == 'adminEditNew') {
+        this.init();
+      }
+    }
   },
   async mounted() {
     this.init();
@@ -50,29 +57,29 @@ export default {
     async init() {
       const self = this;
       try {
-        if (self.$route.name == "adminEditNew") {
+        if (self.$route.name == 'adminEditNew') {
           let id = self.$route.params.id;
           let res = await getNew(id);
           self.form.title = res.data.new.title;
           self.form.content = res.data.new.content;
         } else {
           Object.assign(self.form, {
-            title: "",
-            content: ""
+            title: '',
+            content: ''
           });
         }
       } catch (err) {
         console.log(err);
-        self.$router.replace({ name: "admin404Page" });
+        self.$router.replace({name: 'admin404Page'});
       }
     },
     async submit() {
       const self = this;
-      self.$refs["form"].validate(async valid => {
+      self.$refs['form'].validate(async valid => {
         if (valid) {
           try {
             let res;
-            if (self.$route.name == "adminAddNew") {
+            if (self.$route.name == 'adminAddNew') {
               res = await createNew(self.form);
             } else {
               let id = self.$route.params.id;
@@ -80,30 +87,23 @@ export default {
             }
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
-            self.$router.push({ name: "adminNewlist" });
+            self.$router.push({name: 'adminNewlist'});
           } catch (err) {
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
         } else {
           self.$message({
-            message: "表单必填项不能为空",
-            type: "error"
+            message: '表单必填项不能为空',
+            type: 'error'
           });
           return false;
         }
       });
-    }
-  },
-  watch: {
-    $route(to, from) {
-      if (to.name == "adminAddNew" || to.name == "adminEditNew") {
-        this.init();
-      }
     }
   }
 };

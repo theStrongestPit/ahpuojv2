@@ -40,16 +40,21 @@
 </template>
 
 <script>
-import { getIssueList } from "@/web-user/js/api/nologin.js";
-import TinymceEditor from "@/web-common/components/tinymce_editor.vue";
-import { EventBus } from "@/web-common/eventbus";
-import { postIssue, replyToIssue } from "@/web-user/js/api/user.js";
-import { toggleIssueStatus } from "@/web-user/js/api/admin.js";
+import {getIssueList} from '@/web-user/js/api/nologin.js';
+import TinymceEditor from '@/web-common/components/tinymce_editor.vue';
+import {EventBus} from '@/web-common/eventbus';
+import {postIssue, replyToIssue} from '@/web-user/js/api/user.js';
+import {toggleIssueStatus} from '@/web-user/js/api/admin.js';
 export default {
   components: {
     TinymceEditor
   },
-  name: "",
+  props: {
+    screenWidth: {
+      type: Number,
+      default: 1920
+    }
+  },
   data() {
     return {
       issueEnable: null,
@@ -59,22 +64,18 @@ export default {
       data: [],
       total: 0,
       issueForm: {
-        title: "",
+        title: '',
         problem_id: 0
       },
       active: false,
       replyForm: {
-        content: "",
+        content: '',
         reply_id: 0,
         reply_user_id: 0
       }
     };
   },
-  props: {
-    screenWidth: {
-      type: Number
-    }
-  },
+
   mounted() {
     this.fetchData();
   },
@@ -84,7 +85,7 @@ export default {
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
       const self = this;
-      if (self.$route.name == "issueList") {
+      if (self.$route.name == 'issueList') {
         self.problemId = 0;
       } else {
         self.problemId = self.$route.params.id;
@@ -105,35 +106,35 @@ export default {
       }
     },
     goLogin() {
-      EventBus.$emit("goLogin");
+      EventBus.$emit('goLogin');
     },
     async postIssue() {
       // 标题和内容不能为空
       const self = this;
-      if (self.issueForm.title == "") {
+      if (self.issueForm.title == '') {
         this.$message({
-          message: "标题不能为空",
-          type: "error"
+          message: '标题不能为空',
+          type: 'error'
         });
         return;
       }
       if (self.issueForm.title.length > 20) {
         this.$message({
-          message: "标题长度限制在20个字符以内",
-          type: "error"
+          message: '标题长度限制在20个字符以内',
+          type: 'error'
         });
         return;
       }
-      if (self.replyForm.content == "") {
+      if (self.replyForm.content == '') {
         this.$message({
-          message: "内容不能为空",
-          type: "error"
+          message: '内容不能为空',
+          type: 'error'
         });
         return;
       }
       try {
         let res;
-        if (self.$route.name == "problemIssueList") {
+        if (self.$route.name == 'problemIssueList') {
           self.issueForm.problem_id = parseInt(self.$route.params.id);
         } else {
           self.issueForm.problem_id = 0;
@@ -142,16 +143,16 @@ export default {
         let issueId = res.data.issue.id;
         res = await replyToIssue(issueId, self.replyForm);
         self.$message({
-          message: "发布讨论主题成功",
-          type: "success"
+          message: '发布讨论主题成功',
+          type: 'success'
         });
-        self.issueForm.title = "";
-        self.replyForm.content = "";
+        self.issueForm.title = '';
+        self.replyForm.content = '';
         self.fetchData();
       } catch (err) {
         self.$message({
           message: err.response.data.message,
-          type: "error"
+          type: 'error'
         });
       }
     },
@@ -160,14 +161,14 @@ export default {
       try {
         let res = await toggleIssueStatus(issueId);
         self.$message({
-          message: "变更主题状态成功",
-          type: "success"
+          message: '变更主题状态成功',
+          type: 'success'
         });
         self.fetchData();
       } catch (err) {
         self.$message({
           message: err.response.data.message,
-          type: "error"
+          type: 'error'
         });
       }
     }
@@ -182,11 +183,11 @@ export default {
   padding-right: 0.2rem;
 }
 .issue__box {
-  background: $c15;
+  background: $--color-level15;
   position: relative;
   padding: 0.1rem;
   &:not(:last-of-type) {
-    border-bottom: 0.01rem solid $c13;
+    border-bottom: 0.01rem solid $--color-level13;
   }
   .issue__userinfo__wrapper {
     text-align: center;
@@ -196,8 +197,8 @@ export default {
       width: 0.6rem;
       height: 0.6rem;
       border-radius: 0.3rem;
-      border: 0.01rem solid $c12;
-      box-shadow: 0.01rem 0.01rem 0.01rem 0.01rem $c12;
+      border: 0.01rem solid $--color-level12;
+      box-shadow: 0.01rem 0.01rem 0.01rem 0.01rem $--color-level12;
     }
     float: left;
     width: 1rem;

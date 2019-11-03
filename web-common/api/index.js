@@ -1,4 +1,4 @@
-import request from "@/web-common/axios";
+import request from '@/web-common/axios';
 export function getUser() {
-    return request("GET", "user")
+  return request('GET', 'user');
 }

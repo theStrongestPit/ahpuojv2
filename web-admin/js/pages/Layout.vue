@@ -11,12 +11,12 @@
 </template>
 
 <script>
-import SiderBar from "@/web-admin/js/common/siderbar.vue";
-import TopBar from "@/web-admin/js/common/topbar.vue";
-import "@/web-admin/sass/main.scss";
+import SiderBar from '@/web-admin/js/common/siderbar.vue';
+import TopBar from '@/web-admin/js/common/topbar.vue';
+import '@/web-admin/sass/main.scss';
 
 export default {
-  name: "app",
+  name: 'Layout',
   components: {
     SiderBar,
     TopBar
@@ -26,15 +26,7 @@ export default {
       screenWidth: document.body.clientWidth
     };
   },
-  mounted() {
-    const self = this;
-    window.onresize = () => {
-      return (() => {
-        window.screenWidth = document.body.clientWidth;
-        self.screenWidth = window.screenWidth;
-      })();
-    };
-  },
+
   watch: {
     screenWidth(val) {
       // 为了避免频繁触发resize函数导致页面卡顿，使用定时器
@@ -50,6 +42,15 @@ export default {
         }, 400);
       }
     }
+  },
+  mounted() {
+    const self = this;
+    window.onresize = () => {
+      return (() => {
+        window.screenWidth = document.body.clientWidth;
+        self.screenWidth = window.screenWidth;
+      })();
+    };
   }
 };
 </script>
@@ -66,7 +67,7 @@ export default {
   opacity: 1;
 }
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

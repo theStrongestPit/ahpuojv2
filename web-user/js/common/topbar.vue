@@ -118,25 +118,31 @@
 </template>
 
 <script>
-import { login, register } from "@/web-user/js/api/auth.js";
-import { EventBus } from "@/web-common/eventbus";
+import {login, register} from '@/web-user/js/api/auth.js';
+import {EventBus} from '@/web-common/eventbus';
 export default {
+  props: {
+    screenWidth: {
+      type: Number,
+      default: 1920
+    }
+  },
   data() {
     var validatePassword = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入密码"));
+      if (value === '') {
+        callback(new Error('请输入密码'));
       } else {
-        if (this.registerForm.confirmpassword !== "") {
-          this.$refs.registerForm.validateField("confirmpassword");
+        if (this.registerForm.confirmpassword !== '') {
+          this.$refs.registerForm.validateField('confirmpassword');
         }
         callback();
       }
     };
     var validateConfirmPassword = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请再次输入密码"));
+      if (value === '') {
+        callback(new Error('请再次输入密码'));
       } else if (value !== this.registerForm.password) {
-        callback(new Error("两次输入密码不一致!"));
+        callback(new Error('两次输入密码不一致!'));
       } else {
         callback();
       }
@@ -145,31 +151,31 @@ export default {
       showMobileNav: false,
       showDropDownMenu: false,
       dialogFormVisible: false,
-      method: "login",
+      method: 'login',
       loginForm: {
-        username: "",
-        password: ""
+        username: '',
+        password: ''
       },
       registerForm: {
-        email: "",
-        username: "",
-        nick: "",
-        password: "",
-        confirmpassword: ""
+        email: '',
+        username: '',
+        nick: '',
+        password: '',
+        confirmpassword: ''
       },
       loginRules: {
         username: [
           {
             required: true,
-            message: "请输入用户名",
-            trigger: "blur"
+            message: '请输入用户名',
+            trigger: 'blur'
           }
         ],
         password: [
           {
             required: true,
-            message: "请输入密码",
-            trigger: "blur"
+            message: '请输入密码',
+            trigger: 'blur'
           }
         ]
       },
@@ -177,88 +183,83 @@ export default {
         email: [
           {
             required: true,
-            message: "请输入邮箱地址",
-            trigger: "blur"
+            message: '请输入邮箱地址',
+            trigger: 'blur'
           },
           {
-            type: "email",
-            message: "请输入正确的邮箱地址",
-            trigger: "blur"
+            type: 'email',
+            message: '请输入正确的邮箱地址',
+            trigger: 'blur'
           }
         ],
         username: [
           {
             required: true,
-            message: "请输入用户名",
-            trigger: "blur"
+            message: '请输入用户名',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "用户名不能超过20个字符",
-            trigger: "blur"
+            message: '用户名不能超过20个字符',
+            trigger: 'blur'
           },
           {
             pattern: /^[a-zA-Z0-9]+$/,
-            message: "用户名只能包含英文和数字字符",
-            trigger: "blur"
+            message: '用户名只能包含英文和数字字符',
+            trigger: 'blur'
           }
         ],
         nick: [
           {
             required: true,
-            message: "请输入用户昵称",
-            trigger: "blur"
+            message: '请输入用户昵称',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "昵称不能超过20个字符",
-            trigger: "blur"
+            message: '昵称不能超过20个字符',
+            trigger: 'blur'
           }
         ],
         password: [
           {
             validator: validatePassword,
-            trigger: "blur"
+            trigger: 'blur'
           },
           {
             min: 6,
-            message: "密码不能少于6个字符",
-            trigger: "blur"
+            message: '密码不能少于6个字符',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "密码不能超过20个字符",
-            trigger: "blur"
+            message: '密码不能超过20个字符',
+            trigger: 'blur'
           }
         ],
         confirmpassword: [
           {
             validator: validateConfirmPassword,
-            trigger: "blur"
+            trigger: 'blur'
           },
           {
             min: 6,
-            message: "密码不能少于6个字符",
-            trigger: "blur"
+            message: '密码不能少于6个字符',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "密码不能超过20个字符",
-            trigger: "blur"
+            message: '密码不能超过20个字符',
+            trigger: 'blur'
           }
         ]
-      },
-      showMobileNav: false
+      }
     };
   },
-  props: {
-    screenWidth: {
-      type: Number
-    }
-  },
+
   mounted() {
     console.log(this.$store);
-    EventBus.$on("goLogin", () => {
+    EventBus.$on('goLogin', () => {
       this.handleLogin();
     });
   },
@@ -272,33 +273,33 @@ export default {
     handleLogout() {
       this.showDropDownMenu = false;
       setTimeout(() => {
-        this.$router.push({ name: "index" });
+        this.$router.push({name: 'index'});
         this.$store.dispatch(`Logout`);
         this.$message({
-          message: "登出成功",
-          type: "success"
+          message: '登出成功',
+          type: 'success'
         });
       }, 500);
     },
     submitLogin() {
       const self = this;
-      self.$refs["loginForm"].validate(async valid => {
+      self.$refs['loginForm'].validate(async valid => {
         if (valid) {
           try {
-            let res = await self.$store.dispatch("Login", self.loginForm);
+            let res = await self.$store.dispatch('Login', self.loginForm);
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
             self.dialogFormVisible = false;
             self.showDropDownMenu = false;
-            await self.$store.dispatch("GetUserInfo");
-            self.$router.replace({ name: "refresh" });
+            await self.$store.dispatch('GetUserInfo');
+            self.$router.replace({name: 'refresh'});
           } catch (err) {
             console.log(err);
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
         } else {
@@ -311,20 +312,20 @@ export default {
       self.$refs.registerForm.validate(async valid => {
         if (valid) {
           try {
-            let res = await self.$store.dispatch("Register", self.registerForm);
+            let res = await self.$store.dispatch('Register', self.registerForm);
             console.log(res);
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
             self.dialogFormVisible = false;
             self.showDropDownMenu = false;
-            await self.$store.dispatch("GetUserInfo");
+            await self.$store.dispatch('GetUserInfo');
           } catch (err) {
             console.log(err);
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
         } else {
@@ -333,7 +334,7 @@ export default {
       });
     },
     resetSolutionFilter() {
-      this.$store.dispatch("resetSolutionFilter");
+      this.$store.dispatch('resetSolutionFilter');
     }
   }
 };
@@ -364,8 +365,8 @@ $mibile-nav-height: 50px;
 
 .topbar__wrapper {
   position: relative;
-  background: $pddblue;
-  border-bottom: 1px solid $pdblue;
+  background: $--color-blue-verydeep;
+  border-bottom: 1px solid $--color-blue-deep;
   height: 100px;
   @media screen and (max-width: 960px) {
     height: $mibile-nav-height;
@@ -387,12 +388,12 @@ $mibile-nav-height: 50px;
     text-align: center;
     a {
       cursor: pointer;
-      color: $pblue;
+      color: $--color-blue;
     }
   }
 
   .topbar__nav {
-    color: $c9;
+    color: $--color-level9;
     position: relative;
     margin-left: 150px;
     @media screen and (min-width: 1280px) {
@@ -426,7 +427,7 @@ $mibile-nav-height: 50px;
       a {
         font-size: 18px;
         display: block;
-        color: $c9;
+        color: $--color-level9;
       }
       svg {
         height: 24px;
@@ -437,30 +438,30 @@ $mibile-nav-height: 50px;
       cursor: pointer;
       transition: all 0.2s ease-out;
       &:hover {
-        color: $pblue;
+        color: $--color-blue;
         a {
-          color: $pblue;
+          color: $--color-blue;
         }
         &::before {
-          background: $pblue;
+          background: $--color-blue;
           transform: translate3d(0, 0, 0) scaleX(0.8);
         }
       }
       &::before {
-        content: "";
+        content: '';
         left: 0rem;
         bottom: 0.1rem;
         position: absolute;
-        background: $pblue;
+        background: $--color-blue;
         height: 0.02rem;
         width: 100%;
         transition: all 0.2s ease;
         transform: translate3d(0, 0, 0) scaleX(0);
       }
       &.active {
-        color: $pblue;
+        color: $--color-blue;
         &::before {
-          background: $pblue;
+          background: $--color-blue;
           transform: translate3d(0, 0, 0) scaleX(0.8);
         }
       }
@@ -475,7 +476,7 @@ $mibile-nav-height: 50px;
     right: 0.4rem;
     top: 0;
     a {
-      color: $c9;
+      color: $--color-level9;
       svg {
         height: 30px !important;
       }
@@ -489,7 +490,7 @@ $mibile-nav-height: 50px;
         height: 100px;
         width: 140px;
         line-height: 100px;
-        color: $c12;
+        color: $--color-level12;
         font-size: 16px;
       }
       img {
@@ -504,22 +505,22 @@ $mibile-nav-height: 50px;
         top: 100px;
         right: -35px;
         z-index: 100;
-        background: $c15;
-        border: 1px solid $c12;
+        background: $--color-level15;
+        border: 1px solid $--color-level12;
         font-size: 0.18rem;
         transition: all 0.3s;
         li {
           cursor: pointer;
-          color: $c3;
+          color: $--color-level3;
           height: 50px;
           line-height: 50px;
-          border-bottom: 0.01rem solid $c13;
+          border-bottom: 0.01rem solid $--color-level13;
           transition: all 0.3s;
           a {
             font-size: 16px;
           }
           &:hover {
-            color: $pblue;
+            color: $--color-blue;
           }
         }
       }
@@ -554,16 +555,16 @@ $mibile-nav-height: 50px;
     text-align: left;
     margin-bottom: 0.1rem;
     padding-left: 0.1rem;
-    color: $pblue;
+    color: $--color-blue;
     font-size: 24px;
     span {
       cursor: pointer;
-      color: $c10;
-      border-bottom: 4px solid $c12;
+      color: $--color-level10;
+      border-bottom: 4px solid $--color-level12;
     }
     span.active {
-      color: $pblue;
-      border-bottom: 4px solid $pblue;
+      color: $--color-blue;
+      border-bottom: 4px solid $--color-blue;
     }
   }
   .auth__input__prefix {
@@ -597,7 +598,7 @@ $mibile-nav-height: 50px;
         margin: 0 auto;
         height: 2px;
         display: block;
-        background: $c15;
+        background: $--color-level15;
         transition: all 0.3s;
         &:nth-child(1) {
           top: 0;
@@ -617,7 +618,7 @@ $mibile-nav-height: 50px;
         margin: 0 auto;
         height: 2px;
         display: block;
-        background: $c15;
+        background: $--color-level15;
         transition: all 0.3s;
         &:nth-child(1) {
           top: 0;

@@ -14,16 +14,16 @@
         el-table(:data="tableData", style="width: 100%", class="dataTable")
           el-table-column(width="90") 
             template(slot-scope="scope")
-              span(v-if="scope.row.status==1", class="text-button text-button--success") 未开始
-              span(v-if="scope.row.status==2",class="text-button text-button--primary") 进行中
-              span(v-if="scope.row.status==3",class="text-button text-button--danger") 已结束
+              oj-tag(v-if="scope.row.status==1",type="success") 未开始
+              oj-tag(v-if="scope.row.status==2",type="primary") 进行中
+              oj-tag(v-if="scope.row.status==3",type="danger") 已结束
           el-table-column(label="名称", min-width="180")
             template(slot-scope="scope")
               router-link(:to="{name:'contest',params:{id:scope.row.id}}") {{scope.row.name}}
           el-table-column(label="模式", min-width="150")
             template(slot-scope="scope")
-              span(:class="['text-button', scope.row.private == 0 ? 'text-button--success':'text-button--danger']") {{ scope.row.private == 0?"公开赛":"私有赛" }}
-              span(:class="['text-button', scope.row.team_mode == 0 ? 'text-button--success':'text-button--primary']") {{ scope.row.team_mode == 0?"个人赛":"团体赛" }}
+              oj-tag(:type="scope.row.private == 0 ? 'success':'danger'") {{ scope.row.private == 0?"公开赛":"私有赛" }}
+              oj-tag(:type="scope.row.team_mode == 0 ? 'success':'primary'") {{ scope.row.team_mode == 0?"个人赛":"团体赛" }}
           el-table-column(label="开始时间", min-width="100") 
             template(slot-scope="scope")
               span(class="contestlist__time__tag") {{spliteDate(scope.row.start_time)}}&nbsp
@@ -37,27 +37,34 @@
 </template>
 
 <script>
-import { getContestList } from "@/web-user/js/api/nologin.js";
+import OjTag from '@/web-common/components/ojtag';
+import {getContestList} from '@/web-user/js/api/nologin.js';
 export default {
-  name: "",
+  components: {
+    OjTag
+  },
+  props: {
+    screenWidth: {
+      type: Number,
+      default: 1920
+    }
+  },
   data() {
     return {
       currentPage: 1,
       perpage: 10,
-      queryParam: "",
+      queryParam: '',
       tableData: [],
       total: 0,
       tags: []
     };
   },
-  props: {
-    screenWidth: {
-      type: Number
-    }
+  activated() {
+    this.fetchData();
   },
   methods: {
     async fetchData() {
-      console.log("??");
+      console.log('??');
       const self = this;
       window.pageYOffset = 0;
       document.documentElement.scrollTop = 0;
@@ -82,14 +89,11 @@ export default {
       this.fetchData();
     },
     spliteDate(dateTimeString) {
-      return new String(dateTimeString).split(" ")[0];
+      return new String(dateTimeString).split(' ')[0];
     },
     spliteTime(dateTimeString) {
-      return new String(dateTimeString).split(" ")[1];
+      return new String(dateTimeString).split(' ')[1];
     }
-  },
-  activated() {
-    this.fetchData();
   }
 };
 </script>

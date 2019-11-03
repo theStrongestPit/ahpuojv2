@@ -48,28 +48,28 @@
       img-format="jpg")
 </template>
 <script>
-import avatarUpload from "vue-image-crop-upload";
-import { resetNick, resetPassword } from "@/web-user/js/api/user.js";
+import avatarUpload from 'vue-image-crop-upload';
+import {resetNick, resetPassword} from '@/web-user/js/api/user.js';
 export default {
   components: {
-    "avatar-upload": avatarUpload
+    'avatar-upload': avatarUpload
   },
   data() {
     var validatePassword = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入密码"));
+      if (value === '') {
+        callback(new Error('请输入密码'));
       } else {
-        if (this.resetPasswordForm.confirmpassword !== "") {
-          this.$refs.resetPasswordForm.validateField("confirmpassword");
+        if (this.resetPasswordForm.confirmpassword !== '') {
+          this.$refs.resetPasswordForm.validateField('confirmpassword');
         }
         callback();
       }
     };
     var validateConfirmPassword = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请再次输入密码"));
+      if (value === '') {
+        callback(new Error('请再次输入密码'));
       } else if (value !== this.resetPasswordForm.password) {
-        callback(new Error("两次输入密码不一致!"));
+        callback(new Error('两次输入密码不一致!'));
       } else {
         callback();
       }
@@ -77,70 +77,70 @@ export default {
     return {
       show: false,
       headers: {
-        Authorization: ""
+        Authorization: ''
       },
       resetNickForm: {
-        nick: ""
+        nick: ''
       },
       // problemId: null,
       resetNickFormRules: {
         nick: [
           {
             required: true,
-            message: "请输入昵称",
-            trigger: "blur"
+            message: '请输入昵称',
+            trigger: 'blur'
           },
           {
-            type: "string",
+            type: 'string',
             max: 20,
-            message: "超出长度限制",
-            trigger: "blur"
+            message: '超出长度限制',
+            trigger: 'blur'
           }
         ]
       },
       resetPasswordForm: {
-        oldpassword: "",
-        password: "",
-        confirmpassword: ""
+        oldpassword: '',
+        password: '',
+        confirmpassword: ''
       },
       resetPasswordRules: {
         oldpassword: [
           {
             required: true,
-            message: "请输入原密码",
-            trigger: "blur"
+            message: '请输入原密码',
+            trigger: 'blur'
           }
         ],
         password: [
           {
             validator: validatePassword,
-            trigger: "blur"
+            trigger: 'blur'
           },
           {
             min: 6,
-            message: "密码不能少于6个字符",
-            trigger: "blur"
+            message: '密码不能少于6个字符',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "密码不能超过20个字符",
-            trigger: "blur"
+            message: '密码不能超过20个字符',
+            trigger: 'blur'
           }
         ],
         confirmpassword: [
           {
             validator: validateConfirmPassword,
-            trigger: "blur"
+            trigger: 'blur'
           },
           {
             min: 6,
-            message: "密码不能少于6个字符",
-            trigger: "blur"
+            message: '密码不能少于6个字符',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "密码不能超过20个字符",
-            trigger: "blur"
+            message: '密码不能超过20个字符',
+            trigger: 'blur'
           }
         ]
       }
@@ -148,7 +148,7 @@ export default {
   },
   mounted() {
     if (this.$store.getters.username.length == 0) {
-      this.$router.replace({ name: "404Page" });
+      this.$router.replace({name: '404Page'});
     }
     this.headers.Authorization = this.$store.getters.token;
     this.resetNickForm.nick = this.$store.getters.userNick;
@@ -159,16 +159,16 @@ export default {
     },
     cropUploadSuccess(res, field) {
       console.log(res);
-      this.$store.dispatch("UpdateUserAvatar", res.url);
+      this.$store.dispatch('UpdateUserAvatar', res.url);
       this.$message({
-        message: "更新头像成功",
-        type: "success"
+        message: '更新头像成功',
+        type: 'success'
       });
     },
     cropUploadFail(status, field) {
       this.$message({
-        message: "更新头像失败",
-        type: "success"
+        message: '更新头像失败',
+        type: 'success'
       });
     },
     submitResetNick() {
@@ -179,20 +179,20 @@ export default {
             let res = await resetNick(self.resetNickForm);
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
-            self.$store.dispatch("UpdateUserInfo", res.data.user);
+            self.$store.dispatch('UpdateUserInfo', res.data.user);
           } catch (err) {
             console.log(err);
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
         } else {
           self.$message({
-            message: "昵称不符合要求",
-            type: "error"
+            message: '昵称不符合要求',
+            type: 'error'
           });
           return false;
         }
@@ -206,20 +206,20 @@ export default {
             let res = await resetPassword(self.resetPasswordForm);
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
-            self.$store.dispatch("UpdateUserInfo", res.data.user);
+            self.$store.dispatch('UpdateUserInfo', res.data.user);
           } catch (err) {
             console.log(err);
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
         } else {
           self.$message({
-            message: "请检查输入",
-            type: "error"
+            message: '请检查输入',
+            type: 'error'
           });
           return false;
         }
@@ -237,7 +237,7 @@ export default {
       height: 2rem;
       width: 2rem;
       border-radius: 1.5rem;
-      border: 0.03rem solid $c15;
+      border: 0.03rem solid $--color-level15;
     }
     .img-mask {
       text-align: center;
@@ -248,9 +248,9 @@ export default {
       top: 0;
       height: 2rem;
       width: 2rem;
-      border: 0.03rem solid $c15;
-      color: $c15;
-      background: rgba($color: $c3, $alpha: 0.5);
+      border: 0.03rem solid $--color-level15;
+      color: $--color-level15;
+      background: rgba($color: $--color-level3, $alpha: 0.5);
       opacity: 0;
       transition: all 0.3s;
       border-radius: 1.5rem;

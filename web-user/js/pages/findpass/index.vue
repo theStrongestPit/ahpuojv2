@@ -13,16 +13,18 @@
               el-input(v-model="form.email", placeholder="请输入绑定邮箱地址")
                 svg-icon(slot="prefix", name="email", class="auth__input__prefix")
             el-form-item
-              el-button(type="primary",style="width:100%;",@click="sendEmail") 发送确认邮件
+              el-button(type="primary",style="width:100%;",:disabled="submitButtonDisabled",:loading="submitButtonInLoading",@click="sendEmail")   发送确认邮件
 </template>
 
 <script>
 import { getNewList } from "@/web-user/js/api/nologin.js";
 import { sendFindPassEmail } from "@/web-user/js/api/auth.js";
+import { throttle, debounce } from "throttle-debounce";
 export default {
-  name: "",
   data() {
     return {
+      submitButtonInLoading: false,
+      submitButtonDisabled: false,
       active: 0,
       form: {
         email: ""
@@ -45,8 +47,10 @@ export default {
   },
   mounted() {},
   methods: {
-    sendEmail() {
+    sendEmail: debounce(500, function() {
       const self = this;
+      self.submitButtonDisabled = true;
+      self.submitButtonInLoading = true;
       self.$refs["form"].validate(async valid => {
         if (valid) {
           try {
@@ -61,12 +65,17 @@ export default {
               message: err.response.data.message,
               type: "error"
             });
+          } finally {
+            self.submitButtonDisabled = false;
+            self.submitButtonInLoading = false;
           }
         } else {
+          self.submitButtonDisabled = false;
+          self.submitButtonInLoading = false;
           return false;
         }
       });
-    }
+    })
   }
 };
 </script>

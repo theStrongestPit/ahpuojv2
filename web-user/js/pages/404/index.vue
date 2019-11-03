@@ -3,12 +3,11 @@
     .content__main
       .home__wrapper
         h1 对不起，你要访问的页面不存在，即将跳转到主页
-        img(:src="imgUrl('static/images/404.jpg')")
+        img(src="@/web-common/assets/images/404.jpg")
 </template>
 
 <script>
 export default {
-  name: "",
   data() {
     return {
       timer: 0
@@ -17,8 +16,8 @@ export default {
   mounted() {
     const self = this;
     self.timer = setTimeout(() => {
-      console.log("index");
-      self.$router.replace({ name: "index" });
+      console.log('index');
+      self.$router.replace({name: 'index'});
     }, 3000);
   },
   beforeDestroy() {
@@ -33,6 +32,6 @@ export default {
 <style lang="scss" scoped>
 .home__wrapper {
   height: 100%;
-  background: $c15;
+  background: $--color-level15;
 }
 </style>

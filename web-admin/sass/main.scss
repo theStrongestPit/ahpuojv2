@@ -2,60 +2,69 @@
 @import "../../web-common/sass/color.scss";
 @import "../../web-common/sass/utils.scss";
 
-html   {
+html {
     height: 100%;
+
     @media screen and (min-width: 960px) {
-        overflow:hidden !important;
+        overflow: hidden !important;
     }
 }
-body{
+
+body {
     position: relative;
-    background: $c14;
+    background: $--color-level14;
     height: 100%;
 }
 
 //content
-.admin-content{
-    background: $c14;
+.admin-content {
+    background: $--color-level14;
     position: absolute;
-    left:0px;
-    top:80px;
+    left: 0px;
+    top: 80px;
     bottom: 0px;
     box-sizing: border-box;
     width: 100%;
     transition: all 0.5s ease;
     padding: .24rem .24rem 0 .24rem;
+
     @media screen and (min-width: 960px) {
-        left:250px;
+        left: 250px;
         width: calc(100% - 250px);
     }
 
     overflow-y: auto !important;
-    .content__breadcrumb{
-        .el-breadcrumb{
+
+    .content__breadcrumb {
+        .el-breadcrumb {
             font-size: 24px;
         }
+
         padding-left: .1rem;
     }
-    .content__card__wrapper{
+
+    .content__card__wrapper {
         font-size: 24px;
         font-weight: bold;
-        width:4rem;
+        width: 4rem;
         text-align: left;
     }
-    .content__button__wrapper{
+
+    .content__button__wrapper {
         margin: 0.1rem 0;
         text-align: left;
     }
-    .content__main{
+
+    .content__main {
         margin: .2rem 0;
         text-align: left;
-        .content__searchbar__wrapper{
+
+        .content__searchbar__wrapper {
             margin: .1rem 0;
         }
     }
-    .content__pagination__wrapper{
+
+    .content__pagination__wrapper {
         text-align: left;
     }
 }
-

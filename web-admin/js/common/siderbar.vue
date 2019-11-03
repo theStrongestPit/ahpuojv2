@@ -20,17 +20,12 @@
 </template>
 
 <script>
-import routes from "@/web-admin/js/routes";
+import routes from '@/web-admin/js/routes';
 
 export default {
-  name: "siderbar",
+  name: 'Siderbar',
   data() {
     return {};
-  },
-  methods: {
-    jumpToFront() {
-      window.location.href = "/";
-    }
   },
   computed: {
     showItems() {
@@ -47,6 +42,11 @@ export default {
     },
     defaultActive() {
       return this.$route.name;
+    }
+  },
+  methods: {
+    jumpToFront() {
+      window.location.href = '/';
     }
   }
 };

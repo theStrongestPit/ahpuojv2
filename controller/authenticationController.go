@@ -138,7 +138,7 @@ func SendFindPassEmail(c *gin.Context) {
 	//邮件主题
 	subject := "AHPUOJ重设密码邮件"
 	// 邮件正文
-	body := fmt.Sprintf("请访问以下连接重设您的密码，链接将会在1小时内失效，请尽快进行设置 <a href=\"%s/resetpassword?token=%s\">%s/resetpass?token=%s</a>", server, token, server, token)
+	body := fmt.Sprintf("请访问以下连接重设您的密码，链接将会在1小时内失效，请尽快进行设置 <a href=\"%s/resetpass?token=%s\">%s/resetpass?token=%s</a>", server, token, server, token)
 	utils.SendMail(mailTo, subject, body)
 	c.JSON(200, gin.H{
 		"message": "已成功发送重设密码邮件，请前往邮箱查看",

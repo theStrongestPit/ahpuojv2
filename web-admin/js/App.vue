@@ -6,15 +6,18 @@
 </template>
 
 <script>
-import "@/web-admin/sass/main.scss";
+import '@/web-admin/sass/main.scss';
 export default {
-  name: "app"
+  name: 'App',
+  created() {
+    document.body.removeChild(document.getElementById('Loading'));
+  }
 };
 </script>
 
 <style lang="scss" scoped>
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

@@ -5,6 +5,7 @@ import (
 	"ahpuoj/request"
 	"ahpuoj/utils"
 	"database/sql"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -343,6 +344,28 @@ func AddProblemData(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "操作成功",
 		"info":    infos,
+	})
+}
+func AddProblemDataFile(c *gin.Context) {
+	var err error
+	id, _ := strconv.Atoi(c.Param("id"))
+	filehead, err := c.FormFile("file")
+	file, _ := filehead.Open()
+	if utils.CheckError(c, err, "文件上传失败") != nil {
+		return
+	}
+	dataDir, _ := utils.GetCfg().GetValue("project", "datadir")
+	baseDir := dataDir + "/" + strconv.FormatInt(int64(id), 10)
+	filePath := baseDir + "/" + filehead.Filename
+	outFile, _ := os.Create(filePath)
+	_, err = io.Copy(outFile, file)
+
+	if utils.CheckError(c, err, "保存数据文件失败，请检查权限设置") != nil {
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "文件上传成功",
 	})
 }
 

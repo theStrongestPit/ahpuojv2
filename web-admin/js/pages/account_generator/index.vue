@@ -41,50 +41,49 @@
 import {
   generateCompeteAccount,
   generateUserAccount
-} from "@/web-admin/js/api/generator.js";
+} from '@/web-admin/js/api/generator.js';
 
 export default {
   data() {
     return {
       dialogOperatorInfoVisible: false,
-      info: "",
-      tableData: [],
+      info: '',
       leftForm: {
-        prefix: "",
-        number: ""
+        prefix: '',
+        number: ''
       },
       leftRules: {
         prefix: [
           {
             required: true,
-            message: "请输入前缀",
-            trigger: "blur"
+            message: '请输入前缀',
+            trigger: 'blur'
           }
         ],
         number: [
           {
             required: true,
-            message: "请输入数量",
-            trigger: "blur"
+            message: '请输入数量',
+            trigger: 'blur'
           },
           {
-            type: "integer",
+            type: 'integer',
             min: 0,
             max: 100,
-            message: "请输入1-100之间的整数",
-            trigger: "blur"
+            message: '请输入1-100之间的整数',
+            trigger: 'blur'
           }
         ]
       },
       rightForm: {
-        userList: ""
+        userList: ''
       },
       rightRules: {
         userList: [
           {
             required: true,
-            message: "请输入用户名列表",
-            trigger: "blur"
+            message: '请输入用户名列表',
+            trigger: 'blur'
           }
         ]
       },
@@ -95,8 +94,8 @@ export default {
   methods: {
     submitCompeteAccount() {
       const self = this;
-      self.info = "";
-      self.$refs["leftForm"].validate(async valid => {
+      self.info = '';
+      self.$refs['leftForm'].validate(async valid => {
         if (valid) {
           try {
             let res = await generateCompeteAccount(self.leftForm);
@@ -106,13 +105,13 @@ export default {
             console.log(self.info);
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
           } catch (err) {
             console.log(err);
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
         } else {
@@ -122,8 +121,8 @@ export default {
     },
     submitUserAccount() {
       const self = this;
-      self.info = "";
-      self.$refs["rightForm"].validate(async valid => {
+      self.info = '';
+      self.$refs['rightForm'].validate(async valid => {
         console.log(self.rightForm.userList);
         if (valid) {
           try {
@@ -134,13 +133,13 @@ export default {
             console.log(self.info);
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
           } catch (err) {
             console.log(err);
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
         } else {
@@ -155,7 +154,7 @@ export default {
 <style lang="scss" scoped>
 .content__generator__title {
   margin-bottom: 1em;
-  color: $c3;
+  color: $--color-level3;
 }
 .content_generator_card {
   height: 400px;

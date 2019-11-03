@@ -60,7 +60,7 @@ export default {
 <style lang="scss" scoped>
 .content__generator__title {
   margin-bottom: 1em;
-  color: $c3;
+  color: $--color-level3;
 }
 .content_generator_card {
   height: 400px;

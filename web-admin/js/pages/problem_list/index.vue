@@ -15,10 +15,10 @@
           a(:href="`/problem/${scope.row.id}`" target="_blank") {{scope.row.title}}
       el-table-column(label="标签", min-width="300")
         template(slot-scope="scope")
-          el-button(v-for="tag in scope.row.tags", :key="tag.id",size="mini",class="text-button text-button--success") {{tag.name}}
+         oj-tag(v-for="tag in scope.row.tags", :key="tag.id",type="success") {{tag.name}}
       el-table-column(label="状态", width="180")
         template(slot-scope="scope")
-          span(class="text-button",:class="[scope.row.defunct == 0 ? 'text-button--success':'text-button--danger']") {{scope.row.defunct == 0?'启用':'保留'}}
+          oj-tag(:type="scope.row.defunct == 0 ? 'success':'danger'") {{scope.row.defunct == 0?'启用':'保留'}}
       el-table-column(label="操作", width="300")
         template(slot-scope="scope")
           el-button(size="mini", @click="$router.push({name:'adminProblemData',params:{id:scope.row.id}})") 数据
@@ -30,14 +30,18 @@
 </template>
 
 <script>
+import OjTag from '@/web-common/components/ojtag';
 import {
   getProblemList,
   editProblem,
   deleteProblem,
   toggleProblemStatus
-} from "@/web-admin/js/api/problem.js";
+} from '@/web-admin/js/api/problem.js';
 
 export default {
+  components: {
+    OjTag
+  },
   data() {
     return {
       loading: true,
@@ -45,11 +49,13 @@ export default {
       currentRowId: 0,
       perpage: 10,
       total: 0,
-      queryParam: "",
+      queryParam: '',
       tableData: []
     };
   },
-  mounted() {},
+  activated() {
+    this.fetchDataList();
+  },
   methods: {
     async fetchDataList() {
       const self = this;
@@ -81,47 +87,47 @@ export default {
     },
     async handleToggleProblemStatus(row) {
       const self = this;
-      let msg = `确认要${row.defunct == 0 ? "保留" : "启用"}问题${
+      let msg = `确认要${row.defunct == 0 ? '保留' : '启用'}问题${
         row.title
       }吗?`;
       try {
-        await self.$confirm(msg, "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        await self.$confirm(msg, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         });
         try {
           let res = await toggleProblemStatus(row.id);
           self.$message({
-            type: "success",
+            type: 'success',
             message: res.data.message
           });
           row.defunct = !row.defunct;
         } catch (err) {
           self.$message({
-            type: "error",
+            type: 'error',
             message: err.response.data.message
           });
         }
       } catch (err) {
         self.$message({
-          type: "info",
-          message: "已取消操作"
+          type: 'info',
+          message: '已取消操作'
         });
       }
     },
     async handleDeleteProblem(row) {
       const self = this;
       try {
-        await self.$confirm(`确认要删除问题${row.title}吗?`, "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        await self.$confirm(`确认要删除问题${row.title}吗?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         });
         try {
           let res = await deleteProblem(row.id);
           self.$message({
-            type: "success",
+            type: 'success',
             message: res.data.message
           });
           // 删除最后一页最后一条记录，如果不是第一页，则当前页码-1
@@ -133,20 +139,17 @@ export default {
           self.fetchDataList();
         } catch (err) {
           self.$message({
-            type: "error",
+            type: 'error',
             message: err.response.data.message
           });
         }
       } catch (err) {
         self.$message({
-          type: "info",
-          message: "已取消删除"
+          type: 'info',
+          message: '已取消删除'
         });
       }
     }
-  },
-  activated() {
-    this.fetchDataList();
   }
 };
 </script>

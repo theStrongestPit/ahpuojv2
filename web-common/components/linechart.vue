@@ -4,25 +4,26 @@
  
 <script>
 // 引入基本模板
-import echarts from "echarts/lib/echarts";
-import "echarts/lib/chart/line";
-import "echarts/lib/chart/bar";
-import "echarts/lib/chart/radar";
+import echarts from 'echarts/lib/echarts';
+import 'echarts/lib/chart/line';
+import 'echarts/lib/chart/bar';
+import 'echarts/lib/chart/radar';
 // 引入提示框和图例组件
-import "echarts/lib/component/tooltip";
-import "echarts/lib/component/legend";
+import 'echarts/lib/component/tooltip';
+import 'echarts/lib/component/legend';
 
 export default {
-  name: "line-chart",
+  name: 'LineChart',
   props: {
     option: {
-      type: Object
+      type: Object,
+      default() {
+        return {};
+      }
     },
     id: {
-      type: String
-    },
-    flag: {
-      type: Boolean
+      type: String,
+      default: 'line-chart'
     }
   },
   data() {
@@ -30,22 +31,23 @@ export default {
       chartObj: null
     };
   },
+  watch: {
+    option: {
+      handler(val, oldval) {
+        this.init();
+      },
+      deep: true
+    }
+  },
   mounted() {
-    console.log(this.flag);
+    this.init();
   },
   methods: {
     init() {
-      setTimeout(() => {
+      this.$nextTick(() => {
         this.chartObj = echarts.init(document.getElementById(this.id));
         this.chartObj.setOption(this.option);
-      }, 500);
-    }
-  },
-  watch: {
-    flag(flag) {
-      if (flag == true) {
-        this.init();
-      }
+      });
     }
   }
 };

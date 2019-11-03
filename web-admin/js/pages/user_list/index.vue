@@ -21,7 +21,7 @@
           a(:href="`/userinfo/${scope.row.id}`",target="_blank") {{scope.row.nick}}
       el-table-column(label="状态", width="180")
         template(slot-scope="scope")
-          span(class="text-button",:class="[scope.row.defunct == 0 ? 'text-button--success':'text-button--danger']") {{scope.row.defunct == 0?'启用':'禁用'}}
+          oj-tag(:type="[scope.row.defunct == 0 ? 'success':'danger']") {{scope.row.defunct == 0?'启用':'禁用'}}
       el-table-column(label="操作", width="180")
         template(slot-scope="scope")
           el-button(size="mini", type="warning", @click="handleChangePass(scope.row)") 修改密码
@@ -37,13 +37,17 @@
 </template>
 
 <script>
+import OjTag from '@/web-common/components/ojtag';
 import {
   getUserList,
   toggleUserStatus,
   changeUserPass
-} from "@/web-admin/js/api/user.js";
+} from '@/web-admin/js/api/user.js';
 
 export default {
+  components: {
+    OjTag
+  },
   data() {
     return {
       loading: true,
@@ -51,39 +55,42 @@ export default {
       currentRowId: 0,
       perpage: 10,
       total: 0,
-      queryParam: "",
+      queryParam: '',
       userType: 0,
       dialogFormVisible: false,
       form: {
-        password: ""
+        password: ''
       },
       rules: {
         password: [
           {
             required: true,
-            message: "请输入新的用户密码",
-            trigger: "blur"
+            message: '请输入新的用户密码',
+            trigger: 'blur'
           },
           {
             // 匹配ascii字符
             pattern: /^[\x00-\xff]+$/,
-            message: "密码只能包含ascii字符",
-            trigger: "blur"
+            message: '密码只能包含ascii字符',
+            trigger: 'blur'
           },
           {
             min: 6,
-            message: "密码最少为6位",
-            trigger: "blur"
+            message: '密码最少为6位',
+            trigger: 'blur'
           },
           {
             max: 20,
-            message: "超出长度限制",
-            trigger: "blur"
+            message: '超出长度限制',
+            trigger: 'blur'
           }
         ]
       },
       tableData: []
     };
+  },
+  activated() {
+    this.fetchDataList();
   },
   mounted() {},
   methods: {
@@ -123,7 +130,7 @@ export default {
     closeDialog() {
       this.$refs.form.resetFields();
       this.$refs.input.blur();
-      this.form.name = "";
+      this.form.name = '';
     },
     handleChangePass(row) {
       console.log(row);
@@ -132,18 +139,18 @@ export default {
     },
     submit() {
       const self = this;
-      self.$refs["form"].validate(async valid => {
+      self.$refs['form'].validate(async valid => {
         if (valid) {
           try {
             let res = await changeUserPass(self.currentRowId, self.form);
             self.$message({
               message: res.data.message,
-              type: "success"
+              type: 'success'
             });
           } catch (err) {
             self.$message({
               message: err.response.data.message,
-              type: "error"
+              type: 'error'
             });
           }
           self.dialogFormVisible = false;
@@ -157,38 +164,35 @@ export default {
     },
     async handleToggleUserStatus(row) {
       const self = this;
-      let msg = `确认要${row.defunct == 0 ? "禁用" : "启用"}用户${
+      let msg = `确认要${row.defunct == 0 ? '禁用' : '启用'}用户${
         row.username
       }吗?`;
       try {
-        await self.$confirm(msg, "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        await self.$confirm(msg, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         });
         try {
           let res = await toggleUserStatus(row.id);
           self.$message({
-            type: "success",
+            type: 'success',
             message: res.data.message
           });
           row.defunct = !row.defunct;
         } catch (err) {
           self.$message({
-            type: "error",
+            type: 'error',
             message: err.response.data.message
           });
         }
       } catch (err) {
         self.$message({
-          type: "info",
-          message: "已取消操作"
+          type: 'info',
+          message: '已取消操作'
         });
       }
     }
-  },
-  activated() {
-    this.fetchDataList();
   }
 };
 </script>

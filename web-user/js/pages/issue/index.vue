@@ -64,16 +64,21 @@
 </template>
 
 <script>
-import { getIssue } from "@/web-user/js/api/nologin.js";
-import TinymceEditor from "@/web-common/components/tinymce_editor.vue";
-import { EventBus } from "@/web-common/eventbus";
-import { postIssue, replyToIssue } from "@/web-user/js/api/user.js";
-import { toggleReplyStatus } from "@/web-user/js/api/admin.js";
+import {getIssue} from '@/web-user/js/api/nologin.js';
+import TinymceEditor from '@/web-common/components/tinymce_editor.vue';
+import {EventBus} from '@/web-common/eventbus';
+import {postIssue, replyToIssue} from '@/web-user/js/api/user.js';
+import {toggleReplyStatus} from '@/web-user/js/api/admin.js';
 export default {
   components: {
     TinymceEditor
   },
-  name: "",
+  props: {
+    screenWidth: {
+      type: Number,
+      default: 1920
+    }
+  },
   data() {
     return {
       issueEnable: null,
@@ -83,20 +88,16 @@ export default {
       issue: null,
       replys: [],
       total: 0,
-      replyContent: "",
-      subReplyContent: "",
+      replyContent: '',
+      subReplyContent: '',
       replyForm: {
-        content: "",
+        content: '',
         reply_id: 0,
         reply_user_id: 0
       }
     };
   },
-  props: {
-    screenWidth: {
-      type: Number
-    }
-  },
+
   mounted() {
     this.fetchData();
   },
@@ -124,16 +125,16 @@ export default {
       }
     },
     openDialog() {
-      console.log("open");
+      console.log('open');
     },
     closeDialog() {
-      this.subReplyContent = "";
+      this.subReplyContent = '';
     },
     cancel() {
       this.dialogFormVisible = false;
     },
     goLogin() {
-      EventBus.$emit("goLogin");
+      EventBus.$emit('goLogin');
     },
     calcSubReply(subReply) {
       if (subReply.reply_user_nick) {
@@ -144,7 +145,7 @@ export default {
     toggleReplyList(item) {
       if (item.showReplys === undefined) {
         // 添加响应属性
-        this.$set(item, "showReplys", false);
+        this.$set(item, 'showReplys', false);
       } else {
         item.showReplys = !item.showReplys;
       }
@@ -156,10 +157,10 @@ export default {
       const self = this;
       self.replyForm.content =
         way == 1 ? self.replyContent : self.subReplyContent;
-      if (self.replyForm.content == "") {
+      if (self.replyForm.content == '') {
         this.$message({
-          message: "内容不能为空",
-          type: "error"
+          message: '内容不能为空',
+          type: 'error'
         });
         return;
       }
@@ -167,23 +168,23 @@ export default {
         let res;
         // 对主题的回复
         if (way == 1) {
-          console.log("way1");
+          console.log('way1');
           self.replyForm.reply_id = 0;
           self.replyForm.reply_user_id = 0;
         }
         res = await replyToIssue(self.issue.id, self.replyForm);
         self.$message({
           message: res.data.message,
-          type: "success"
+          type: 'success'
         });
-        self.replyForm.content = "";
-        self.replyContent = "";
+        self.replyForm.content = '';
+        self.replyContent = '';
         self.dialogFormVisible = false;
         self.fetchData(false);
       } catch (err) {
         self.$message({
           message: err.response.data.message,
-          type: "error"
+          type: 'error'
         });
       }
     },
@@ -191,8 +192,8 @@ export default {
       console.log(replyId, replyUserId);
       if (!this.$store.getters.username) {
         this.$message({
-          message: "请登录后发表回复",
-          type: "error"
+          message: '请登录后发表回复',
+          type: 'error'
         });
         return;
       }
@@ -205,14 +206,14 @@ export default {
       try {
         let res = await toggleReplyStatus(replyId);
         self.$message({
-          message: "变更回复状态成功",
-          type: "success"
+          message: '变更回复状态成功',
+          type: 'success'
         });
         self.fetchData(false);
       } catch (err) {
         self.$message({
           message: err.response.data.message,
-          type: "error"
+          type: 'error'
         });
       }
     }
@@ -227,14 +228,14 @@ export default {
   padding-right: 0.2rem;
 }
 h1.content__panel__title {
-  background: $c15;
+  background: $--color-level15;
 }
 .reply__box {
-  background: $c15;
+  background: $--color-level15;
   position: relative;
   padding: 0.1rem;
   &:not(:last-of-type) {
-    border-bottom: 1px solid $c13;
+    border-bottom: 1px solid $--color-level13;
   }
   .reply__userinfo__wrapper {
     text-align: center;
@@ -242,8 +243,8 @@ h1.content__panel__title {
       width: 0.6rem;
       height: 0.6rem;
       border-radius: 0.3rem;
-      border: 1px solid $c12;
-      box-shadow: 1px 1px 1px 1px $c12;
+      border: 1px solid $--color-level12;
+      box-shadow: 1px 1px 1px 1px $--color-level12;
     }
     float: left;
     width: 1rem;
@@ -279,7 +280,7 @@ h1.content__panel__title {
     .subreply__box {
       padding: 0.1rem;
       margin-left: 1rem;
-      border-top: 1px solid $c13;
+      border-top: 1px solid $--color-level13;
       .subreply__userinfo__wrapper {
         text-align: center;
         padding-top: 20px;
@@ -287,8 +288,8 @@ h1.content__panel__title {
           width: 0.5rem;
           height: 0.5rem;
           border-radius: 0.25rem;
-          border: 1px solid $c12;
-          box-shadow: 1px 1px 1px 1px $c12;
+          border: 1px solid $--color-level12;
+          box-shadow: 1px 1px 1px 1px $--color-level12;
         }
         float: left;
         width: 1rem;

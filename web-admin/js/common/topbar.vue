@@ -30,26 +30,20 @@
 </template>
 
 <script>
-import routes from "@/web-admin/js/routes";
+import routes from '@/web-admin/js/routes';
 export default {
-  name: "topbar",
+  name: 'Topbar',
+  props: {
+    screenWidth: {
+      type: Number,
+      default: 1920
+    }
+  },
+
   data() {
     return {
       showMobileNav: false
     };
-  },
-  props: {
-    screenWidth: {
-      type: Number
-    }
-  },
-  methods: {
-    toggleMobileNav() {
-      this.showMobileNav = !this.showMobileNav;
-    },
-    jumpToFront() {
-      window.location.href = "/";
-    }
   },
   computed: {
     showItems() {
@@ -66,6 +60,14 @@ export default {
     },
     defaultActive() {
       return this.$route.name;
+    }
+  },
+  methods: {
+    toggleMobileNav() {
+      this.showMobileNav = !this.showMobileNav;
+    },
+    jumpToFront() {
+      window.location.href = '/';
     }
   }
 };
@@ -92,7 +94,7 @@ export default {
 .topbar {
   position: relative;
   height: 80px;
-  background: $plblue;
+  background: $--color-blue-light;
   .topbar__title {
     position: absolute;
     left: 20px;
@@ -130,7 +132,7 @@ export default {
           margin: 0 auto;
           height: 2px;
           display: block;
-          background: $c15;
+          background: $--color-level15;
           transition: all 0.3s;
           &:nth-child(1) {
             top: 0;
@@ -150,7 +152,7 @@ export default {
           margin: 0 auto;
           height: 2px;
           display: block;
-          background: $c15;
+          background: $--color-level15;
           transition: all 0.3s;
           &:nth-child(1) {
             top: 0;
