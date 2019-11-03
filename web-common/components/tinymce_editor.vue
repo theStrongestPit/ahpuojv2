@@ -55,7 +55,7 @@ export default {
         document_base_url: server,
         language_url: '/static/tinymce/langs/zh_CN.js',
         skin_url: '/static/tinymce/skins/ui/oxide',
-        content_css: '/static/tinymce/skins/ui/oxide/content.min.css',
+        content_css:  '/static/tinymce/skins/ui/oxide/content.min.css',
         language: 'zh_CN',
         height: this.height,
         resize: false,
@@ -78,9 +78,8 @@ export default {
             //添加请求头
             headers: {
               'Content-Type': 'multipart/form-data',
-              // 这个token是预先以admin用户签发的，仍有过期时间，一旦过期请重新使用token生成工具签发
-              Authorization:
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NjAzNjg1NDQsInVzZXIiOiJhZG1pbiJ9.7K5BCDoodn10AH4Gwe_yDUDBSLWXnG-ogVFoGycQ7WU'
+              Authorization: this.$store.getters.token
+              
             }
           };
           axios
@@ -106,7 +105,6 @@ export default {
       this.$emit('input', newValue);
     }
   },
-  mounted() {},
   methods: {
     //添加相关的事件，可用的事件参照文档=> https://github.com/tinymce/tinymce-vue => All available events
     //需要什么事件可以自己增加

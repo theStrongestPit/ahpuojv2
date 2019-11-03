@@ -32,27 +32,23 @@
         //- todo
         //- .main__section                
         //-   h3 修改绑定邮箱
-        //-   .account-setting__img-wrapper
-        //-     img.account-setting__avatar(:src="imgUrl($store.getters.userAvatar)")
-        //-     a(@click="toggleShow()")
-        //-       .img-mask
-        //-         p 更换头像
     .avatar-upload__wrapper
       avatar-upload(field="img",@crop-upload-success="cropUploadSuccess",@crop-upload-fail="cropUploadFail"
       method="PUT"
       v-model="show"
-      :width="120"
-      :height="120"
+      :width="200"
+      :height="200"
       url="/api/user/avatar"
       :headers="headers"
-      img-format="jpg")
+      :noRotate="false"
+      img-format="png")
 </template>
 <script>
-import avatarUpload from 'vue-image-crop-upload';
+import AvatarUpload from 'vue-image-crop-upload';
 import {resetNick, resetPassword} from '@/web-user/js/api/user.js';
 export default {
   components: {
-    'avatar-upload': avatarUpload
+    AvatarUpload
   },
   data() {
     var validatePassword = (rule, value, callback) => {
@@ -259,5 +255,6 @@ export default {
       }
     }
   }
+
 }
 </style>

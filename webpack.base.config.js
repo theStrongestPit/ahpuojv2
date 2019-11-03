@@ -1,6 +1,7 @@
 const path = require('path');
 const HappyPack = require('happypack');
-const VueLoaderPlugin = require('vue-loader/lib/plugin'); //
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
   entry: {
     // 入口
@@ -115,7 +116,13 @@ module.exports = {
       // 开启 4 个线程
       threads: 4
     }),
-    new VueLoaderPlugin() // vue-loader插件开启
+    new VueLoaderPlugin(), // vue-loader插件开启,
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve('web-common/static'),
+        to: 'static/'
+      }
+    ])
   ],
   resolve: {
     // 引入路径是不用写对应的后缀名

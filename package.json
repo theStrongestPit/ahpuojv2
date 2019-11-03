@@ -8,7 +8,6 @@
   },
   "scripts": {
     "build": "webpack -p --progress --config ./webpack.prod.config.js",
-    "olddev": "webpack --watch --color --progress",
     "dev": "webpack-dev-server --inline --progress --mode development "
   },
   "author": "jiezi19971225",

@@ -69,13 +69,21 @@ const webpackDevConfig = {
     // 这个配置 真是找了好久才知道 这样可以起到和生产环境配置nginx一样的效果
     historyApiFallback: {
       rewrites: [
-        {from: /^\/$/, to: '/index.html'},
-        {from: /^\/admin/, to: '/admin/index.html'}
+        { from: /^\/$/, to: '/index.html' },
+        { from: /^\/admin/, to: '/admin/index.html' }
       ]
     },
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
+        ws: false,
+        changOrigin: true,
+        secure: false
+      },
+      '/upload': {
+        target: 'http://localhost',
+        ws: false,
+        changOrigin: true,
         secure: false
       }
     }

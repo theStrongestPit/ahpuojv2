@@ -2,9 +2,8 @@ let server = '';
 console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV == 'production') {
   server = 'http://172.16.0.3/';
-  // server = "http://oj.jiezi19971225.cn/"
 } else {
-  server = 'http://localhost/';
+  server = 'http://localhost:8888/';
 }
 const testRunInterval = 15;
 const resultList = [
@@ -103,4 +102,4 @@ const langList = [
   'Go'
 ];
 
-export {server, testRunInterval, resultList, langList};
+export { server, testRunInterval, resultList, langList };

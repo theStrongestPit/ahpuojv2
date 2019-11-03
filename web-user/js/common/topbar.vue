@@ -342,7 +342,7 @@ export default {
 
 <style lang="scss" scoped>
 $mibile-nav-height: 50px;
-
+$topbar-height:75px;
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: all 0.5s ease;
@@ -367,17 +367,18 @@ $mibile-nav-height: 50px;
   position: relative;
   background: $--color-blue-verydeep;
   border-bottom: 1px solid $--color-blue-deep;
-  height: 100px;
+  height: $topbar-height;
   @media screen and (max-width: 960px) {
     height: $mibile-nav-height;
   }
+
   .topbar__title {
     text-indent: 10px;
     a {
       cursor: pointer;
     }
     height: 100%;
-    line-height: 100px;
+    line-height: $topbar-height;
     float: left;
     width: 150px;
     font-size: 30px;
@@ -407,23 +408,26 @@ $mibile-nav-height: 50px;
         }
       }
     }
-    line-height: 100px;
+    line-height: $topbar-height;
     .topbar__nav__bar {
       display: flex;
       justify-content: space-around;
       margin-right: 200px;
       & > .topbar__nav__item {
-        flex: 0 1 auto;
+        flex: 1 1 auto;
       }
       li.topbar__nav__item {
         display: inline-block;
         height: 100%;
-        position: relative;
         cursor: pointer;
       }
     }
     .topbar__section {
-      width: 200px;
+      position:relative;
+      display: block;
+      height: 100%;
+      transition: all 0.2s ease-out;
+      cursor: pointer;
       a {
         font-size: 18px;
         display: block;
@@ -433,10 +437,6 @@ $mibile-nav-height: 50px;
         height: 24px;
         margin-right: 0.05rem;
       }
-      display: block;
-      height: 100%;
-      cursor: pointer;
-      transition: all 0.2s ease-out;
       &:hover {
         color: $--color-blue;
         a {
@@ -468,10 +468,9 @@ $mibile-nav-height: 50px;
     }
   }
   .topbar__right__section {
-    line-height: 100px;
+    line-height: $topbar-height;
     height: 100%;
     font-size: 0.22rem;
-    width: 200px;
     position: absolute;
     right: 0.4rem;
     top: 0;
@@ -487,22 +486,22 @@ $mibile-nav-height: 50px;
         box-sizing: border-box;
         float: left;
         padding: 0 20px;
-        height: 100px;
+        height: $topbar-height;
         width: 140px;
-        line-height: 100px;
+        line-height: $topbar-height;
         color: $--color-level12;
         font-size: 16px;
       }
       img {
         cursor: pointer;
-        margin: 20px 0 0 0;
-        height: 60px;
-        border-radius: 30px;
+        margin: 12px 0 0 0;
+        height: 50px;
+        border-radius: 50px;
       }
       .topbar__userinfo__dropdown {
         position: absolute;
         width: 150px;
-        top: 100px;
+        top: $topbar-height;
         right: -35px;
         z-index: 100;
         background: $--color-level15;
